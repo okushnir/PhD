@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from comutations_grouper import obtain_comutations
 import pandas as pd
 import subprocess
-# from pbs_jobs import *
+from pbs_jobs import *
 import seaborn as sns
 import numpy as np
 
@@ -99,39 +99,39 @@ def main(args):
     #     print("Done!")
 
     # 3. Concatenate all the files
-    # cmds = "cd $sample/accungs_associations; cat *txt>all.txt"
-    # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/cat_txt.cmd"
-    # create_pbs_cmd(cmd_file, alias="cat_txt", gmem=3, cmds=cmds, load_python=False)
-    # job_id = submit("-v sample='%s' %s" % (sample, cmd_file))
-    # print(job_id)
-    # status = check_pbs(job_id)
-    # if status == "Done":
-    #     print("Done!")
+    cmds = "cd $sample/accungs_associations; cat *txt>all.txt"
+    cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/cat_txt.cmd"
+    create_pbs_cmd(cmd_file, alias="cat_txt", gmem=3, cmds=cmds, load_python=False)
+    job_id = submit("-v sample='%s' %s" % (sample, cmd_file))
+    print(job_id)
+    status = check_pbs(job_id)
+    if status == "Done":
+        print("Done!")
 
     # 4. Run collect_cooccurs and merge it to freqs file
-    label = "RVB14_" + sample.split("/")[-2].split("_")[1]
-    df_path = "%s/accungs_associations/all.txt" % sample
-    df = load_file(df_path, label)
-    freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-    # freqs_df = pd.read_csv(
-    #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-    label = label.replace('_', '-')
-    freqs_df = freqs_df.loc[freqs_df.label == label]
-
-    merged_df = collect_cooccurs(freqs_df, df)
-    merged_df = merged_df.loc[merged_df.Stretch != "-"]
-    merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
-                                (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
-    merged_df["Pos"] = merged_df["Pos"].astype(int)
-    merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
-    merged_df = merged_df.loc[(merged_df.Editing_context == "ADAR (sense)") | (merged_df.Editing_context == "ADAR (antisense)")]
-
-    file_name = sample + "/co_occur.csv"
-    co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
-                             "meandist", "Co-occurrences_identified", "ADAR_context",	"ADAR_reverse_context",	"Editing_context", "ADAR", "label"]]
-    co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
-    co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
-    print(merged_df)
+    # label = "RVB14_" + sample.split("/")[-2].split("_")[1]
+    # df_path = "%s/accungs_associations/all.txt" % sample
+    # df = load_file(df_path, label)
+    # freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+    # # freqs_df = pd.read_csv(
+    # #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+    # label = label.replace('_', '-')
+    # freqs_df = freqs_df.loc[freqs_df.label == label]
+    #
+    # merged_df = collect_cooccurs(freqs_df, df)
+    # merged_df = merged_df.loc[merged_df.Stretch != "-"]
+    # merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
+    #                             (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
+    # merged_df["Pos"] = merged_df["Pos"].astype(int)
+    # merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
+    # merged_df = merged_df.loc[(merged_df.Editing_context == "ADAR (sense)") | (merged_df.Editing_context == "ADAR (antisense)")]
+    #
+    # file_name = sample + "/co_occur.csv"
+    # co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
+    #                          "meandist", "Co-occurrences_identified", "ADAR_context",	"ADAR_reverse_context",	"Editing_context", "ADAR", "label"]]
+    # co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
+    # co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
+    # print(merged_df)
 
     # #Plot
     # g1 = sns.relplot(x="Pos", y="Frequency", data=merged_df, hue="Mutation", col="ADAR")#, style="Stretch")
