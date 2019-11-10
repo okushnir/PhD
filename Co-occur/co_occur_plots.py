@@ -7,17 +7,9 @@
 
 import sys, argparse
 import matplotlib
-# matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-import re
-import glob
-import Bio.Seq as Seq
-import matplotlib.gridspec as gridspec
-import time
-
 
 
 def main():
@@ -33,6 +25,7 @@ def main():
     g1 = sns.relplot(x="Pos", y="Frequency", data=df, hue="label")#, style="Stretch")
     g1.set(yscale="log")
     plt.show()
+    mnkdd
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
