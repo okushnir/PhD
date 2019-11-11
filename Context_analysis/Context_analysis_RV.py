@@ -7,8 +7,10 @@
 
 
 import os.path
-from sequnce_utilities import *
+from Utilities import sequnce_utilities
 import glob
+import pandas as pd
+import numpy as np
 import urllib
 
 
@@ -67,7 +69,7 @@ def main():
                 except Exception as e:
                     print("type error: " + str(e))
                 try:
-                    append_mutation = find_mutation_type(file_path[0], ncbi_id, min_coverage)
+                    append_mutation = sequnce_utilities.find_mutation_type(file_path[0], ncbi_id, min_coverage)
                     lst_srr.append(file_path[0].split('freqs')[0] + "with.mutation.type.freqs")
                 except Exception as e:
                     print(e)
@@ -89,7 +91,7 @@ def main():
 
     rna_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control_L001-ds.850f2223182a41fcaec41c4f3735e428/q38_3UTR/RVB14-RNA-Control.merged.freqs"
     ncbi_id = "NC_001490"
-    find_mutation_type(rna_control, ncbi_id, min_coverage)
+    sequnce_utilities.find_mutation_type(rna_control, ncbi_id, min_coverage)
     # next_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_Next_RNA_Control/q35/RVB14-Next_Control.merged.freqs"
     # find_mutation_type(next_control,ncbi_id, min_coverage)
 
@@ -190,7 +192,7 @@ def main():
     data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)]#
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
-    start_pos, end_pos = find_coding_region(ncbi_id)
+    start_pos, end_pos = sequnce_utilities.find_coding_region(ncbi_id)
     start_pos_mod3 = start_pos % 3
 
     if (start_pos_mod3 == 0) | (start_pos_mod3 == 1):
