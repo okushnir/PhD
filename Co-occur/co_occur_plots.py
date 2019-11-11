@@ -20,12 +20,9 @@ def main():
     data_p8 = pd.read_csv(input_dir + "/RVB14_p8/20191029_q38/co_occur.csv")
     data_p10 = pd.read_csv(input_dir + "/RVB14_p10/20191029_q38/co_occur.csv")
     data_p12 = pd.read_csv(input_dir + "/RVB14_p12/20191029_q38/co_occur.csv")
-    df = pd.concat([data_p2, data_p5, data_p8, data_p10, data_p12])
+    # data_p0 = pd.read_csv(input_dir + "/RVB14_RNA_Control/20191029_q38/co_occur.csv")
+    df = pd.concat([data_p2, data_p5, data_p8, data_p10, data_p12])#,data-p0])
 
-    # df_co_occur = df.loc[(df.Pos == df.Pos)  (df.label != df.label)]
-    # df_co_occur = df_co_occur.sort_values(by=["Pos"])
-    # grouped = df.groupby(["Pos"], as_index=False).count()
-    # df_co_occur = df.groupby(["Pos", "label"]).reest_index(name="Count")
     grouped = df.groupby(["Pos"])
     df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
     df_co_occur = df_co_occur.merge(df, how="outer", on="Pos")
