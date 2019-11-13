@@ -20,8 +20,9 @@ def main():
     data_p8 = pd.read_csv(input_dir + "/RVB14_p8/20191029_q38/co_occur.csv")
     data_p10 = pd.read_csv(input_dir + "/RVB14_p10/20191029_q38/co_occur.csv")
     data_p12 = pd.read_csv(input_dir + "/RVB14_p12/20191029_q38/co_occur.csv")
-    # data_p0 = pd.read_csv(input_dir + "/RVB14_RNA_Control/20191029_q38/co_occur.csv")
-    df = pd.concat([data_p2, data_p5, data_p8, data_p10, data_p12])#,data-p0])
+    data_p0 = pd.read_csv(input_dir + "/RVB14_p0/20191029_q38/co_occur.csv")
+    df = pd.concat([data_p0, data_p2, data_p5, data_p8, data_p10, data_p12])
+    df.sort_values(by="label")
 
     grouped = df.groupby(["Pos"])
     df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
@@ -29,9 +30,10 @@ def main():
 
     df_co_occur = df_co_occur.loc[df_co_occur.Group_Count > 1]
     df_co_occur.to_csv(input_dir + "/all_co_occur.csv", sep=",", encoding='utf-8')
-
+    sample_order = ["RVB14-p0", "RVB14-p2", "RVB14-p5", "RVB14-p8", "RVB14-p10", "RVB14-p12"]
     #Plot
-    g1 = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="label", col="Group_Count", col_wrap=2)#, style="Stretch")
+    g1 = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="label", col="Group_Count", col_wrap=2,
+                     hue_order=sample_order)#, style="Stretch")
     g1.set(yscale="log")
     # plt.show()
     g1.savefig(output_dir + "/co_occur.png", dpi=300)
