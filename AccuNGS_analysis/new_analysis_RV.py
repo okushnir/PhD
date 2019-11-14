@@ -2,10 +2,10 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-from fits_new_plotter import MinorSymLogLocator
+from FITS_analysis import fits_new_plotter
 import numpy as np
 from scipy import stats
-from add_Protein_to_pd_df import *
+from AccuNGS_analysis import add_Protein_to_pd_df
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
@@ -236,7 +236,7 @@ def main():
     g6.axes.flat[0].set_yscale('symlog', linthreshy=10**-5)
     g6.set(ylim=(0, 10**-2))
     yaxis = plt.gca().yaxis
-    yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+    yaxis.set_minor_locator(fits_new_plotter.MinorSymLogLocator(1e-1))
     g6.set_axis_labels("Passage", "Variant Frequency")
     # plt.show()
     g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
@@ -279,7 +279,7 @@ def main():
     g10.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
     # g8.set(ylim=(0, 10 ** -6))
     # yaxis = plt.gca().yaxis
-    # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
+    yaxis.set_minor_locator(fits_new_plotter.MinorSymLogLocator(1e-1))
     g10.set_axis_labels("Passage", "Variant Frequency")
     # plt.show()
     g10.savefig(output_dir + "/UC_Context_miseq_sample_time_line_plot", dpi=300)
