@@ -10,12 +10,11 @@ import pandas as pd
 import os
 import numpy as np
 import subprocess
-from Context_analysis_RV import checkKey
+from Context_analysis import Context_analysis_RV
 import rpy2.robjects as robjects
 import glob
-from Context_analysis_RV import checkKey
-from fits_plotter import *
-from fits_parameters import *
+from FITS_analysis import fits_plotter
+from FITS_analysis import fits_parameters
 
 
 def fits_data_construction(input_dir, output_dir, from_passage, to_passage):
@@ -43,7 +42,7 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage):
     transitions = ["A>G", "G>A", "U>C", "C>U"]
     for key in df_dict:
         for mutation in transitions:
-            df_mutation = checkKey(df_dict, key)
+            df_mutation = Context_analysis_RV.checkKey(df_dict, key)
             df_mutation = df_mutation[df_mutation["Mutation"] == mutation]
             quarte_allelic_mapping = {'A': 0, 'C': 1, 'G': 2, 'U': 3}
             if mutation == "A>G":
@@ -52,7 +51,7 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage):
                 nonadar = df_mutation[df_mutation["ADAR_like"] == False]
                 adar_dict = {"adar": adar, "nonadar": nonadar}
                 for adar_key in adar_dict:
-                    like = checkKey(adar_dict, adar_key)
+                    like = Context_analysis_RV.checkKey(adar_dict, adar_key)
                     like['Base'] = like['Base'].apply(lambda x: quarte_allelic_mapping[x])
                     like['Ref'] = like['Ref'].apply(lambda x: quarte_allelic_mapping[x])
                     like = like.rename(columns={'passage': 'gen', 'Base': 'base', 'Frequency': 'freq', 'Ref': 'ref',
@@ -125,7 +124,7 @@ def main():
     # Run FITS_jobarray_mutation.cmd
 
     # Run fits_parameters.py
-    fitness_parameters(input_dir=output_dir, output_dir=input_dir)
+    fits_parameters.fitness_parameters(input_dir=output_dir, output_dir=input_dir)
 
     # Run FITS_jobarray_fitness.cmd
 
