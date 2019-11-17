@@ -1,3 +1,10 @@
+#!/powerapps/share/python-anaconda-3.2019.7/bin/python
+
+"""
+@Author: odedkushnir
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
