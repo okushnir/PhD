@@ -9,11 +9,12 @@ import pandas as pd
 import re
 import numpy as np
 
-"""
-With this script one can analyze RealTime PCR result from CFXConnect.
+"""#With this script one can analyze RealTime PCR result from CFXConnect.
 The samples names should be as follows:
-X_BioReplicate No'_TechnicalReplicate No' -> HeLa_1_1
-"""
+X_BioReplicate No'_TechnicalReplicate No' -> HeLa_1_1"""
+
+
+
 def checkKey(dict, key):
     if key in dict.keys():
         return dict[key]
