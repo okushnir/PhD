@@ -68,7 +68,7 @@ def plot_generation_time(file_name1):#1, file_name2):
     plt.savefig(output_dir + "/Cq_one_plot.png", dpi=300)
 
     g1 = sns.relplot(x="Units", y="Cq", data=data, hue="Target", hue_order=target_order, kind="line", col="Treatment",
-                     facet_kws={"sharex":False})
+                     facet_kws={"sharex": False})
     g1.axes.flat[0].set_xlabel("mg")
     g1.axes.flat[1].set_xlabel("Units")
     # g1.legend(loc=2)
