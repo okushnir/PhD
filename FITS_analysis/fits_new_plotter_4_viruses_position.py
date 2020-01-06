@@ -13,7 +13,7 @@ import numpy as np
 from scipy import stats
 import seaborn as sns
 from statannot import add_stat_annotation
-from add_Protein_to_pd_df import *
+from AccuNGS_analysis.add_Protein_to_pd_df import *
 
 sns.set_style("ticks")
 
