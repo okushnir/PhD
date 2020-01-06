@@ -10,9 +10,9 @@ import matplotlib.gridspec as gridspec
 import time
 import os.path
 import pathlib
-from repeats_num_pandas import *
-from syn_nonsyn_mutations_func_mode import *
-from coverage import *
+from CirSeq.repeats_num_pandas import *
+from CirSeq.syn_nonsyn_mutations_func_mode import *
+from CirSeq.coverage import *
 
 from optparse import OptionParser
 sns.set_context("talk")
