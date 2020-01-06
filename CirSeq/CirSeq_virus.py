@@ -10,7 +10,7 @@ import os
 import pbs_runners
 import glob
 import pandas as pd
-from sequnce_utilities import *
+from Utilities.sequnce_utilities import *
 
 
 
