@@ -7,7 +7,7 @@ import matplotlib.gridspec as gridspec
 import os.path
 import pathlib
 import numpy as np
-from file_utilities import *
+from Utilities import file_utilities
 from optparse import OptionParser
 import pandas as pd
 from scipy.stats import ttest_ind
