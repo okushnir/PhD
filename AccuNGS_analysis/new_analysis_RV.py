@@ -27,7 +27,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
-    output_dir = input_dir + "/20190918_plots"
+    output_dir = input_dir + "/20200924_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -47,7 +47,7 @@ def main():
     data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
     data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    data_filter = add_Protein_to_pd_df(data_filter, region_lst)
+    data_filter = add_Protein_to_pd_df.add_Protein_to_pd_df_func(data_filter, region_lst)
     data_filter["label"] = np.where(data_filter["label"] == "RVB14-RNA Control", "RVB14\nRNA Control", data_filter["label"])
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
@@ -376,28 +376,28 @@ def main():
     axes[0, 0].set_yscale("log")
     axes[0, 0].set_xlabel('')
     axes[0, 0].set_ylabel('')
-    axes[0, 0].set_xlim(0, 14)
+    axes[0, 0].set_xlim(0, 14, 2)
     axes[0, 0].set_ylim(10**-6, 10**-2)
     axes[0, 1].legend()
     axes[0, 1].legend(loc=2)
     axes[0, 1].set_yscale("log")
     axes[0, 1].set_xlabel('')
     axes[0, 1].set_ylabel('')
-    axes[0, 1].set_xlim(0, 14)
+    axes[0, 1].set_xlim(0, 14, 2)
     axes[0, 1].set_ylim(10 ** -6, 10 ** -2)
     axes[1, 0].legend()
     axes[1, 0].legend(loc=2)
     axes[1, 0].set_yscale("log")
     axes[1, 0].set_xlabel('')
     axes[1, 0].set_ylabel('')
-    axes[1, 0].set_xlim(0, 14)
+    axes[1, 0].set_xlim(0, 14, 2)
     axes[1, 0].set_ylim(10 ** -6, 10 ** -2)
     axes[1, 1].legend()
     axes[1, 1].legend(loc=2)
     axes[1, 1].set_yscale("log")
     axes[1, 1].set_xlabel('')
     axes[1, 1].set_ylabel('')
-    axes[1, 1].set_xlim(0, 14)
+    axes[1, 1].set_xlim(0, 14, 2)
     axes[1, 1].set_ylim(10 ** -6, 10 ** -2)
     #
     # for ax in axes:
