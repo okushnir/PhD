@@ -7,7 +7,7 @@ import time
 from Bio.Seq import Seq
 from Bio import Entrez
 from Bio import SeqIO
-import cirseq_utilities
+from Utilities import cirseq_utilities
 
 
 
