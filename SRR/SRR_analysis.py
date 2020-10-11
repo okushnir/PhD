@@ -53,7 +53,7 @@ def main():
         """ Read the sra table"""
         sra_table = pd.read_table(file_path[0] + "/SraRunTable.txt")
 
-        """ Filter the tanle by organism and MBases"""
+        """ Filter the table by organism and MBases"""
         pattern = re.compile("[E][c](.){1,}|[E][n](.){1,}|[C](.){1,}|[R][h](.){1,}|[H][u](.){1,}[r][h](.){1,}|[H][u](.){1,}[p][o](.){1,}", re.DOTALL)
         sra_table['Interest'] = sra_table['Organism'].str.contains(pattern)
         sra_table = sra_table[(sra_table['Interest'] == True)]

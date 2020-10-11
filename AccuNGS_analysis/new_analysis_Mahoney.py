@@ -24,8 +24,8 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
-    output_dir = input_dir + "/20201008_plots"
+    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney/"
+    output_dir = input_dir + "20201008_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -34,7 +34,7 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "q23_data_mutation.csv")
+    data_mutations = pd.read_csv(input_dir + "q30_data_mutation.csv")
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts", "Consensus>Mutated_codon"]
@@ -59,7 +59,7 @@ def main():
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
 
-    label_order = ["OPV-p1", "OPV-p3", "OPV-p5", "OPV-p6", "OPV-p7"]
+    label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
 
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A"]

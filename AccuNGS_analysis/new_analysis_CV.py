@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-from fits_plotter import MinorSymLogLocator
+from FITS_analysis import fits_plotter
 import numpy as np
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
@@ -24,7 +24,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
-    output_dir = input_dir + "/plots_q38_filtered/20190918"
+    output_dir = input_dir + "/plots_q38_filtered/20201008"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -55,7 +55,7 @@ def main():
 
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
-    transition_order = ["A>G", "U>C", "C>U", "G>A"]
+    transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
 
     g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
@@ -70,14 +70,14 @@ def main():
 
     g2 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", hue_order=transition_order, join=False, estimator=weighted_varaint, orient="v",
-                     dodge=True, legend=False)
+                     dodge=True, legend=True)
     g2.set_axis_labels("", "Variant Frequency")
     g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -3))
+    g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
     g2.set_xticklabels(fontsize=10, rotation=45)
     # plt.show()
-    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_CV",
+    g2.savefig(output_dir + "/Transition_Mutations_point_plot_CV",
              dpi=300)
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()

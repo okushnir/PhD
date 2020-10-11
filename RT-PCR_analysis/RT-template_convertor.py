@@ -5,18 +5,7 @@
 
 """
 
-import sys, argparse
-import matplotlib
-matplotlib.use('Agg') # Must be before importing matplotlib.pyplot or pylab!
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
-import re
-import glob
-import Bio.Seq as Seq
-import matplotlib.gridspec as gridspec
-import time
 
 
 def convert_plate_to_csv_file(input_file, output_flle):
@@ -92,11 +81,18 @@ def convert_plate_to_csv_file(input_file, output_flle):
 
 
 def main():
-    experiment = "new_time_line_qRT"
-    input_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/RV/RVB14/%s.csv" % experiment
-    output_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/RV/RVB14/Plate_template_%s.csv" % experiment
-    convert_plate_to_csv_file(input_file, output_file)
+    # experiment = "new_time_line_qRT"
+    # input_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/CV/CVB3/%s.csv" % experiment
+    # output_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/CV/CVB3/Plate_template_%s.csv" % experiment
+    # convert_plate_to_csv_file(input_file, output_file)
 
+    experiment = "Capsid_Quant_qRT"
+    direcotry = "RV"
+    virus = "RVB14"
+    date = "20200722"
+    input_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/%s/%s/%s %s.csv" % (direcotry, virus, date, experiment)
+    output_file = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/%s/%s/%s Plate_template_%s.csv" % (direcotry, virus, date, experiment)
+    convert_plate_to_csv_file(input_file, output_file)
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser()

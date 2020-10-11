@@ -7,7 +7,7 @@
 
 
 import os.path
-from sequnce_utilities import *
+from Utilities.sequnce_utilities import *
 import glob
 # import SRR_analysis_from_Cluster
 
@@ -36,7 +36,8 @@ def main():
     # SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/SRA1/SRP064468_PV" #10
     # SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/SRA2/SRP137824_Entero_C" #10
     # SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/SRA3/SRP155896_Entro_D" #6
-    SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/SRA4/ERP014415_Entero_A" #10
+    # SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/SRA4/ERP014415_Entero_A" #10
+    SRR_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/ADAR_Influenza/SRP091383" #6
 
     # SRR_dir = "/sternadi/home/volume3/okushnir/SRA4//ERP014415_Entero_A"
     org_df = pd.read_csv(SRR_dir + "/Top10SRR1.csv", sep=',', encoding='utf-8')
@@ -46,12 +47,12 @@ def main():
     min_coverage = 1
     #
     #for ERP014415_Entero_A
-    dirs = glob.glob(SRR_dir + "/ERR*")
+    # dirs = glob.glob(SRR_dir + "/RR*")
 
-    # dirs = glob.glob(SRR_dir + "/SRR*")
+    dirs = glob.glob(SRR_dir + "/SRR*")
     lst_srr = []
     for SRR in dirs:
-        file_path = glob.glob(SRR + "/q30_ref_consensus_1e-03_b85/*" + ".freqs")
+        file_path = glob.glob(SRR + "/q30_consensus_1e-03/*" + ".freqs")
         if len(file_path) > 1:
             for file in file_path:
                 if file.split(".")[-2] == "type":
@@ -75,7 +76,9 @@ def main():
                            "SRR6955537": "V01149", "SRR6955563": "V01149", "SRR7630054": "NC_001430",
                            "SRR8196193": "NC_001430", "SRR8196586": "NC_001490", "SRR7630002": "NC_001430",
                            "SRR7630178": "NC_001430", "SRR8196335": "NC_001430", "SRR7630107": "NC_001430",
-                           "SRR8196251": "NC_001430", "SRR8196446": "NC_001430"}
+                           "SRR8196251": "NC_001430", "SRR8196446": "NC_001430", "SRR4414064": "CY164045",
+                           "SRR4414065": "CY164045", "SRR4414066": "CY164045", "SRR4414067": "CY164045",
+                           "SRR4414068": "CY164045", "SRR4414069": "CY164045"}
 
                 org_dic = {"CVB3": "M16572", "RVB14": "NC_001490", "Echovirus E7": "MH732737","Echovirus E6": "JX976771",
                            "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
@@ -109,10 +112,10 @@ def main():
     sample_file3 = lst_srr[3]
     sample_file4 = lst_srr[4]
     sample_file5 = lst_srr[5]
-    sample_file6 = lst_srr[6]
-    sample_file7 = lst_srr[7]
-    sample_file8 = lst_srr[8]
-    sample_file9 = lst_srr[9]
+    # sample_file6 = lst_srr[6]
+    # sample_file7 = lst_srr[7]
+    # sample_file8 = lst_srr[8]
+    # sample_file9 = lst_srr[9]
 
 
     # # control_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/180503_OST_FINAL_03052018/merged/RV-IVT/q30_3UTR_new/RV-IVT.with.mutation.type.freqs"
@@ -131,13 +134,13 @@ def main():
 
     label_sample5 = sample_file5.split("/")[-1].split(".")[0]
 
-    label_sample6 = sample_file6.split("/")[-1].split(".")[0]
-
-    label_sample7 = sample_file7.split("/")[-1].split(".")[0]
-
-    label_sample8 = sample_file8.split("/")[-1].split(".")[0]
-
-    label_sample9 = sample_file9.split("/")[-1].split(".")[0]
+    # label_sample6 = sample_file6.split("/")[-1].split(".")[0]
+    #
+    # label_sample7 = sample_file7.split("/")[-1].split(".")[0]
+    #
+    # label_sample8 = sample_file8.split("/")[-1].split(".")[0]
+    #
+    # label_sample9 = sample_file9.split("/")[-1].split(".")[0]
 
 
     print ("loading " + sample_file0 + " as sample")
@@ -164,21 +167,21 @@ def main():
     data_mutations5 = pd.read_table(sample_file5)
     data_mutations5["label"] = label_sample5
 
-    print("loading " + sample_file6 + " as sample")
-    data_mutations6 = pd.read_table(sample_file6)
-    data_mutations6["label"] = label_sample6
-
-    print("loading " + sample_file7 + " as sample")
-    data_mutations7 = pd.read_table(sample_file7)
-    data_mutations7["label"] = label_sample7
-
-    print("loading " + sample_file8 + " as sample")
-    data_mutations8 = pd.read_table(sample_file8)
-    data_mutations8["label"] = label_sample8
-    
-    print("loading " + sample_file9 + " as sample")
-    data_mutations9 = pd.read_table(sample_file9)
-    data_mutations9["label"] = label_sample9
+    # print("loading " + sample_file6 + " as sample")
+    # data_mutations6 = pd.read_table(sample_file6)
+    # data_mutations6["label"] = label_sample6
+    #
+    # print("loading " + sample_file7 + " as sample")
+    # data_mutations7 = pd.read_table(sample_file7)
+    # data_mutations7["label"] = label_sample7
+    #
+    # print("loading " + sample_file8 + " as sample")
+    # data_mutations8 = pd.read_table(sample_file8)
+    # data_mutations8["label"] = label_sample8
+    #
+    # print("loading " + sample_file9 + " as sample")
+    # data_mutations9 = pd.read_table(sample_file9)
+    # data_mutations9["label"] = label_sample9
 
 
     # print("loading " + control_file + " as homogeneous control")
@@ -186,14 +189,14 @@ def main():
     # data_control["source"] = label_control
 
     data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4,
-                      data_mutations5, data_mutations6, data_mutations7, data_mutations8, data_mutations9], sort=False) #
+                      data_mutations5], sort=False) #, data_mutations6, data_mutations7, data_mutations8, data_mutations9
     data["passage"] = 0
     data["replica"] = 0
 
     data = pd.merge(left=data, right=org_df, on="label")
 
-    toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_sample5, label_sample6,
-              label_sample7, label_sample8, label_sample9]
+    toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_sample5] #, label_sample6,
+              # label_sample7, label_sample8, label_sample9
 
     filter_by_coverage_mutation(data, SRR_dir, min_read_count=min_coverage)
 
@@ -244,7 +247,7 @@ def main():
 #
 #
 # """Graphs"""
-    plots_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/"
+#     plots_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/"
 #
 #
 # #6. Mutation Rates

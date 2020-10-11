@@ -78,10 +78,10 @@ def find_mutation_type(freqs_file, ncbi_id, min_read_count=None, seq_method="Acc
                                     "prevBase", "nextBase", "prev2bases", "next2bases", "Consensus_codon",
                                     "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type"]]
     else:
-        data_final = data_final[["Pos", "Base", "Freq", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
+        data_final = data_final[["Pos", "Base", "Freq", "Ref", "Read_count", "Rank", "Prob",
                                         "counts_for_position", "Consensus", "BaseToBase", "Mutation_class", "adj_freq",
                                         "prevBase", "nextBase", "prev2bases", "next2bases", "Consensus_codon",
-                                        "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type"]]
+                                        "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type"]] #, "pval", "Var_perc", "SNP_Profile",
 
     file_name = file_name[0:-5]
     file_name += "with.mutation.type.freqs"
@@ -207,9 +207,10 @@ def find_coding_region(ncbi_id):
             return start_pos, end_pos
         for feature in ncbi_gb.features:
             if feature.type == 'CDS':
-                start_pos = feature.location.start + 1
-                end_pos = feature.location.end
-        return start_pos, end_pos
+                if end_pos < feature.location.end:
+                    start_pos = feature.location.start + 1
+                    end_pos = feature.location.end + 0
+                return start_pos, end_pos
     except Exception as e:
         print(e)
 

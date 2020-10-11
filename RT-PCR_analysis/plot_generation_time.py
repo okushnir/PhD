@@ -1,4 +1,4 @@
-#!/powerapps/share/python-anaconda-3.2019.7/bin/python
+    #!/powerapps/share/python-anaconda-3.2019.7/bin/python
 
 """
 @Author: odedkushnir
@@ -25,9 +25,13 @@ def plot_generation_time(file_name):
     """
     data = pd.read_csv(file_name)
     data = data.loc[data.Sample != 14]
+    brust_size = 40
+    limit = 8.8*10**5 * brust_size
     g1 = sns.lineplot(x="Sample", y="Copy No.", data=data)
-    g1.set(xlabel="Time[hr]", ylabel="Copy number of RNA")
+    g1.set(xlabel="Time[hr]", ylabel="vRNA Copy number")
     g1.set_yscale("log")
+    g1.set(title="RVB14")
+    plt.axhline(limit, color='red', ls='--')
     output_dir = (file_name.split("/")[0:-1])
     output_dir = '/'.join(output_dir)
     plt.savefig(output_dir + "/Copy_number.png", dpi=300)
@@ -35,7 +39,7 @@ def plot_generation_time(file_name):
 
 # def main(args):
 def main():
-    file_name = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/RVB14/RealTime Results xlsx/admin_2016-06-14 13-05-44_BR003827 -  Quantification Cq Results.csv"
+    file_name = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/RV/RVB14/RealTime Results xlsx/admin_2016-06-14 13-05-44_BR003827 -  Quantification Cq Results.csv"
     plot_generation_time(file_name)
 
 if __name__ == "__main__":
