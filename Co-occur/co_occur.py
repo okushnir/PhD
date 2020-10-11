@@ -144,9 +144,9 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
         return merged
 
 
-def main(args):
-
-    sample = args.sample
+# def main(args):
+def main():
+    # sample = args.sample
 
     # 1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped
     # cmds = "for sample in 2 5 8 10 12; do cd /sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/RVB14_p$sample/20191029_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
@@ -184,38 +184,38 @@ def main(args):
     #     print("Done!")
 
     # 4. Run collect_cooccurs and merge it to freqs file
-    label = "RVB14_" + sample.split("/")[-2].split("_")[1]
-    df_path = "%s/accungs_associations/all.txt" % sample
-    df = load_file(df_path, label)
-    freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-    # freqs_df = pd.read_csv(
-    #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-    label = label.replace('_', '-')
-    freqs_df = freqs_df.loc[freqs_df.label == label]
+    passages_lst = ["RVB14_p0", "RVB14_p2", "RVB14_p5", "RVB14_p8", "RVB14_p10", "RVB14_p12"]
+    for passage in passages_lst:
+        sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/%s/20191029_q38" % (
+            passage)
+        label = "RVB14_" + sample.split("/")[-2].split("_")[1]
+        df_path = "%s/accungs_associations/all.txt" % sample
+        df = load_file(df_path, label)
+        freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+        # freqs_df = pd.read_csv(
+        #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+        label = label.replace('_', '-')
+        freqs_df = freqs_df.loc[freqs_df.label == label]
 
-    merged_df = collect_cooccurs(freqs_df, df)
-    merged_df = merged_df.loc[merged_df.Stretch != "-"]
-    merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
-                                (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
-    merged_df["Pos"] = merged_df["Pos"].astype(int)
-    merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
-    merged_df = merged_df.loc[(merged_df.Editing_context == "ADAR (sense)") | (merged_df.Editing_context == "ADAR (antisense)")]
+        merged_df = collect_cooccurs(freqs_df, df)
+        merged_df = merged_df.loc[merged_df.Stretch != "-"]
+        merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
+                                    (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
+        merged_df["Pos"] = merged_df["Pos"].astype(int)
+        merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
+        # merged_df = merged_df.loc[(merged_df.Editing_context != "ADAR (sense)") & (merged_df.Editing_context != "ADAR (antisense)")]
 
-    file_name = sample + "/co_occur.csv"
-    co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
-                             "meandist", "Co-occurrences_identified", "ADAR_context",	"ADAR_reverse_context",	"Editing_context", "ADAR", "label"]]
-    co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
-    co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
-    print(merged_df)
-
-    # #Plot
-    # g1 = sns.relplot(x="Pos", y="Frequency", data=merged_df, hue="Mutation", col="ADAR")#, style="Stretch")
-    # g1.set(yscale="log")
-    # plt.show()
-
+        file_name = sample + "/co_occur_all.csv"
+        co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
+                                 "meandist", "Co-occurrences_identified", "ADAR_context",	"ADAR_reverse_context",	"Editing_context", "ADAR", "label"]]
+        co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
+        co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
+        print(merged_df)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("sample", type=str, help="sample dir path")
-    args = parser.parse_args(sys.argv[1:])
-    main(args)
+    main()
+# if __name__ == "__main__":
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("sample", type=str, help="sample dir path")
+#     args = parser.parse_args(sys.argv[1:])
+#     main(args)

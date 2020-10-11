@@ -37,7 +37,8 @@ def plot_generation_time(file_name):
     g1 = sns.lineplot(x="Sample", y="Copy_No", data=data)
     g1.set(xlabel="Time[hr]", ylabel="vRNA Copy number")
     g1.set_yscale("log")
-    g1.set(xticks=(range(1, 15)))
+    g1.set_ylim([3*10**5, 10**9])
+    g1.set(xticks=(range(2, 16, 2)))
     g1.set(title="RVB14")
     plt.axhline(limit, color='red', ls='--')
 

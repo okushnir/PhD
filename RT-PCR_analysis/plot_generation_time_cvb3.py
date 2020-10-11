@@ -25,15 +25,20 @@ def plot_generation_time(file_name):
     """
     data = pd.read_csv(file_name)
     cvb_weight = (6.022*10**23)/(7500*1*10**9*660)
-    data = data.loc[(data.Sample != "IVT") & (data.Sample != "IVT -1") & (data.Sample != "IVT -2") & (data.Sample != "IVT -3") & (data.Sample != "IVT -4") & (data.Sample != "IVT -5") & (data.Sample != "NTC")]
+    data = data.loc[(data.Sample != "STD1") & (data.Sample != "STD2") & (data.Sample != "STD3") &
+                    (data.Sample != "STD4") & (data.Sample != "STD5") & (data.Sample != "STD6") & (data.Sample != "NTC")
+                     & (data.Sample != "9") & (data.Sample != "10") & (data.Sample != "24") & (data.Sample != "48")]
     data["Sample"] = data["Sample"].astype(int)
-    data["Copy_No"] = data["Starting Quantity (SQ)"]*cvb_weight
+    one_step_normal = 10**-2
+    data["Copy_No"] = data["Starting Quantity (SQ)"] * cvb_weight * one_step_normal
+    start_amount = 7.56*10**5
     brust_size = 167
-    limit = 8.8*10**5 * brust_size
+    limit = start_amount * brust_size
     g1 = sns.lineplot(x="Sample", y="Copy_No", data=data)
     g1.set(xlabel="Time[hr]", ylabel="vRNA Copy number")
     g1.set_yscale("log")
-
+    g1.set_ylim([3*10**5, 10**9])
+    # g1.set(xticks=(range(1, 15)))
     g1.set(title="CVB3")
     plt.axhline(limit, color='red', ls='--')
 
@@ -44,7 +49,7 @@ def plot_generation_time(file_name):
 
 # def main(args):
 def main():
-    file_name = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/CV/CVB3/RealTime_Results/20191225_CVB3_Time/Oded_2019-12-25 14-37-22_BR003827 -  Quantification Cq Results_0.csv"
+    file_name = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/CV/CVB3/RealTime_Results/20200305_CVB3_Time/Oded_2020-03-05 13-08-35_BR003827 -  Quantification Cq Results_0.csv"
     plot_generation_time(file_name)
 
 if __name__ == "__main__":
