@@ -14,7 +14,7 @@ import pandas as pd
 from Bio import Entrez
 from Bio import SeqIO
 from Bio.Seq import Seq
-import cirseq_utilities
+from Utilities import cirseq_utilities
 import subprocess
 from time import sleep
 from os import listdir

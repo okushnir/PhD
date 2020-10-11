@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def add_Protein_to_pd_df(pddf, region_lst):
+def add_Protein_to_pd_df_func(pddf, region_lst):
     """
 
     :param pddf: pandas DataFrame of pipeline post manipulation

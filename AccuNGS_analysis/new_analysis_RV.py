@@ -27,7 +27,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
-    output_dir = input_dir + "/20200924_plots"
+    output_dir = input_dir + "/20201008_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -48,7 +48,7 @@ def main():
     data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
     data_filter = add_Protein_to_pd_df.add_Protein_to_pd_df_func(data_filter, region_lst)
-    data_filter["label"] = np.where(data_filter["label"] == "RVB14-RNA Control", "RVB14\nRNA Control", data_filter["label"])
+
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     #p5-p12
@@ -57,16 +57,21 @@ def main():
 
     data_miseq = data_filter[data_filter["label"] != "RVB14-Next-RNA Control"]
     data_miseq = data_miseq[data_filter["label"] != "RVB14-p1"]
+
+    # data_miseq = data_miseq[data_filter["label"] != "RVB14\nRNA Control"]
+
     data_miseq["passage"] = data_miseq["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
     data_miseq["passage"] = np.where(data_miseq["passage"] == "RNA Control", 0, data_miseq["passage"])
     data_miseq["passage"] = data_miseq["passage"].astype(int)
+    data_miseq["label"] = np.where(data_miseq["label"] == "RVB14-RNA Control", "RVB14\nRNA Control",
+                                    data_miseq["label"])
     data_miseq["Type"] = data_miseq["Type"].fillna("NonCodingRegion")
-    data_miseq.to_csv(input_dir + "/data_miseq.csv", sep=',', encoding='utf-8')
+    data_miseq.to_csv(output_dir + "/data_miseq.csv", sep=',', encoding='utf-8')
 
     label_order = ["RVB14\nRNA Control", "RVB14-p2", "RVB14-p5", "RVB14-p7", "RVB14-p8", "RVB14-p10", "RVB14-p12"] # , #"RVB14-Next-RNA Control", "RVB14-p1",
     miseq_order = ["RVB14\nRNA Control", "RVB14-p2", "RVB14-p5", "RVB14-p7", "RVB14-p8", "RVB14-p10", "RVB14-p12"] #
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
-    transition_order = ["A>G", "U>C", "C>U", "G>A"]
+    transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
 
     # A>G Prev Context
@@ -81,6 +86,7 @@ def main():
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
 
+
     data_miseq_ag = data_miseq[data_miseq["Mutation"] == "A>G"]
     data_miseq_ag = data_miseq_ag.rename(columns={"Prev": "Context"})
 
@@ -92,7 +98,7 @@ def main():
 
     data_miseq_ag["ADAR_like"] = data_miseq_ag.Context.str.contains('UpA') | data_miseq_ag.Context.str.contains('ApA')
     print(data_miseq_ag.to_string())
-    data_miseq_ag.to_csv(input_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
+    data_miseq_ag.to_csv(output_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
     data_miseq_ag_pass5 = data_miseq_ag.loc[data_miseq_ag.label == "RVB14-p5"]
     data_miseq_ag_pass5 = data_miseq_ag_pass5[data_miseq_ag_pass5["pval"] < 0.01]
     # data_miseq_ag_pass5 = data_miseq_ag_pass5.loc[data_miseq_ag_pass5.Type == "Synonymous"]
@@ -106,12 +112,12 @@ def main():
     data_miseq_uc['Next'].replace('UG', 'UpG', inplace=True)
     data_miseq_uc = data_miseq_uc[data_miseq_uc["passage"] != 0]
 
-    data_miseq_uc.to_csv(input_dir + "/data_miseq_uc.csv", sep=',', encoding='utf-8')
+    data_miseq_uc.to_csv(output_dir + "/data_miseq_uc.csv", sep=',', encoding='utf-8')
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
     #Plots
 
-    g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
+    g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
                      orient="v")
     g1.set_axis_labels("", "Variant Frequency")
@@ -123,17 +129,17 @@ def main():
     g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
 
-    g2 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20"
+    g2 = sns.catplot("label", "frac_and_weight", data=data_miseq, hue="Mutation", order=miseq_order, palette="tab20"
                         ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
-                     orient="v", legend=False)
+                     orient="v", legend=True)
     g2.set_axis_labels("", "Variant Frequency")
     g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -3))
+    g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
     g2.set_xticklabels(fontsize=10, rotation=45)
     # plt.show()
-    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
-    # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
+    g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()
 
     data_pmsc = data_miseq[data_miseq["Type"] == "Premature Stop Codon"]
@@ -187,9 +193,9 @@ def main():
     plt.savefig(output_dir + "/context_p5_point_plot.png", dpi=300)
     plt.close()
 
-    flatui = ["#9b59b6", "#3498db"]
-    ax = sns.boxplot("ADAR_like", "Frequency", data=data_miseq_ag_pass5, palette=flatui)
-    ax = sns.stripplot("ADAR_like", "Frequency", data=data_miseq_ag_pass5, color=".2")
+    flatui = ["#3498db", "#9b59b6"]
+    ax = sns.boxplot("ADAR_like", "Frequency", data=data_miseq_ag_pass5, palette=flatui, order=(True, False))
+    ax = sns.stripplot("ADAR_like", "Frequency", data=data_miseq_ag_pass5, color=".2", order=(True, False))
     add_stat_annotation(ax, data=data_miseq_ag_pass5, x="ADAR_like", y="Frequency",
                         boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside', verbose=2)
     ax.set_yscale('log')
@@ -285,8 +291,7 @@ def main():
     g10.savefig(output_dir + "/UC_Context_miseq_sample_time_line_plot", dpi=300)
     plt.close()
 
-
-    data_miseq_ag_grouped = data_miseq_ag.groupby(["ADAR_like", "label", "Type"])["frac_and_weight"].agg(lambda x: weighted_varaint(x))
+    data_miseq_ag_grouped = data_miseq_ag.groupby(["ADAR_like", "label", "Type", "Pos", "Protein"])["frac_and_weight"].agg(lambda x: weighted_varaint(x))
     data_miseq_ag_grouped = data_miseq_ag_grouped.reset_index()
     data_miseq_ag_grouped["passage"] = data_miseq_ag_grouped["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
     print(data_miseq_ag_grouped.to_string())
@@ -295,7 +300,9 @@ def main():
 
     data_miseq_ag_grouped = data_miseq_ag_grouped.rename(columns={"frac_and_weight": "Frequency"})
     data_miseq_ag_grouped["Frequency"] = data_miseq_ag_grouped["Frequency"].astype(float)
-    data_miseq_ag_grouped["passage"] = np.where(data_miseq_ag_grouped["passage"] == "RNA Control", 0, data_miseq_ag_grouped["passage"])
+
+    data_miseq_ag_grouped = data_miseq_ag_grouped[data_miseq_ag_grouped["label"] != "RVB14\nRNA Control"]
+    # data_miseq_ag_grouped["passage"] = np.where(data_miseq_ag_grouped["passage"] == "RNA Control", 0, data_miseq_ag_grouped["passage"])
     data_miseq_ag_grouped["passage"] = data_miseq_ag_grouped["passage"].astype(int)
 
     data_reg_adar = data_miseq_ag_grouped[data_miseq_ag_grouped["ADAR_like"] == True]
@@ -422,16 +429,34 @@ def main():
     print("ADAR NON-SYN intercept: %s" % str(regr.intercept_))
 
     g11 = sns.lmplot(x="passage", y="Frequency", data=data_miseq_ag_grouped, hue="ADAR_like", markers=["o", "x"],
-                      hue_order=[True, False], fit_reg=True, col="Type", col_order=type_order)
+                      hue_order=[True, False], fit_reg=True, col="Type", col_order=type_order, palette=flatui)
     g11.set(xlim=(0, 13))
-    g11.set(yscale="log")
-    g11.set(ylim=(10**-6, 10**-2))
+    # g11.set(yscale="log")
+    # g11.set(ylim=(10**-6, 10**-2))
     # props = dict(boxstyle='round', alpha=0.5, color=sns.color_palette()[0])
     # textstr = "ADAR-like SYN: y={0:.3g}x+{1:.3g}\nnon ADAR-like SYN: y={2:.3g}x+{3:.3g}".format(slope1, intercept1, slope2, intercept2)
     # g11.ax.text(0.7, 0.9, textstr, transform=g11.axes.transAxes, fontsize=14, bbox=props)
     # plt.show()
     g11.savefig(output_dir + "/lmplot_ADAR_Context", dpi=300)
+    plt.close()
 
+    data_miseq_ag_grouped_silent = data_miseq_ag_grouped[data_miseq_ag_grouped["Type"] == "Synonymous"]
+    data_miseq_ag_grouped_silent = data_miseq_ag_grouped_silent[data_miseq_ag_grouped_silent["Protein"] != "2A"]
+    position_g = sns.scatterplot("Pos", "Frequency", data=data_miseq_ag_grouped_silent, hue="Protein",
+                                 palette="tab10", style="ADAR_like", legend="full")
+
+    # position_g.set_axis_labels("", "Variant Frequency")
+    position_g.set(yscale='log')
+    position_g.set(xlim=(3500, 7500))
+    position_g.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    # position_g.set(ylim=(10 ** -6, 10 ** -2))
+    # g2.set_yticklabels(fontsize=12)
+    # position_g.set_xticklabels(fontsize=10, rotation=45)
+    # plt.show()
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
+    plt.savefig(output_dir + "/position.png", dpi=300)
+    plt.close()
 
 if __name__ == "__main__":
     main()
