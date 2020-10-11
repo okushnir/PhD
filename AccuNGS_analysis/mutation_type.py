@@ -14,7 +14,7 @@ import pandas as pd
 from Bio import Entrez
 from Bio import SeqIO
 from Bio.Seq import Seq
-import cirseq_utilities
+from Utilities import cirseq_utilities
 import subprocess
 from time import sleep
 from os import listdir
@@ -22,7 +22,7 @@ from os.path import isfile, join
 from optparse import OptionParser
 import numpy as np
 import pbs_jobs
-import make_reference_from_consensus
+from AccuNGS_analysis import make_reference_from_consensus
 
 def add_mutation_type_to_df(data, ncbi_id):
 #this part creates required data to work with (basically the consensus sequence that will be the template for the "wildtype" amino acid)
