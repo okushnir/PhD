@@ -157,7 +157,7 @@ def main():
     #6th run variant_caller localy to check context mutations
 
     # using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
-    # I added pval to each position according to gamma distribution fit to RNA-Control
+    # I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
 
     # Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
     # I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob

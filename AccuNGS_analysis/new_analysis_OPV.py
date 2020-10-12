@@ -60,7 +60,7 @@ def main():
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
 
     label_order = ["OPV-p1", "OPV-p3", "OPV-p5", "OPV-p6", "OPV-p7"]
-
+    passage_order = ["1", "3", "5", "6", "7"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
@@ -77,15 +77,16 @@ def main():
     g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
 
-    g2 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20"
+    data_filter["passage"] = data_filter["passage"].astype(str)
+    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette="tab20"
                         ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v")
-    g2.set_axis_labels("", "Variant Frequency")
+    g2.set_axis_labels("Passage", "Variant Frequency")
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
-    g2.set_xticklabels(fontsize=10, rotation=45)
+    # g2.set_xticklabels(fontsize=10, rotation=45)
     # plt.show()
-    g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
+    g2.savefig(output_dir + "/Transition_Mutations_point_plot_OPV", dpi=300)
     plt.close()
 
     # data_pmsc = data_filter[data_filter["Type"] == "Premature Stop Codon"]

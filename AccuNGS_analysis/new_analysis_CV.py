@@ -24,7 +24,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
-    output_dir = input_dir + "/plots_q38_filtered/20201008"
+    output_dir = input_dir + "/plots_q38_filtered/20201012"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -47,13 +47,14 @@ def main():
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
 
-    # data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
-    # data_filter["passage"] = data_filter["passage"].astype(int)
-    # data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
+    data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
+    data_filter["passage"] = np.where(data_filter["passage"] == "CVB3\nRNA Control", 0, data_filter["passage"])
+    data_filter["passage"] = data_filter["passage"].astype(int)
+    data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     # data_filter.to_csv(input_dir + "/data_filter.csv", sep=',', encoding='utf-8')
 
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
+    passage_order = ["0", "2", "5", "8", "10", "12"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
@@ -67,20 +68,21 @@ def main():
     # plt.show()
     g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
-
-    g2 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
+    data_filter["passage"] = data_filter["passage"].astype(str)
+    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette="tab20",
                         kind="point", hue_order=transition_order, join=False, estimator=weighted_varaint, orient="v",
                      dodge=True, legend=True)
-    g2.set_axis_labels("", "Variant Frequency")
+    g2.set_axis_labels("Passage", "Variant Frequency")
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
-    g2.set_xticklabels(fontsize=10, rotation=45)
+    # g2.set_xticklabels(fontsize=10, rotation=45)
     # plt.show()
-    g2.savefig(output_dir + "/Transition_Mutations_point_plot_CV",
+    g2.savefig(output_dir + "/Transition_Mutations_point_plot_CVB3",
              dpi=300)
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()
+    data_filter["passage"] = data_filter["passage"].astype(int)
     #
     # data_pmsc = data_filter[data_filter["Type"] == "Premature Stop Codon"]
     # data_pmsc["mutation_type"] = data_pmsc.Mutation.str.contains("A>G") | data_pmsc.Mutation.str.contains("U>C") | \
