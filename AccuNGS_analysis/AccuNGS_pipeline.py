@@ -10,7 +10,6 @@ import os
 import pbs_runners
 import glob
 import pandas as pd
-from Utilities.sequnce_utilities import *
 
 def index(csv_file, fastq_path, output_dir):
     indexing = pd.read_csv(csv_file)  # your_csv_dir
