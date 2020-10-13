@@ -125,22 +125,23 @@ def main():
     # # # 4th run pipeline:
     input_dir_RV_p7 = "/sternadi/home/volume3/okushnir/AccuNGS/190217_RV_p7/merged"
     input_dir_RV_new = "/sternadi/home/volume3/okushnir/AccuNGS/190807_RV_p2_p10/merged"
+    input_dir_patients = "/sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
     input_dir_RV = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14"
     input_dir_CV = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3"
     input_dir_ATCG1 = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/ATCG1"
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
-
+    ref_rv_patient_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/consensus.fasta"
     ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/HRVB14_from_pWR3.26_1-7212.fasta"
     ref_cv = "/sternadi/home/volume3/okushnir/ref/CVB3/CVB3_from_pT7CVB3_1-7399.fasta"
     ref_atcg1 = "/sternadi/home//volume3/okushnir/ref/human/NM_001614.5_ACTG1.fa"
     ref_flna1 = "/sternadi/home/volume3/okushnir/ref/human/FLNA.fasta"
 
-    folders = glob.glob(input_dir_RV + "/RV*")
+    folders = glob.glob(input_dir_patients + "/P*")
     # print(folders)
 
     for d in folders:
-        output_dir = d + "/20191029_q38"
+        output_dir = d + "/20201013_q38"
         # print(output_dir)
         try:
             os.mkdir(output_dir)
@@ -149,7 +150,7 @@ def main():
         else:
             print("Successfully created the directory %s " % output_dir)
 
-        cmd = "python /sternadi/home/volume1/shared/SternLab/pipeline_runner.py -i %s -o %s -r %s -NGS_or_Cirseq 2 -rep 2  -q 38" % (d, output_dir, ref_rv)
+        cmd = "python /sternadi/home/volume1/shared/SternLab/pipeline_runner.py -i %s -o %s -r %s -NGS_or_Cirseq 2 -rep 2  -q 38" % (d, output_dir, ref_rv_patient_consensus)
         pbs_runners.script_runner(cmd, alias="pipeline_d")
 
     #5th analyze the freqs
@@ -158,6 +159,11 @@ def main():
 
     # using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
     # I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
+    # for example:
+    # /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38
+    # /Capsid-32-Ultra.freqs /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/
+    # IVT_3_Control/20201012_q38/IVT-3-Control.freqs -c 5000 -o /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/
+    # 20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38/Capsid-32_UltravsControl.csv
 
     # Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
     # I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob
