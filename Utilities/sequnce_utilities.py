@@ -81,7 +81,7 @@ def find_mutation_type(freqs_file, ncbi_id, min_read_count=None, seq_method="Acc
         data_final = data_final[["Pos", "Base", "Freq", "Ref", "Read_count", "Rank", "Prob",
                                         "counts_for_position", "Consensus", "BaseToBase", "Mutation_class", "adj_freq",
                                         "prevBase", "nextBase", "prev2bases", "next2bases", "Consensus_codon",
-                                        "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type"]] #, "pval", "Var_perc", "SNP_Profile",
+                                        "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type", "pval", "Var_perc", "SNP_Profile",]]
 
     file_name = file_name[0:-5]
     file_name += "with.mutation.type.freqs"
