@@ -35,37 +35,31 @@ def main():
 
     #for Local
 
-    # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
 
+    org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
+               "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
+               "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
+               "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
+               "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
+               "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
+               "Echovirus E6": "JX976771", "RVA": "JX025555"}
     min_coverage = 5000
     dirs = glob.glob(input_dir + "/*")
     lst_srr = []
     for passage in dirs:
-        file_path = glob.glob(passage + "/20201012_q38/*.merged.with.mutation.type.freqs") #
-        if len(file_path) > 0:
-            for file in file_path:
-                # continue
-                # "p10-1.merged.with.mutation.type.freqs"
-                if file.split(".")[-2] == "type":
-                    if file.split(".")[-5] == "merged":
+        # Checks if the file .merged.with.mutation.type.freqs file exists
+        file_path = glob.glob(passage + "/20201014_q30_consensus/*.merged*freqs") #
+        if len(file_path) >= 1:
+            if "merged.with.mutation.type.freqs" in str(file_path):
+                for file in file_path:
+                    if (file.split(".")[-2] == "type") & (len(file.split(".")) > 3):
                         lst_srr.append(file)
                         ncbi_id = "NC_001490"
-        else:
-            if file_path == []:
-                break
             else:
-
-                org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
-                           "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
-                           "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
-                           "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
-                           "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
-                           "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
-                           "Echovirus E6": "JX976771"}
                 print(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
                 # virus = os.path.basename(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
-                virus = "RV"
+                virus = "RVA"
                 try:
                     ncbi_id = checkKey(org_dic, virus)
                     print("Adding Mutation type to:%s" % (file_path[0].split('/')[-1].split(".")[0]))
@@ -77,12 +71,16 @@ def main():
                 except Exception as e:
                     print(e)
                 continue
+
     print(lst_srr)
 
-    # append_mutation2 = sequnce_utilities.find_mutation_type(
-    #     "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_3_"
-    #     "Control/20201012_q38/IVT-3-Control.merged.freqs", ncbi_id, min_coverage)
-    # creating data_mutation.csv file
+    append_mutation2 = sequnce_utilities.find_mutation_type(
+        "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_"
+        "Control/20201012_q38/IVT-5-Control.merged.freqs", "NC_001490", min_coverage)
+    append_mutation3 = sequnce_utilities.find_mutation_type(
+        "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/"
+        "20201012_q38/p3-Control.merged.freqs", "NC_001490", min_coverage)
+# creating data_mutation.csv file
 
     sample_file0 = lst_srr[0]
     sample_file1 = lst_srr[1]
@@ -91,31 +89,18 @@ def main():
     sample_file4 = lst_srr[4]
     sample_file5 = lst_srr[5]
     sample_file6 = lst_srr[6]
-    # sample_file7 = lst_srr[7]
-    # sample_file8 = lst_srr[8]
-    # sample_file9 = lst_srr[9]
-    # sample_file10 = lst_srr[10]
-    # sample_file11 = lst_srr[11]
-    # sample_file12 = lst_srr[12]
-    # sample_file13 = lst_srr[13]
-    # sample_file14 = lst_srr[14]
 
-
-    # rna_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control_L001-ds.850f2223182a41fcaec41c4f3735e428/q38_3UTR/RVB14-RNA-Control.merged.freqs"
-    # ncbi_id = "NC_001490"
-    # sequnce_utilities.find_mutation_type(rna_control, ncbi_id, min_coverage)
-    # next_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_Next_RNA_Control/q35/RVB14-Next_Control.merged.freqs"
-    # find_mutation_type(next_control,ncbi_id, min_coverage)
-
+    #Controls
 
     # control_file_rnd = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control_L001-ds.850f2223182a41fcaec41c4f3735e428/q38_3UTR/RVB14-RNA-Control.merged.with.mutation.type.freqs"
     # label_control1 = "RNA Control_RND"
 
-    control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_3_Control/20201012_q38/IVT-3-Control.merged.with.mutation.type.freqs"
+    control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.merged.with.mutation.type.freqs"
     label_control2 = "RNA Control\nPrimer ID"
 
-    control_file_mix = "//Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p8_2/20201012_q38/p8-2.merged.with.mutation.type.freqs"
-    label_control3 = "Mix Populationֿ\nControl"
+    control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
+    label_control3 = "Cell Cultureֿ\nControl"
+
     # next_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_Next_RNA_Control/q35/RVB14-Next_Control.merged.with.mutation.type.freqs"
     # label_next = "RVB14-Next-RNA Control"
 
@@ -132,162 +117,50 @@ def main():
     label_sample5 = sample_file5.split("/")[-1].split(".")[0]
 
     label_sample6 = sample_file6.split("/")[-1].split(".")[0]
-    #
-    # label_sample7 = sample_file7.split("/")[-1].split(".")[0]
-    #
-    # label_sample8 = sample_file8.split("/")[-1].split(".")[0]
-    #
-    # label_sample9 = sample_file9.split("/")[-1].split(".")[0]
-    #
-    # label_sample10 = sample_file10.split("/")[-1].split(".")[0]
-    #
-    # label_sample11 = sample_file11.split("/")[-1].split(".")[0]
-    #
-    # label_sample12 = sample_file12.split("/")[-1].split(".")[0]
-    #
-    # label_sample13 = sample_file13.split("/")[-1].split(".")[0]
-    #
-    # label_sample14 = sample_file14.split("/")[-1].split(".")[0]
-
-
-
 
     print ("loading " + sample_file0 + " as sample")
     data_mutations0 = pd.read_table(sample_file0)
     data_mutations0["label"] = label_sample0
     data_mutations0["RNA"] = label_sample0.split("-")[0]
-    data_mutations0["replica"] = label_sample0.split("-")[-2]
-    data_mutations0["method"] = label_sample0.split("-")[-1]
 
     print ("loading " + sample_file1 + " as sample")
     data_mutations1 = pd.read_table(sample_file1)
     data_mutations1["label"] = label_sample1
-    data_mutations1["RNA"] = label_sample1.split("-")[0]
-    data_mutations1["replica"] = label_sample1.split("-")[-2]
-    data_mutations1["method"] = label_sample1.split("-")[-1]
+
 
     print("loading " + sample_file2 + " as sample")
     data_mutations2 = pd.read_table(sample_file2)
     data_mutations2["label"] = label_sample2
-    data_mutations2["RNA"] = label_sample2.split("-")[0]
-    data_mutations2["replica"] = label_sample2.split("-")[-2]
-    data_mutations2["method"] = label_sample2.split("-")[-1]
 
     print("loading " + sample_file3 + " as sample")
     data_mutations3 = pd.read_table(sample_file3)
     data_mutations3["label"] = label_sample3
-    data_mutations3["RNA"] = label_sample3.split("-")[0]
-    data_mutations3["replica"] = label_sample3.split("-")[-2]
-    data_mutations3["method"] = label_sample3.split("-")[-1]
 
     print("loading " + sample_file4 + " as sample")
     data_mutations4 = pd.read_table(sample_file4)
     data_mutations4["label"] = label_sample4
-    data_mutations4["RNA"] = label_sample4.split("-")[0]
-    data_mutations4["replica"] = label_sample4.split("-")[-2]
-    data_mutations4["method"] = label_sample4.split("-")[-1]
 
     print("loading " + sample_file5 + " as sample")
     data_mutations5 = pd.read_table(sample_file5)
     data_mutations5["label"] = label_sample5
-    data_mutations5["RNA"] = label_sample5.split("-")[0]
-    data_mutations5["replica"] = label_sample5.split("-")[-2]
-    data_mutations5["method"] = label_sample5.split("-")[-1]
 
     print("loading " + sample_file6 + " as sample")
     data_mutations6 = pd.read_table(sample_file6)
     data_mutations6["label"] = label_sample6
-    data_mutations6["RNA"] = label_sample6.split("-")[0]
-    data_mutations6["replica"] = label_sample6.split("-")[-2]
-    data_mutations6["method"] = label_sample6.split("-")[-1]
-    #
-    # print("loading " + sample_file7 + " as sample")
-    # data_mutations7 = pd.read_table(sample_file7)
-    # data_mutations7["label"] = label_sample7
-    # data_mutations7["passage"] = label_sample7.split("-")[0].split("p")[-1]
-    # data_mutations7["replica"] = label_sample7.split("-")[-1]
-    #
-    # print("loading " + sample_file8 + " as sample")
-    # data_mutations8 = pd.read_table(sample_file8)
-    # data_mutations8["label"] = label_sample8
-    # data_mutations8["passage"] = label_sample8.split("-")[0].split("p")[-1]
-    # data_mutations8["replica"] = label_sample8.split("-")[-1]
-    #
-    # print("loading " + sample_file9 + " as sample")
-    # data_mutations9 = pd.read_table(sample_file9)
-    # data_mutations9["label"] = label_sample9
-    # data_mutations9["passage"] = label_sample9.split("-")[0].split("p")[-1]
-    # data_mutations9["replica"] = label_sample9.split("-")[-1]
-    #
-    # print("loading " + sample_file10 + " as sample")
-    # data_mutations10 = pd.read_table(sample_file10)
-    # data_mutations10["label"] = label_sample10
-    # data_mutations10["passage"] = label_sample10.split("-")[0].split("p")[-1]
-    # data_mutations10["replica"] = label_sample10.split("-")[-1]
-    #
-    # print("loading " + sample_file11 + " as sample")
-    # data_mutations11 = pd.read_table(sample_file11)
-    # data_mutations11["label"] = label_sample11
-    # data_mutations11["passage"] = label_sample11.split("-")[0].split("p")[-1]
-    # data_mutations11["replica"] = label_sample11.split("-")[-1]
-    #
-    # print("loading " + sample_file12 + " as sample")
-    # data_mutations12 = pd.read_table(sample_file12)
-    # data_mutations12["label"] = label_sample12
-    # data_mutations12["passage"] = label_sample12.split("-")[0].split("p")[-1]
-    # data_mutations12["replica"] = label_sample12.split("-")[-1]
-    #
-    # print("loading " + sample_file13 + " as sample")
-    # data_mutations13 = pd.read_table(sample_file13)
-    # data_mutations13["label"] = label_sample13
-    # data_mutations13["passage"] = label_sample13.split("-")[0].split("p")[-1]
-    # data_mutations13["replica"] = label_sample13.split("-")[-1]
-    #
-    # print("loading " + sample_file14 + " as sample")
-    # data_mutations14 = pd.read_table(sample_file14)
-    # data_mutations14["label"] = label_sample14
-    # data_mutations14["passage"] = label_sample14.split("-")[0].split("p")[-1]
-    # data_mutations14["replica"] = label_sample14.split("-")[-1]
-    #
-    # print("loading " + control_file_rnd + " as RNA control")
-    # data_control1 = pd.read_table(control_file_rnd)
-    # data_control1["label"] = label_control1
 
     print("loading " + control_file_id + " as RNA control")
     data_control2 = pd.read_table(control_file_id)
     data_control2["label"] = label_control2
 
-    print("loading " + control_file_mix + " as RNA control")
-    data_control3 = pd.read_table(control_file_mix)
+    print("loading " + control_file_cell + " as RNA control")
+    data_control3 = pd.read_table(control_file_cell)
     data_control3["label"] = label_control3
-    data_control3["RNA"] = label_control3
-    data_control3["replica"] = 0
-    data_control3["method"] = "Ultra"
-    #
-    # print("loading " + next_file + " as RNA control")
-    # data_next_control = pd.read_table(next_file)
-    # data_next_control["label"] = label_next
 
-    data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4, data_mutations5, data_mutations6,data_control2, data_control3], sort=False)#, data_mutations6, data_mutations7, data_mutations8, data_mutations9,
-                      # data_mutations10, data_mutations11, data_mutations12, data_mutations13, data_mutations14,
-                      # data_control1, )#, data_next_control]
+    data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4,
+                      data_mutations5, data_mutations6, data_control2, data_control3], sort=False)
 
-
-    # data["passage"] = np.where(data["label"] == "RNA Control_RND", 0, data["passage"])
-    # data["passage"] = np.where(data["label"] == "RNA Control_Primer_ID", 0, data["passage"])
-    data["RNA"] = np.where(data["label"] == "RNA Control_Primer_ID", "Control", data["RNA"])
-
-
-    # data["replica"] = np.where(data["label"] == "RNA Control_RND", 1, data["replica"])
-    data["replica"] = np.where(data["label"] == "RNA Control_Primer_ID", 0, data["replica"])
-    # data["replica"] = np.where(data["label"] == "RV-p71", 1, (np.where(data["label"] == "RV-p11", 1, (np.where(data["label"] == "RV-p12",
-    #                                                            2, 1)))))
-    # print(data.to_string())
-
-    toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_sample5, label_sample6,label_control2, label_control3]#, label_sample6,
-              # label_sample7, label_sample8, label_sample9, label_sample10, label_sample11, label_sample12,
-              # label_sample13, label_sample14, label_control1#, label_next]
-
+    toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_sample5, label_sample6,
+              label_control2, label_control3]
     # filter_by_coverage_mutation(data, input_dir, min_read_count=min_coverage)
 
 
@@ -314,8 +187,8 @@ def main():
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
     # start_pos, end_pos = sequnce_utilities.find_coding_region(ncbi_id)
-    # No internet connection - for RV
-    start_pos, end_pos = 629, 7212
+    # No internet connection - for RVA
+    start_pos, end_pos = 503, 6728
     start_pos_mod3 = start_pos % 3
 
     if (start_pos_mod3 == 0) | (start_pos_mod3 == 1):
