@@ -36,36 +36,32 @@ def main():
     #for Local
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
 
+    org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
+               "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
+               "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
+               "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
+               "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
+               "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
+               "Echovirus E6": "JX976771", "RVA": "JX025555"}
+    virus = "RVA"
     min_coverage = 5000
     dirs = glob.glob(input_dir + "/*")
     lst_srr = []
     for passage in dirs:
-        file_path = glob.glob(passage + "/20201012_q38/*.merged.with.mutation.type.freqs") #
-        if len(file_path) > 0:
-            for file in file_path:
-                # continue
-                # "p10-1.merged.with.mutation.type.freqs"
-                if file.split(".")[-2] == "type":
-                    if file.split(".")[-5] == "merged":
+        # Checks if the file .merged.with.mutation.type.freqs file exists
+        file_path = glob.glob(passage + "/20201014_q30_consensus/*.merged*freqs") #
+        if len(file_path) >= 1:
+            if "merged.with.mutation.type.freqs" in str(file_path):
+                for file in file_path:
+                    if (file.split(".")[-2] == "type") & (len(file.split(".")) > 3):
                         lst_srr.append(file)
                         ncbi_id = "NC_001490"
-        else:
-            if file_path == []:
-                break
+                        # ncbi_id = checkKey(org_dic, virus)
             else:
-
-                org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
-                           "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
-                           "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
-                           "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
-                           "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
-                           "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
-                           "Echovirus E6": "JX976771"}
                 print(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
                 # virus = os.path.basename(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
-                virus = "RV"
                 try:
                     ncbi_id = checkKey(org_dic, virus)
                     print("Adding Mutation type to:%s" % (file_path[0].split('/')[-1].split(".")[0]))
