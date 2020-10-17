@@ -22,7 +22,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
-    output_dir = input_dir + "/20201014_plots"
+    output_dir = input_dir + "/20201017_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -48,16 +48,17 @@ def main():
 
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-    data_filter = data_filter[data_filter["label"] != "Free-32-Ultra"]
-    data_filter = data_filter[data_filter["label"] != "Free-33-Ultra"]
-    data_filter = data_filter[data_filter["label"] != "Capsid-31-Amicon"]
+    # data_filter = data_filter[data_filter["label"] != "Free-32-Ultra"]
+    # data_filter = data_filter[data_filter["label"] != "Free-33-Ultra"]
+    data_filter = data_filter[data_filter["label"] != "Capsid-32-Ultra"]
     data_filter["RNA"] = np.where(data_filter["label"] == "RNA Control\nPrimer ID", "RNA Control\nPrimer ID",
                                     data_filter["RNA"])
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
 
 
-    capsid_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid-32-Ultra", "Capsid-33-Ultra", "Free-31-Amicon", "Free-33-Amicon"]#, "Free-32-Ultra", "Free-33-Ultra"]
+    capsid_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl","Capsid-31-Amicon", "Capsid-33-Ultra",
+                    "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]#, "Capsid-32-Ultra"
     rna_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid", "Free"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
@@ -119,7 +120,7 @@ def main():
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
-    g2.set_xticklabels(fontsize=10, rotation=45)
+    g2.set_xticklabels(fontsize=10, rotation=90)
     # plt.show()
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
