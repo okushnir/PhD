@@ -20,17 +20,17 @@ def main():
     fasta = options.fasta
     freqs = options.freqs
     output_file = options.output_file
+
+    mutable_reference = None
     min_coverage = 1000
     if options.coverage:
-        min_coverage= options.coverage
+        min_coverage = options.coverage
 
     if options.fasta is None or options.fasta is None or options.output_file is None:
         parser.error("Missing file input")
 
-    reference=None
-    input_record=None
-
-    mutable_reference=None
+    reference = None
+    input_record = None
 
     with open(fasta, "rU") as handle:
         for record in SeqIO.parse(handle, "fasta"):

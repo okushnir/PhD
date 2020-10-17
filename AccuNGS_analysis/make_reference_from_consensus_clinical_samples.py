@@ -19,8 +19,8 @@ def main():
 
     for patient in patient_lst:
         fasta = base_dir + ("ref/RVA/%s_consenX%s.fasta") % (patient, str(cycle))
-        freqs = base_dir + ("AccuNGS/20201008RV-202329127/merged/patients/%s/20201017_q30_consensusX%s/%s.freqs") % (patient, cycle, patient.replace(
-            "_", "-"))
+        freqs = base_dir + ("AccuNGS/20201008RV-202329127/merged/patients/%s/20201017_q30_consensusX%s/%s.freqs") % \
+                (patient, cycle, patient.replace("_", "-"))
         output_file = base_dir + ("ref/RVA/%s_consenX%s.fasta") % (patient, str(cycle+1))
 
         reference = None
