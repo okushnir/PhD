@@ -7,9 +7,17 @@
 """
 
 import os
-from AccuNGS_analysis import pbs_runners
+import pbs_runners
 import glob
-from Utilities.sequnce_utilities import *
+import pandas as pd
+
+
+def checkKey(dict, key):
+    if key in dict.keys():
+        return dict[key]
+    else:
+        raise Exception()
+
 
 def index(csv_file, fastq_path, output_dir):
     indexing = pd.read_csv(csv_file)  # your_csv_dir
@@ -94,6 +102,15 @@ def main():
     # for f in files:
     #     trim(f, output_dir)
 
+    #MiSeq
+    # PrimerID
+    #1
+    # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_I.cmd
+    # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_II.cmd
+    # CHANGE THE PARAMETERS
+    #2
+    # /sternadi/home/volume3/okushnir/Cluster_Scripts/barcode.cmd
+
     # 3rd merge the files
 
     # one by one approach
@@ -130,27 +147,51 @@ def main():
     input_dir_ATCG1 = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/ATCG1"
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
-    ref_rv_patient_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/consensus.fasta"
+    # Clinical samples
+    # make_reference_from_consensus.py
+
+    cycle = "5"
+    patient_lst = ("Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20")
+
+    ref_rv_patient = "/sternadi/home/volume3/okushnir/ref/RVA/JX025555.fasta"
     ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/HRVB14_from_pWR3.26_1-7212.fasta"
     ref_cv = "/sternadi/home/volume3/okushnir/ref/CVB3/CVB3_from_pT7CVB3_1-7399.fasta"
     ref_atcg1 = "/sternadi/home//volume3/okushnir/ref/human/NM_001614.5_ACTG1.fa"
     ref_flna1 = "/sternadi/home/volume3/okushnir/ref/human/FLNA.fasta"
 
-    folders = glob.glob(input_dir_patients + "/P*")
-    # print(folders)
+    ref_rv_patient1_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-1_consenX%s.fasta" % cycle
+    ref_rv_patient4_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-4_consenX%s.fasta" % cycle
+    ref_rv_patient5_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-5_consenX%s.fasta" % cycle
+    ref_rv_patient9_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-9_consenX%s.fasta" % cycle
+    ref_rv_patient16_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-16_consenX%s.fasta" % cycle
+    ref_rv_patient17_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-17_consenX%s.fasta" % cycle
+    ref_rv_patient20_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-20_consenX%s.fasta" % cycle
 
-    for d in folders:
-        output_dir = d + "/20201013_q38"
-        # print(output_dir)
-        try:
-            os.mkdir(output_dir)
-        except OSError:
-            print("Creation of the directory %s failed" % output_dir)
-        else:
-            print("Successfully created the directory %s " % output_dir)
+    ref_dic = {"Patient_1": "/sternadi/home/volume3/okushnir/ref/RVA/patient-1_consenX%s.fasta" % cycle,
+    "Patient_4": "/sternadi/home/volume3/okushnir/ref/RVA/patient-4_consenX%s.fasta" % cycle,
+    "Patient_5": "/sternadi/home/volume3/okushnir/ref/RVA/patient-5_consenX%s.fasta" % cycle,
+    "Patient_9": "/sternadi/home/volume3/okushnir/ref/RVA/patient-9_consenX%s.fasta" % cycle,
+    "Patient_16": "/sternadi/home/volume3/okushnir/ref/RVA/patient-16_consenX%s.fasta" % cycle,
+    "Patient_17": "/sternadi/home/volume3/okushnir/ref/RVA/patient-17_consenX%s.fasta" % cycle,
+    "Patient_20": "/sternadi/home/volume3/okushnir/ref/RVA/patient-20_consenX%s.fasta" % cycle}
 
-        cmd = "python /sternadi/home/volume1/shared/SternLab/pipeline_runner.py -i %s -o %s -r %s -NGS_or_Cirseq 2 -rep 2  -q 38" % (d, output_dir, ref_rv_patient_consensus)
-        pbs_runners.script_runner(cmd, alias="pipeline_d")
+    for patient in patient_lst:
+        folders = glob.glob(input_dir_patients + "/%s" % patient)
+        # print(folders)
+
+        for d in folders:
+            output_dir = (d + "/20201017_q30_consensusX%s" % cycle)
+            # print(output_dir)
+            try:
+                os.mkdir(output_dir)
+            except OSError:
+                print("Creation of the directory %s failed" % output_dir)
+            else:
+                print("Successfully created the directory %s " % output_dir)
+
+            cmd = "python /sternadi/home/volume1/shared/SternLab/pipeline_runner.py -i %s -o %s -r %s -NGS_or_Cirseq 2 " \
+                  "-rep 2  -q 30 -b 40" % (d, output_dir, checkKey(ref_dic, patient))
+            pbs_runners.script_runner(cmd, alias="pipeline_d")
 
     #5th analyze the freqs
 
