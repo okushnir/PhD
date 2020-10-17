@@ -10,15 +10,12 @@ import os
 import numpy as np
 import sys, argparse
 import subprocess
-from Context_analysis_RV import checkKey
 import rpy2.robjects as robjects
-import glob
 from Context_analysis_RV import checkKey
 from fits_plotter import *
 from fits_parameters import *
 from time import sleep
 from fits_fitness_united import *
-from pbs_runners import array_script_runner
 from pbs_jobs import create_array_pbs_cmd
 
 

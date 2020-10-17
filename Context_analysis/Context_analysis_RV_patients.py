@@ -49,7 +49,7 @@ def main():
     lst_srr = []
     for passage in dirs:
         # Checks if the file .merged.with.mutation.type.freqs file exists
-        file_path = glob.glob(passage + "/20201014_q30_consensus/*.merged*freqs") #
+        file_path = glob.glob(passage + "/20201017_q30_consensusX5/*.merged*freqs") #
         if len(file_path) >= 1:
             if "merged.with.mutation.type.freqs" in str(file_path):
                 for file in file_path:
@@ -217,15 +217,15 @@ def main():
                                                                    np.where(data["Pos"] <= 5617, "3C",
                                                                     np.where(data["Pos"] <= 6728, "3D", "3'UTR"))))))))))))
     data["Type"] = data["Type"].fillna(value="NonCodingRegion")
-    data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_csv(input_dir + "/q30_data_mutation.csv", sep=',', encoding='utf-8')
 
     mutation_for_rna = ["AG"]
     dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]
-    dataForPlotting_AG.to_csv(input_dir + "/q38_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_AG.to_csv(input_dir + "/q30_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
 
     mutation_for_rna = ["UC"]
     dataForPlotting_UC = data[(data["mutation_type"].isin(mutation_for_rna))]
-    dataForPlotting_UC.to_csv(input_dir + "/q38_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_UC.to_csv(input_dir + "/q30_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
 
 
 if __name__ == "__main__":

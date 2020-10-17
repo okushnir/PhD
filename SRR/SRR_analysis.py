@@ -5,17 +5,12 @@
 
 """
 
-import sys
 import os
-import numpy as np
 import re
 import glob
 import pandas as pd
-from Bio.Seq import Seq
 from Bio import Entrez
 from Bio import SeqIO
-import pbs_runners
-import subprocess
 
 
 def find_srr_ref(srr_id, out_dir):

@@ -22,7 +22,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    output_dir = input_dir + "/20201015_plots"
+    output_dir = input_dir + "/20201017_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -31,7 +31,7 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "/q38_data_mutation.csv")
+    data_mutations = pd.read_csv(input_dir + "/q30_data_mutation.csv")
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",

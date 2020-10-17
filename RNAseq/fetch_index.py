@@ -1,10 +1,4 @@
-
-
-import os
-import pbs_runners
-import glob
 import pandas as pd
-import sys
 from Bio import SeqIO
 
 def main():

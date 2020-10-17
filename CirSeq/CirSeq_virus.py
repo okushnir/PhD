@@ -7,9 +7,8 @@
 """
 
 import os
-import pbs_runners
+from AccuNGS_analysis import pbs_runners
 import glob
-import pandas as pd
 from Utilities.sequnce_utilities import *
 
 

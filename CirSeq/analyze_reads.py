@@ -5,15 +5,8 @@
 """
 
 import pandas as pd
-import numpy as np
-import re
 import glob
-import Bio.Seq as Seq
-from Bio import SeqIO
-from optparse import OptionParser
-from Bio.Blast import NCBIWWW
-from Bio.Blast import NCBIXML
-from pbs_runners import blast_runner
+from AccuNGS_analysis.pbs_runners import blast_runner
 import matplotlib as plt
 
 

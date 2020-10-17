@@ -109,10 +109,10 @@ def main(): #args
     patient_lst = (1, 4, 5, 9, 16, 17, 20)
     for patient in patient_lst:
 
-        sample_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_%s/20201014_q30_consensus/Patient-%s.freqs" % (patient, patient)
-        control_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/IVT_5_Control/20201012_q38/IVT-5-Control.freqs"
-        output = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_%s/20201014_q30_consensus/Patient-%svsControl.csv" % (patient, patient)
-        min_coverage = 500
+        sample_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_%s/20201017_q30_consensusX5/Patient-%s.freqs" % (patient, patient)
+        control_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.freqs"
+        output = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_%s/20201017_q30_consensusX5/Patient-%svsControl.csv" % (patient, patient)
+        min_coverage = 1000
 
 
         label_control = "Control"
