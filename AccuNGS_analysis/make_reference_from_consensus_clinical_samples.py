@@ -14,7 +14,7 @@ def main():
     min_coverage = 1000
     cycle = 5
     patient_lst = ("Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20")
-    base_dir="/Volumes/STERNADILABHOME$/volume3/okushnir/"
+    base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/"
 
 
     for patient in patient_lst:
