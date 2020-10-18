@@ -12,7 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import subprocess
-from pbs_jobs import *
+from util import pbs_jobs
 import seaborn as sns
 import numpy as np
 
@@ -148,7 +148,7 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
 def main():
     # sample = args.sample
 
-    # 1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped
+    """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
     # cmds = "for sample in 2 5 8 10 12; do cd /sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/RVB14_p$sample/20191029_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
     # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/all_parts.cmd"
     # create_pbs_cmd(cmd_file, alias="all_parts", gmem=3, cmds=cmds, load_python=False)
@@ -157,7 +157,7 @@ def main():
     # if status == "Done":
     #     print("Done!")
 
-    # 2. Run variants_on_same_read.py
+    """2. Run variants_on_same_read.py"""
     # cmds = "base=$sample\n" \
     #        "freqs=`ls ${base} | grep freqs`\n" \
     #        "mkdir ${base}/accungs_associations\n" \
@@ -173,7 +173,7 @@ def main():
     # if status == "Done":
     #     print("Done!")
 
-    # 3. Concatenate all the files
+    """3. Concatenate all the files"""
     # cmds = "cd $sample/accungs_associations; cat *txt>all.txt"
     # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/cat_txt.cmd"
     # create_pbs_cmd(cmd_file, alias="cat_txt", gmem=3, cmds=cmds, load_python=False)
@@ -183,7 +183,7 @@ def main():
     # if status == "Done":
     #     print("Done!")
 
-    # 4. Run collect_cooccurs and merge it to freqs file
+    """4. Run collect_cooccurs and merge it to freqs file"""
     passages_lst = ["RVB14_p0", "RVB14_p2", "RVB14_p5", "RVB14_p8", "RVB14_p10", "RVB14_p12"]
     for passage in passages_lst:
         sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/%s/20191029_q38" % (

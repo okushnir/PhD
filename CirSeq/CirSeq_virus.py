@@ -7,7 +7,7 @@
 """
 
 import os
-from AccuNGS_analysis import pbs_runners
+import pbs_runners
 import glob
 from Utilities.sequnce_utilities import *
 
