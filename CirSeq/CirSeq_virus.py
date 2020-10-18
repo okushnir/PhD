@@ -9,7 +9,6 @@
 import os
 import pbs_runners
 import glob
-import pandas as pd
 from Utilities.sequnce_utilities import *
 
 
