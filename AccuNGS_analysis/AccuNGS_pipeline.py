@@ -87,13 +87,13 @@ def main():
     # file = options.input_file
     # output_dir = options.output_dir
 
-    # 1st thing to do is to index the output files from the Nextseq
+    """1st thing to do is to index the output files from the Nextseq"""
     # csv_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/RNAseq/180725_M04473_0026_000000000-BT9GF/index.csv"
     # fastq_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/RNAseq/180725_M04473_0026_000000000-BT9GF/"
     # output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/RNAseq/180725_M04473_0026_000000000-BT9GF/indexed"
     # index(csv_file, fastq_path, output_dir)
 
-    # 2nd is to clean the files from --
+    """2nd is to clean the files from --"""
     # trim(file, output_dir)
 
     # input_dir = ("/sternadi/datasets/volume1/180503_OST_FINAL_03052018/indexed/")
@@ -102,25 +102,23 @@ def main():
     # for f in files:
     #     trim(f, output_dir)
 
-    #MiSeq
-    # PrimerID
-<<<<<<< HEAD
-    # Option 1
+    """MiSeq"""
+    """PrimerID"""
+    """Option 1"""
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_I.cmd
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_II.cmd
     # CHANGE THE PARAMETERS
 
-    # Option 2
-=======
+    """Option 2"""
     #1
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_I.cmd
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_II.cmd
     # CHANGE THE PARAMETERS
     #2
->>>>>>> bc5c6dd857dd53630e14d956f5a558f223b1065b
+
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/barcode.cmd
 
-    # 3rd merge the files
+    """3rd merge the files"""
 
     # one by one approach
     # sample = "CVB3_p2_L001-ds.7381dd36e2ce42768db0cc15d5c79a31"
@@ -129,7 +127,7 @@ def main():
     # merge_paired_files(input_dir, merge_output_dir)
 
 
-    # automatic approach
+    """automatic approach"""
 
     # input_dir = "/sternadi/home/volume3/okushnir/AccuNGS/190807_RV_p2_p10/clean/"
     # merge_input_dir = glob.glob(input_dir+"*")
@@ -147,7 +145,7 @@ def main():
     #     merge_paired_files(dir, merge_output_dir)
 
 
-    # # # 4th run pipeline:
+    """4th run pipeline:"""
     input_dir_RV_p7 = "/sternadi/home/volume3/okushnir/AccuNGS/190217_RV_p7/merged"
     input_dir_RV_new = "/sternadi/home/volume3/okushnir/AccuNGS/190807_RV_p2_p10/merged"
     input_dir_patients = "/sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
@@ -156,7 +154,7 @@ def main():
     input_dir_ATCG1 = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/ATCG1"
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
-    # Clinical samples
+    """Clinical samples"""
     # make_reference_from_consensus.py
 
     cycle = "5"
@@ -202,25 +200,25 @@ def main():
                   "-rep 2  -q 30 -b 40" % (d, output_dir, checkKey(ref_dic, patient))
             pbs_runners.script_runner(cmd, alias="pipeline_d")
 
-    #5th analyze the freqs
+    """5th analyze the freqs"""
 
-    #6th run variant_caller localy to check context mutations
+    """6th run variant_caller localy to check context mutations"""
 
-    # using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
-    # I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
-    # for example:
-    # /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38
-    # /Capsid-32-Ultra.freqs /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/
-    # IVT_3_Control/20201012_q38/IVT-3-Control.freqs -c 5000 -o /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/
-    # 20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38/Capsid-32_UltravsControl.csv
+    """using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
+    I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
+    for example:
+    /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38
+    /Capsid-32-Ultra.freqs /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/
+    IVT_3_Control/20201012_q38/IVT-3-Control.freqs -c 5000 -o /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/
+    20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38/Capsid-32_UltravsControl.csv"""
 
-    # Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
-    # I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob
-    # Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/Context_analysis_RV.py
-    # I created all new q38_data_mutation.csv, q38_data_UpX_by_mutation.csv, q38_data_XpA_by_mutation.csv files with new merged files.
+    """Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
+    I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob
+    Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/Context_analysis_RV.py
+    I created all new q38_data_mutation.csv, q38_data_UpX_by_mutation.csv, q38_data_XpA_by_mutation.csv files with new merged files."""
 
-#     Context_analysis_X.py
-#     AccuNGS_analysis new_analysis_X.py
+    """Context_analysis_X.py"""
+    """AccuNGS_analysis/new_analysis_X.py"""
 
 if __name__ == "__main__":
     main()
