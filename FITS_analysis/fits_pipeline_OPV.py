@@ -11,11 +11,20 @@ import numpy as np
 import sys, argparse
 import subprocess
 import rpy2.robjects as robjects
+<<<<<<< HEAD
 from FITS_analysis.fits_new_plotter import *
 from FITS_analysis.fits_parameters import *
 from time import sleep
 from FITS_analysis.fits_fitness_united import *
 from util import pbs_jobs
+=======
+from Context_analysis_RV import checkKey
+from fits_plotter import *
+from fits_parameters import *
+from time import sleep
+from fits_fitness_united import *
+from pbs_jobs import create_array_pbs_cmd
+>>>>>>> bc5c6dd857dd53630e14d956f5a558f223b1065b
 
 def checkKey(dict, key):
     if key in dict.keys():

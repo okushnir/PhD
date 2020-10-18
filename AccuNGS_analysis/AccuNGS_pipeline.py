@@ -104,12 +104,20 @@ def main():
 
     #MiSeq
     # PrimerID
+<<<<<<< HEAD
     # Option 1
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_I.cmd
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_II.cmd
     # CHANGE THE PARAMETERS
 
     # Option 2
+=======
+    #1
+    # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_I.cmd
+    # /sternadi/home/volume3/okushnir/Cluster_Scripts/extract-primer-ids20201016_II.cmd
+    # CHANGE THE PARAMETERS
+    #2
+>>>>>>> bc5c6dd857dd53630e14d956f5a558f223b1065b
     # /sternadi/home/volume3/okushnir/Cluster_Scripts/barcode.cmd
 
     # 3rd merge the files
