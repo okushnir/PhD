@@ -10,17 +10,18 @@ import os
 import numpy as np
 import sys, argparse
 import subprocess
-from Context_analysis_RV import checkKey
 import rpy2.robjects as robjects
-import glob
-from Context_analysis_RV import checkKey
-from fits_plotter import *
-from fits_parameters import *
+from FITS_analysis.fits_new_plotter import *
+from FITS_analysis.fits_parameters import *
 from time import sleep
-from fits_fitness_united import *
-from pbs_runners import array_script_runner
-from pbs_jobs import create_array_pbs_cmd
+from FITS_analysis.fits_fitness_united import *
+from util import pbs_jobs
 
+def checkKey(dict, key):
+    if key in dict.keys():
+        return dict[key]
+    else:
+        raise Exception()
 
 def check_pbs(job_id):
     """
@@ -242,7 +243,7 @@ def main(args):
     jnum += 1000
     print(jnum)
     cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/new_FITS_jobarray_fitness_%s.cmd" % virus
-    create_array_pbs_cmd(cmd_file, jnum, alias="Fits_fitness", gmem=3, cmds=cmds)
+    pbs_jobs.create_array_pbs_cmd(cmd_file, jnum, alias="Fits_fitness", gmem=3, cmds=cmds)
 
     fitness_output_dir = input_dir + "fits/output/fitness/%s/" % passages
     try:
