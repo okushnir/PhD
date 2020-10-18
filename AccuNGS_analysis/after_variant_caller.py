@@ -26,13 +26,14 @@ def merege_freqs_variant(input_path, sample, out_file):
 
 def main():
     virus = "RVB14"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls"
-    dirs = glob.glob(input_dir + "/IVT*")
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    dirs = glob.glob(input_dir + "/Patient*")
+    med_dir = "/20201017_q30_consensusX5/"
     for passage in dirs:
-        input_path = glob.glob(passage + "/20201012_q38")
+        input_path = glob.glob(passage + med_dir)
         # "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_p5_L001-ds.b723553755a44959a7dc6debdb4558ea/q38_3UTR"
         sample = passage.split("/")[-1].replace("_", "-")#split("p")[0] + passage.split("/")[-1].split("_p")[1].split("_")[0]
-        out_file = passage + "/20201012_q38/" + sample + ".merged.freqs"
+        out_file = passage + med_dir + sample + ".merged.freqs"
         # print(type(sample))
         data = merege_freqs_variant(input_path[0], sample, out_file)
         data.to_csv(out_file, sep='\t', encoding='utf-8')
