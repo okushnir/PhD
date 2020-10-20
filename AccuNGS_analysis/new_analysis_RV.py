@@ -29,7 +29,7 @@ def main():
     flatui = ["#3498db", "#9b59b6"]
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/20201014_new_plots"
+    output_dir = input_dir + "/20201019_new_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -71,6 +71,7 @@ def main():
                                     data_filter["label"])
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
+    data_filter.to_pickle(output_dir + "/data_filter.pkl")
 
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
@@ -104,6 +105,7 @@ def main():
     data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains('ApA')
     print(data_filter_ag.to_string())
     data_filter_ag.to_csv(output_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
+    data_filter_ag.to_pickle(output_dir + "/data_filter_ag.pkl")
     data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
     data_filter_ag_pass5 = data_filter_ag_pass5[data_filter_ag_pass5["pval"] < 0.01]
     data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
@@ -118,6 +120,7 @@ def main():
     data_filter_uc = data_filter_uc[data_filter_uc["passage"] != 0]
 
     data_filter_uc.to_csv(output_dir + "/data_filter_uc.csv", sep=',', encoding='utf-8')
+    data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
     #Plots
@@ -140,7 +143,7 @@ def main():
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
-    g2.set_xticklabels(fontsize=10, rotation=45)
+    g2.set_xticklabels(fontsize=9, rotation=90)
     # plt.show()
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
@@ -194,7 +197,7 @@ def main():
     g5.set_axis_labels("", "Variant Frequency")
     g5.set(yscale='log')
     g5.set(ylim=(7*10**-7, 4*10**-3))
-    g5.set_xticklabels(rotation=45)
+    g5.set_xticklabels(fontsize=9, rotation=90)
     # plt.show()
     g5.savefig(output_dir + "/Context_point_plot", dpi=300)
     plt.close()
@@ -508,6 +511,7 @@ def main():
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
     plt.savefig(output_dir + "/position.png", dpi=300)
     plt.close()
+
 
 if __name__ == "__main__":
     main()
