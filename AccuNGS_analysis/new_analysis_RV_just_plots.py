@@ -444,15 +444,23 @@ def main():
     # plt.savefig(output_dir + "/position.png", dpi=300)
     # plt.close()
     #
-    data_filter["passage"] = data_filter["passage"].astype(str)
-    position_mutation = sns.catplot(x="Pos", y="Frequency", data=data_filter, hue="Mutation", palette="tab20"
-                    , kind="point", dodge=True, hue_order=transition_order, join=False,
-                                    legend=True, col="passage", col_order=passage_order, col_wrap=3)
+    data_filter["passage"] = data_filter["passage"].astype(int)
+    data_filter["transition"] = data_filter.Mutation.str.contains('A>G') | data_filter.Mutation.str.contains("U>C") | \
+                                data_filter.Mutation.str.contains("G>A") | data_filter.Mutation.str.contains("C>U")
+    data_filter = data_filter[data_filter["transition"] == True]
+
+    data_filter_ag = data_filter_ag[data_filter_ag["Protein"] != "2A"]
+    data_filter_ag = data_filter_ag[data_filter_ag["Protein"] != "3'UTR"]
+    data_filter_ag = data_filter_ag[data_filter_ag["Type"] == "Synonymous"]
+
+    position_mutation = sns.relplot(x="Pos", y="Frequency", data=data_filter_ag, hue="Protein", col="passage",
+                                    col_wrap=3, style="ADAR_like", style_order=[True, False], palette="tab10")
 
     position_mutation.set_axis_labels("", "Variant Frequency")
-    position_mutation.set_yscale('log')
-    position_mutation.set(xlim=(3500, 7500))
-    position_mutation.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # position_mutation.set(yscale="log")
+    position_mutation.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
+    # position_mutation.set(xlim=(3500, 7500))
+    # position_mutation.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     # plt.tight_layout()
     # position_g.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
