@@ -509,6 +509,22 @@ def main():
     plt.savefig(output_dir + "/position.png", dpi=300)
     plt.close()
 
+    position_mutation = sns.scatterplot("Pos", "Frequency", data=data_filter, hue="Mutation", order=transition_order,
+                                 palette="tab10", col="lable", col_order=label_order, col_wrap=3)
+
+    # position_g.set_axis_labels("", "Variant Frequency")
+    position_mutation.set_yscale('log')
+    position_mutation.set(xlim=(3500, 7500))
+    position_mutation.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.tight_layout()
+    # position_g.set(ylim=(10 ** -6, 10 ** -2))
+    # g2.set_yticklabels(fontsize=12)
+    # position_g.set_xticklabels(fontsize=10, rotation=45)
+    # plt.show()
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
+    plt.savefig(output_dir + "/position_mutation.png", dpi=300)
+    plt.close()
+
 if __name__ == "__main__":
     main()
 
