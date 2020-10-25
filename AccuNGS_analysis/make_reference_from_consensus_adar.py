@@ -45,6 +45,7 @@ def main():
     #data_freqs = data_freqs[data_freqs["Base"] != data_freqs["Ref"]]
     data_freqs = data_freqs[data_freqs["Pos"] == np.round(data_freqs['Pos'])] #remove insertion
     data_freqs = data_freqs[data_freqs["Base"] != "-"] #remove deletion
+    data_freqs["Base"] = np.where(data_freqs["Ref"] == "A", "G", np.where(data_freqs["Ref"] != "A", data_freqs["Base"]), data_freqs["Base"])
     data_freqs.apply(replace_base, args=(mutable_reference,), axis=1) #updates mutable reference to hold correct consensus
 
     new_sequence=Seq.Seq(str(mutable_reference))

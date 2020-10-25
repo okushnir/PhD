@@ -142,38 +142,64 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
                                                )
                                       )
         return merged
-
-
-def main(args):
+        """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
 # def main():
-    sample = args.sample
-
-    """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
-    # cmds = "for sample in 2_1 2_2 5_1 5_2 8_1 8_2 10_1 12_1 12_2; do cd /sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p${sample}/20201012_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
+    # cmds = "for sample in 2_1 2_2 5_1 5_2 8_1 8_2 10_1 10_2 12_1 12_2; do cd /sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p${sample}/20201012_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
     # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/all_parts.cmd"
     # pbs_jobs.create_pbs_cmd(cmd_file, alias="all_parts", gmem=3, cmds=cmds, load_python=False)
     # job_id = pbs_jobs.submit(cmd_file)
     # status = pbs_jobs.check_pbs(job_id)
     # if status == "Done":
     #     print("Done!")
+# if __name__ == "__main__":
+#     main()
+
+def main(args):
+
+    sample = args.sample
 
     """2. Run variants_on_same_read.py"""
-    cmds = "base=$sample\n" \
-           "freqs=`ls ${base} | grep freqs`\n" \
-           "mkdir ${base}/accungs_associations\n" \
-           "python /sternadi/home/volume1/maozgelbart/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
-    cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/co_occur.cmd"
-    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="3522-4999", alias="accungs_assoc", gmem=3, cmds=cmds)
-    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="5000-6499", alias="accungs_assoc", gmem=3, cmds=cmds)
-    pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="6500-7212", alias="accungs_assoc", gmem=3, cmds=cmds)
-    print("qsub -v sample='%s' %s" % (sample, cmd_file))
-    job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
-    print(job_id)
-    job_id = job_id.replace("[]", "")
-    print(job_id)
-    status = pbs_jobs.check_pbs(job_id)
-    if status == "Done":
-        print("Done!")
+    section_lst = (1, 2, 3)
+    for i in section_lst:
+        cmds = "base=$sample\n" \
+               "freqs=`ls ${base} | grep freqs`\n" \
+               "mkdir ${base}/accungs_associations\n" \
+               "python /sternadi/home/volume1/maozgelbart/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
+        cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/co_occur.cmd"
+        if i == 1:
+            pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="3522-4999", alias="accungs_assoc", gmem=3, cmds=cmds)
+            print("qsub -v sample='%s' %s" % (sample, cmd_file))
+            job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
+            # print(job_id)
+            job_id = job_id.replace("[]", "")
+            print(job_id)
+            status = pbs_jobs.check_pbs(job_id)
+            if status == "Done":
+                print("Done (%s/%s)" % (str(i), str(len(section_lst))))
+                continue
+        if i == 2:
+            pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="5000-6499", alias="accungs_assoc", gmem=3, cmds=cmds)
+            print("qsub -v sample='%s' %s" % (sample, cmd_file))
+            job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
+            # print(job_id)
+            job_id = job_id.replace("[]", "")
+            print(job_id)
+            status = pbs_jobs.check_pbs(job_id)
+            if status == "Done":
+                print("Done (%s/%s)" % (str(i), str(len(section_lst))))
+                continue
+        if i == 3:
+            pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="6500-7212", alias="accungs_assoc", gmem=3, cmds=cmds)
+            print("qsub -v sample='%s' %s" % (sample, cmd_file))
+            job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
+            # print(job_id)
+            job_id = job_id.replace("[]", "")
+            print(job_id)
+            status = pbs_jobs.check_pbs(job_id)
+            if status == "Done":
+                print("Done (%s/%s)" % (str(i), str(len(section_lst))))
+                continue
+    print("Done!!!!")
 
     """3. Concatenate all the files"""
     # cmds = "cd $sample/accungs_associations; cat *txt>all.txt"
@@ -214,8 +240,6 @@ def main(args):
     #     co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
     #     print(merged_df)
 
-# if __name__ == "__main__":
-#     main()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("sample", type=str, help="sample dir path")

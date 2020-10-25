@@ -50,19 +50,31 @@ import pandas as pd
 #     result = list(set(listA) & set(listB))
 #     return result
 
-list1 = ['6043', '6049', "875"]
-list2 = ['6079']
-L=[list1, list2]
-len_l = 0
-max = 0
-for l in L:
-    len_l = len(l)
-    if len_l > max:
-        max = len_l
-        max_list = l
+# list1 = ['6043', '6049', "875"]
+# list2 = ['6079']
+# L=[list1, list2]
+# len_l = 0
+# max = 0
+# for l in L:
+#     len_l = len(l)
+#     if len_l > max:
+#         max = len_l
+#         max_list = l
 
 
 # print(grouped.first())
 
 
 # print(data.to_string())
+lst = (1, 2, 3)
+for i in lst:
+    if i == 1:
+        print(i)
+        continue
+    elif i == 2:
+        print(i)
+        continue
+    elif i == 3:
+        print(i)
+        continue
+print("Done!")

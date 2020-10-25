@@ -143,20 +143,20 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
                                       )
         return merged
 
+def main():
+    """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
+    cmds = "for sample in 2 5 8 10 12; do cd /sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/RVB14_p$sample/20191029_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
+    cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/all_parts.cmd"
+    pbs_jobs.create_pbs_cmd(cmd_file, alias="all_parts", gmem=3, cmds=cmds, load_python=False)
+    job_id = pbs_jobs.submit(cmd_file)
+    status = pbs_jobs.check_pbs(job_id)
+    if status == "Done":
+        print("Done!")
+if __name__ == "__main__":
+    main()
 
 # def main(args):
-def main():
     # sample = args.sample
-
-    """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
-    # cmds = "for sample in 2 5 8 10 12; do cd /sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/RVB14_p$sample/20191029_q38; cat mutations_all.txt | grep -v ref_pos > mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
-    # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/all_parts.cmd"
-    # create_pbs_cmd(cmd_file, alias="all_parts", gmem=3, cmds=cmds, load_python=False)
-    # job_id = submit(cmd_file)
-    # status = check_pbs(job_id)
-    # if status == "Done":
-    #     print("Done!")
-
     """2. Run variants_on_same_read.py"""
     # cmds = "base=$sample\n" \
     #        "freqs=`ls ${base} | grep freqs`\n" \
@@ -212,8 +212,6 @@ def main():
         co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
         print(merged_df)
 
-if __name__ == "__main__":
-    main()
 # if __name__ == "__main__":
 #     parser = argparse.ArgumentParser()
 #     parser.add_argument("sample", type=str, help="sample dir path")
