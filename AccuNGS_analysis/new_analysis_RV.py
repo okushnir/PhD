@@ -94,9 +94,7 @@ def main():
     print(data_filter_ag.to_string())
     data_filter_ag.to_csv(output_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
     data_filter_ag.to_pickle(output_dir + "/data_filter_ag.pkl")
-    data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
-    data_filter_ag_pass5 = data_filter_ag_pass5[data_filter_ag_pass5["pval"] < 0.01]
-    data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
+
 
     # U>C Prev Context
     data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]

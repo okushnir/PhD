@@ -35,7 +35,8 @@ def main():
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
-
+    # data_filter_ag["weighted_varaint"] = data_filter_ag["frac_and_weight"].apply(lambda x: weighted_varaint(x))
+    #
 
     #Plots
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=capsid_order, palette="tab20",
@@ -85,19 +86,20 @@ def main():
     g5.savefig(output_dir + "/Context_RNA_point_plot", dpi=300)
     plt.close()
 
-    data_filter_ag_synon = data_filter_ag[data_filter_ag["Type"] == "Synonymous"]
-    g5_synon = sns.catplot("RNA", "frac_and_weight", data=data_filter_ag_synon, hue="ADAR_like", order=rna_order,
-                           palette=flatui, kind="point", dodge=True, hue_order=[True, False],
-                           estimator=weighted_varaint, orient="v", col="Type", join=False, col_order=type_order)
-    add_stat_annotation(g5_synon, data=data_filter_ag_synon, x="RNA", y="Frequency", hue="ADAR_like", order=rna_order,
-                        boxPairList=[(("Capsid", "True"), ("Free", "True"))],
-                        test='Mann-Whitney', textFormat='star', loc='inside', verbose=2)
-    # g5_synon.set_axis_labels("", "Variant Frequency")
-    # g5_synon.set(yscale='log')
+    # data_filter_ag_synon = data_filter_ag[data_filter_ag["Type"] == "Synonymous"]
+    # g5_synon = sns.pointplot("RNA", "frac_and_weight", data=data_filter_ag_synon, hue="ADAR_like", order=rna_order,
+    #                        palette=flatui, kind="point", dodge=True, hue_order=[True, False],
+    #                        estimator=weighted_varaint, orient="v", col="Type", join=False, col_order=type_order)
+    # add_stat_annotation(g5_synon, data=data_filter_ag_synon, x="RNA", y="Frequency", hue="ADAR_like", order=rna_order,
+    #                     box_pairs=[(("Capsid", True), ("Free", True))],
+    #                     test='Mann-Whitney', text_format='star', loc='outside', verbose=2)
+    # g5_synon.set_yscale('log')
+    # g5_synon.set_ylabel("Variant Frequency")
     # g5_synon.set(ylim=(7*10**-7, 4*10**-3))
-    # g5_synon.set_xticklabels(rotation=45)
-    g5_synon.savefig(output_dir + "/Context_RNA_synon_point_plot", dpi=300)
-    plt.close()
+    # sns.despine()
+    # plt.tight_layout()
+    # plt.savefig(output_dir + "/Context_RNA_synon_point_plot", dpi=300)
+    # plt.close()
 
     g6 = sns.catplot("RNA", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=rna_order, palette=flatui,
                 kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
