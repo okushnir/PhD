@@ -22,11 +22,8 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
-<<<<<<< HEAD
     output_dir = input_dir + "/20201019_plots"
-=======
     output_dir = input_dir + "/20201025_plots"
->>>>>>> 15495ee619aaf8fb0cfefd3de7ebc74fc3b7353e
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -59,8 +56,6 @@ def main():
                                     data_filter["RNA"])
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
-<<<<<<< HEAD
-
 
     capsid_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl","Capsid-31-Amicon", "Capsid-32-Ultra", "Capsid-33-Ultra",
                     "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]#
@@ -68,9 +63,7 @@ def main():
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
-=======
     data_filter.to_pickle(output_dir + "/data_filter.pkl")
->>>>>>> 15495ee619aaf8fb0cfefd3de7ebc74fc3b7353e
 
     # A>G Prev Context
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
@@ -99,7 +92,6 @@ def main():
     data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
-<<<<<<< HEAD
     #Plots
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=capsid_order, palette="tab20",
                         kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
@@ -194,8 +186,7 @@ def main():
     plt.savefig(output_dir + "/position.png", dpi=300)
     plt.close()
 
-=======
->>>>>>> 15495ee619aaf8fb0cfefd3de7ebc74fc3b7353e
+
 if __name__ == "__main__":
     main()
 
