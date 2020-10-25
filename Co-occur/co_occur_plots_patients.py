@@ -7,7 +7,6 @@
 
 import sys, argparse
 import matplotlib
-import os
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -45,14 +44,7 @@ def find_max_per_column(list1, list2):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14"
-    output_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/20201021_plots"
-    try:
-        os.mkdir(output_dir)
-    except OSError:
-        print("Creation of the directory %s failed" % output_dir)
-    else:
-        print("Successfully created the directory %s " % output_dir)
-
+    output_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/20201009_plots"
     data_p2 = pd.read_csv(input_dir + "/RVB14_p2/20191029_q38/co_occur.csv")
     data_p5 = pd.read_csv(input_dir + "/RVB14_p5/20191029_q38/co_occur.csv")
     data_p8 = pd.read_csv(input_dir + "/RVB14_p8/20191029_q38/co_occur.csv")
@@ -62,8 +54,18 @@ def main():
     df = pd.concat([data_p0, data_p2, data_p5, data_p8, data_p10, data_p12])
     df.to_csv(output_dir + "/all_co_occur_raw.csv", sep=",", encoding='utf-8')
 
-    reg_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    df = add_Protein_to_pd_df.add_Protein_to_pd_df_func(df, reg_lst)
+    df["Protein"] = np.where(df["Pos"] <= 503, "5'UTR",
+                                np.where(df["Pos"] <= 709, "1A",
+                                    np.where(df["Pos"] <= 1495, "1B",
+                                        np.where(df["Pos"] <= 2197, "1C",
+                                            np.where(df["Pos"] <= 3094, "1D",
+                                                np.where(df["Pos"] <= 3523, "2A",
+                                                    np.where(df["Pos"] <= 3808, "2B",
+                                                        np.where(df["Pos"] <= 4771, "2C",
+                                                            np.where(df["Pos"] <= 5005, "3A",
+                                                                np.where(df["Pos"] <= 5068, "3B",
+                                                                   np.where(df["Pos"] <= 5617, "3C",
+                                                                    np.where(df["Pos"] <= 6728, "3D", "3'UTR"))))))))))))
 
     grouped = df.groupby(["Pos"])
     df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
@@ -71,16 +73,12 @@ def main():
     df_co_occur = df_co_occur.loc[df_co_occur.Group_Count > 1]
 
 
-    # df_co_occur["no_variants"] = df_co_occur["Frequency"] * df_co_occur["Read_count"]
-    # df_co_occur["frac_and_weight"] = list(zip(df_co_occur.no_variants, df_co_occur.Read_count))
+    df_co_occur["no_variants"] = df_co_occur["Frequency"] * df_co_occur["Read_count"]
+    df_co_occur["frac_and_weight"] = list(zip(df_co_occur.no_variants, df_co_occur.Read_count))
     # df_co_occur = df_co_occur[df_co_occur["Protein"] != "3'UTR"]
-    df_co_occur["Passage"] = df_co_occur["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    df_co_occur["Passage"] = np.where(df_co_occur["Passage"] == "RNA Control", 0, df_co_occur["Passage"])
-    df_co_occur["Passage"] = df_co_occur["Passage"].astype(int)
-    
     df_co_occur.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
     sample_order = ["RVB14-p0", "RVB14-p2", "RVB14-p5", "RVB14-p8", "RVB14-p10", "RVB14-p12"]
-
+    #
     #
     # # Plots
     # # g1 = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="label", col="Group_Count", col_wrap=2,
@@ -90,21 +88,11 @@ def main():
     # # g1.savefig(output_dir + "/co_occur.png", dpi=300)
     # # plt.close()
     #
-    # g2 = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="Protein", style="Group_Count", palette="tab10",
-    #                  col="passage", col_wrap=3)
-    # g2.set(yscale="log")
-    # g2.set(xlim=(3500, 7500))
-    # # plt.show()
-    # g2.savefig(output_dir + "/co_occur_protein.png", dpi=300)
-    # plt.close()
-
-    g2_passage = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="Protein", style="Group_Count",
-                             palette="tab10", col="Passage", col_wrap=3)#, style="Stretch")
-    g2_passage.set(yscale="log")
-    g2_passage.set(xlim=(3500, 7500))
-    g2_passage.set_xticklabels(fontsize=10, rotation=45)
+    g2 = sns.relplot(x="Pos", y="Frequency", data=df_co_occur, hue="Protein", size="Group_Count", palette="tab10")#, col="Group_Count", col_wrap=2, style="Stretch")
+    g2.set(yscale="log")
+    g2.set(xlim=(3500, 7500))
     # plt.show()
-    g2_passage.savefig(output_dir + "/co_occur_protein_passage.png", dpi=300)
+    g2.savefig(output_dir + "/co_occur_protein.png", dpi=300)
     plt.close()
 
     # g3 = sns.catplot("Pos", "frac_and_weight", data=df_co_occur.loc[df_co_occur.Group_Count == 5], hue="Protein",
@@ -193,57 +181,20 @@ def main():
     data["group"] = data["group"].astype(int)
     data["group"] = data["group"].astype(str)
     data["group"] = data["group"].apply(lambda x: "Group " + x)
-    data["Passage"] = data["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    data["Passage"] = data["Passage"].astype(int)
-    merge_df = df_co_occur.merge(data, how="outer", on="Stretch")
-    columns = ["Pos_x", "Base", "Frequency_x", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch", "meandist",
-               "Co-occurrences_identified", "ADAR_context", "ADAR_reverse_context", "Editing_context", "ADAR", "label_x",
-               "Protein", "Passage_x", "group"]
-    merge_df = merge_df[columns]
-    merge_df = merge_df.rename(columns={"Pos_x": "Pos"})
-    merge_df = merge_df.rename(columns={"Frequency_x": "Frequency"})
-    merge_df = merge_df.rename(columns={"label_x": "label"})
-    merge_df = merge_df.rename(columns={"Passage_x": "Passage"})
-    merge_df["group"] = merge_df["group"].fillna("out")
-    merge_df = merge_df[merge_df["group"] != "out"]
-    merge_df = merge_df[merge_df["Protein"] != "3'UTR"]
-    merge_df = merge_df[merge_df["Passage"] != 0]
-    merge_df = merge_df[merge_df["group"] != "Group 13"]
+    data["passage"] = data["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
+    data["passage"] = data["passage"].astype(int)
+    label_order = ["RVB14-p2", "RVB14-p5", "RVB14-p8", "RVB14-p10", "RVB14-p12"]
 
-    group_order = ["Group 1", "Group 2", "Group 3", "Group 4", "Group 5", "Group 6", "Group 7", "Group 8", "Group 9",
-                   "Group 10", "Group 11", "Group 12"]
-
-    # data = data.rename(columns={"passage": "Passage"})
-    g4 = sns.lineplot(x="Passage", y="Frequency", data=data, hue="group", palette="tab10")# ,kind="point", order=label_order
+    g4 = sns.lineplot(x="passage", y="Frequency", data=data, hue="group", palette="tab10")# ,kind="point", order=label_order
 
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.tight_layout()
     plt.savefig(output_dir + "/co_occur_groups.png", dpi=300)
-    #
-    # g5 = sns.regplot(x="Passage", y="Frequency", data=data)
-    # plt.tight_layout()
-    # g5.set(ylim=(0.0001, 0.0045))
-    # plt.savefig(output_dir + "/co_occur_reg.png", dpi=300)
 
-    g6_passage = sns.relplot(x="Pos", y="Frequency", data=merge_df, hue="group", hue_order=group_order,
-                             palette="tab20", col="Passage", col_wrap=3, legend="brief")#, style="Stretch")
-    g6_passage.set(yscale="log")
-    g6_passage.set(ylim=(10 ** -6, 10 ** -1))
-    g6_passage.set(xlim=(3500, 7500))
-    g6_passage.set_xticklabels(fontsize=10, rotation=45)
-    # plt.show()
-    g6_passage.savefig(output_dir + "/co_occur_protein_passage_new.png", dpi=300)
-    plt.close()
-
-    g7_passage = sns.relplot(x="Passage", y="Frequency", data=merge_df, kind="line", palette="tab20", col="group",
-                             col_wrap=4, col_order=group_order, hue="group", legend=False)
-    g7_passage.set(yscale="log")
-    g7_passage.set(ylim=(10 ** -6, 10 ** -1))
-    # g7_passage.set(xlim=(3500, 7500))
-    # g7_passage.set_xticklabels(fontsize=10, rotation=45)
-    # plt.show()
-    g7_passage.savefig(output_dir + "/co_occur_group_new.png", dpi=300)
-    plt.close()
+    g5 = sns.regplot(x="passage", y="Frequency", data=data)
+    plt.tight_layout()
+    g5.set(ylim=(0.0001, 0.0045))
+    plt.savefig(output_dir + "/co_occur_reg.png", dpi=300)
 
 
 if __name__ == "__main__":

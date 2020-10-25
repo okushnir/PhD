@@ -40,9 +40,6 @@ def main():
     g = sns.pointplot(x="RNA", y="Pi", data=pis_data, join=False, order=rna_order)
     g.set_yscale('log')
     g.set(ylim=(2*10**-5, 4*10**-3))
-    # plt.xticks(fontsize=10)
-    # plt.yticks(fontsize=10)
-    # g.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.tight_layout()
     plt.savefig(output_dir + "/Pi_plot", dpi=300)
 
