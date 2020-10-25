@@ -10,8 +10,8 @@ import seaborn as sns
 sns.set_style("ticks")
 
 def main():
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/20201025_new_plots"
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    output_dir = input_dir + "/20201025_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -24,17 +24,20 @@ def main():
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
-              "Consensus>Mutated_codon", "passage", "replica"]
+              "Consensus>Mutated_codon", "RNA", "method", "replica"]
     data = pd.DataFrame(data_mutations, columns=columns)
-    data["passage"] = data["passage"].astype(int)
-    data = data.rename(columns={"passage": "Passage"})
-    pis_data = pis_calac.pis_calc(data, pivot_cols=["Passage"])
+    data["RNA"] = np.where(data["label"] == "RNA Control\nPrimer ID", "RNA Control\nPrimer ID",
+                                    data["RNA"])
+    # data["passage"] = data["passage"].astype(int)
+
+    pis_data = pis_calac.pis_calc(data, pivot_cols=["RNA"])
 
     print(pis_data.to_string())
     replica_order = ("1", "2", "3")
+    rna_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid", "Free"]
 
     sns.set_context("paper", font_scale=0.8)
-    g = sns.pointplot(x="Passage", y="Pi", data=pis_data, join=False)
+    g = sns.pointplot(x="RNA", y="Pi", data=pis_data, join=False, order=rna_order)
     g.set_yscale('log')
     g.set(ylim=(2*10**-5, 4*10**-3))
     # plt.xticks(fontsize=10)
