@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
+from FITS_analysis import fits_new_plotter
 sns.set_style("ticks")
 
 # print(plt.style.available)
@@ -23,8 +24,9 @@ def weighted_varaint(x, **kws):
 
 
 def main():
+    flatui = ["#3498db", "#9b59b6"]
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
-    output_dir = input_dir + "/plots_q38_filtered/20201012"
+    output_dir = input_dir + "/plots_q38_filtered/20201025"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -111,43 +113,44 @@ def main():
     #
     # # A>G Prev Context
     #
-    # data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    #
-    # data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
-    # data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
-    # data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
-    # data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
-    #
-    #
-    # context_order = ["UpA", "ApA", "CpA", "GpA"]
-    # type_order = ["Synonymous", "Non-Synonymous"]
-    #
-    # g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="Prev", order=label_order, palette="tab20",
-    #                     hue_order=context_order, estimator=weighted_varaint, orient="v", dodge=True, kind="point",
-    #                  col="Type", join=False, col_order=type_order)
-    # g5.set_axis_labels("", "Variant Frequency")
-    # g5.set(yscale='log')
-    # g5.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
-    # g5.set_xticklabels(rotation=45)
-    # # plt.show()
-    # g5.savefig(output_dir + "/Context_point_plot", dpi=300)
-    # plt.close()
-    #
-    # data_filter_ag = data_filter_ag[data_filter_ag["passage"] != 0]
-    # g6 = sns.relplot("passage", "frac_and_weight", data=data_filter_ag, hue="Prev", palette="tab20",
-    #                     hue_order=context_order, estimator=weighted_varaint, col="Type", kind="line",
-    #                  col_order=type_order)
-    #
-    # g6.axes.flat[0].set_yscale('symlog', linthreshy=10**-5)
-    # g6.set(ylim=(0, 10 ** -2))
-    # yaxis = plt.gca().yaxis
-    # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
-    # g6.set_axis_labels("Passage", "Variant Frequency")
-    # # plt.show()
-    # g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
-    # plt.close()
-    #
-    #
+    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
+    data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
+    data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
+    data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
+    data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
+    data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
+    data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains(
+        'ApA')
+    data_filter_ag.to_pickle(output_dir + "/data_filter_ag.pkl")
+
+    type_order = ["Synonymous", "Non-Synonymous"]
+
+    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
+                     palette=flatui, kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
+                     orient="v", col="Type", join=False, col_order=type_order)
+    g5.set_axis_labels("", "Variant Frequency")
+    g5.set(yscale='log')
+    g5.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
+    g5.set_xticklabels(fontsize=9, rotation=90)
+    # plt.show()
+    g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    plt.close()
+
+    data_filter_ag = data_filter_ag[data_filter_ag["passage"] != 0]
+    g6 = sns.relplot("passage", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", palette="tab20",
+                        hue_order=[True, False], estimator=weighted_varaint, col="Type", kind="line",
+                     col_order=type_order)
+
+    g6.axes.flat[0].set_yscale('symlog', linthreshy=10**-5)
+    g6.set(ylim=(0, 10 ** -2))
+    yaxis = plt.gca().yaxis
+    yaxis.set_minor_locator(fits_new_plotter.MinorSymLogLocator(1e-1))
+    g6.set_axis_labels("Passage", "Variant Frequency")
+    # plt.show()
+    g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
+    plt.close()
+
+
     # data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
     #
     # data_filter_uc['Next'].replace('UA', 'UpA', inplace=True)
