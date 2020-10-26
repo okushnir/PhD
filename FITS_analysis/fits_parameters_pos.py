@@ -22,7 +22,7 @@ def fitness_parameters_pos(input_dir, output_dir):
     mutation_lst = ["AG", "AG_adar", "AG_nonadar", "UC", "GA", "CU"]
     rate_dict = {}
     for mutation in mutation_lst:
-        file = input_dir + "/all.txt"
+        file = input_dir + mutation +"/all.txt"
         data = pd.read_csv(file, sep="\t")
         data["inferred_mu"] = data["inferred_mu"].map(lambda x: str(x).lstrip('*'))
         data["inferred_mu"] = pd.to_numeric(data["inferred_mu"], errors='coerce')
