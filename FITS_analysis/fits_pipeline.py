@@ -14,7 +14,7 @@ from time import sleep
 from FITS_analysis import fits_fitness_united
 from FITS_analysis import fits_mutation_united
 from FITS_analysis import fits_parameters_pos
-from util.pbs_jobs import create_array_pbs_cmd
+from util import pbs_jobs
 
 def checkKey(dict, key):
     if key in dict.keys():
@@ -23,28 +23,28 @@ def checkKey(dict, key):
         raise Exception()
 
 
-def check_pbs(job_id):
-    """
-    :param job_id: The PBS job id
-    :return: "Done!", when the job is done
-    """
-    status = "Running..."
-    try:
-        process = subprocess.check_output("qstat | grep " + str(job_id), shell=True)
-        while process != "":
-            process = subprocess.check_output("qstat | grep " + str(job_id), shell=True)
-            sleep(0.05)
-        print("")
-    except (subprocess.CalledProcessError):
-        process = ""
-    if process == "":
-        status = "Done"
-    return status
-
-def submit(cmdfile):
-    cmd = "/opt/pbs/bin/qsub " + cmdfile
-    result = os.popen(cmd).read()
-    return result.split(".")[0]
+# def check_pbs(job_id):
+#     """
+#     :param job_id: The PBS job id
+#     :return: "Done!", when the job is done
+#     """
+#     status = "Running..."
+#     try:
+#         process = subprocess.check_output("qstat | grep " + str(job_id), shell=True)
+#         while process != "":
+#             process = subprocess.check_output("qstat | grep " + str(job_id), shell=True)
+#             sleep(0.05)
+#         print("")
+#     except (subprocess.CalledProcessError):
+#         process = ""
+#     if process == "":
+#         status = "Done"
+#     return status
+#
+# def submit(cmdfile):
+#     cmd = "/opt/pbs/bin/qsub " + cmdfile
+#     result = os.popen(cmd).read()
+#     return result.split(".")[0]
 
 def fits_adjustments(data):
     data.sort_values(by=['pos'])
@@ -60,7 +60,7 @@ def fits_adjustments(data):
     return df_all
 
 
-def fits_data_construction(input_dir, output_dir, from_passage, to_passage, quality, start_position, without_passage=None):
+def fits_data_construction(input_dir, output_dir, from_passage, to_passage, quality, start_position, replica_no, without_passage=None):
     all = pd.read_csv(input_dir + "%s_data_mutation.csv" % (quality))
     all["Pos"] = all["Pos"].astype(int)
     all = all[all["Pos"] >= start_position]
@@ -80,6 +80,8 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage, qual
     all = all[all["passage"] <= to_passage]
     all = all[all["passage"] != without_passage]
     all["Type"] = all["Type"].fillna("NonCodingRegion")
+    all["replica"] = all["replica"].astype(int)
+    all = all[all["replica"] == replica_no]
 
     """Filtering"""
     # all["pval"] = all["pval"].fillna(1)
@@ -141,6 +143,7 @@ def main(args):
     input_dir = args.input_dir # directory contains q23_data_mutation.csv - "/Volumes/STERNADILABHOME$/volume3/okushnir/Cirseq/PV/OPV/39mixMOI/"
     pipline_quality = args.quality
     mutation_type = args.mutation_type
+    replica_no = args.replica_no
     fits_dir = input_dir + "fits/"
     try:
         os.mkdir(fits_dir)
@@ -169,50 +172,51 @@ def main(args):
     fits_input_dir = input_dir + "fits/input/%s/" % passages
 
     """1. Create fits dataset from data_mutation.csv file"""
-    print("Creating fits dataset from data_mutation.csv file...")
-    start_pos_dict = {"OPV": 3832, "RVB14": 3635, "CVB3": 3745, "PV": 3833} # start from 2B for all viruses
-    start_position = checkKey(start_pos_dict, virus)
-    fits_data_construction(input_dir, fits_input_pass_dir, from_passage, to_passage, pipline_quality, start_position, without_passage)
-
-    # break the dataset to positions datasets
-    print("breaking the dataset to positions sub-datasets")
-
-    for mutation in mutation_lst:
-        df_mutation = pd.read_csv(fits_input_pass_dir + "final_%sMutations_sorted_%s.txt" % (mutation_type, mutation), sep="\t")
-        fits_input_pass_mutation_dir = fits_input_pass_dir + "%s" % mutation
-        try:
-            os.mkdir(fits_input_pass_mutation_dir)
-        except OSError:
-            print("Creation of the directory %s failed" % fits_input_pass_mutation_dir)
-        else:
-            print("Successfully created the directory %s " % fits_input_pass_mutation_dir)
-        for position in df_mutation["pos"].iloc[0:-1]:
-            df_pos = df_mutation.groupby(["pos"]).get_group(position)
-            df_pos.to_csv(fits_input_pass_dir + "%s/final_%sMutations_sorted_%s.txt" % (mutation, mutation_type,  position), index=False,
-                              sep="\t")
-    """2. Run FITS_jobarray_mutation.cmd"""
-    if virus == "OPV":
-        no_generations = (to_passage*2)+1
-    with open(fits_input_dir+"parameters_mutation.txt", "w") as parameter_mutation:
-        parameter_mutation.write("# basic parameters\n"
-                                 "N 1000000\n"
-                                 "num_alleles 2\n"
-                                 "num_generations %s\n"
-                                 "min_log_mutation_rate0_0 -9\n"
-                                 "min_log_mutation_rate0_1 -9\n"
-                                 "min_log_mutation_rate1_0 -9\n"
-                                 "min_log_mutation_rate1_1 -9\n"
-                                 "max_log_mutation_rate0_0 -3\n"
-                                 "max_log_mutation_rate0_1 -3\n"
-                                 "max_log_mutation_rate1_0 -3\n"
-                                 "max_log_mutation_rate1_1 -3\n"
-                                 "# bottleneck\n"
-                                 "bottleneck_interval 2\n"
-                                 "bottleneck_size 1000000\n"
-                                 "fitness_allele0 1.0\n"
-                                 "fitness_allele1 1.0\n"
-                                 "num_samples_from_prior 100000\n"
-                                 "acceptance_rate 0.01" % (no_generations))
+    # print("Creating fits dataset from data_mutation.csv file...")
+    # start_pos_dict = {"OPV": 3832, "RVB14": 3635, "CVB3": 3745, "PV": 3833} # start from 2B for all viruses
+    # start_position = checkKey(start_pos_dict, virus)
+    # fits_data_construction(input_dir, fits_input_pass_dir, from_passage, to_passage, pipline_quality, start_position,
+    #                        replica_no, without_passage)
+    #
+    # # break the dataset to positions datasets
+    # print("breaking the dataset to positions sub-datasets")
+    #
+    # for mutation in mutation_lst:
+    #     df_mutation = pd.read_csv(fits_input_pass_dir + "final_%sMutations_sorted_%s.txt" % (mutation_type, mutation), sep="\t")
+    #     fits_input_pass_mutation_dir = fits_input_pass_dir + "%s" % mutation
+    #     try:
+    #         os.mkdir(fits_input_pass_mutation_dir)
+    #     except OSError:
+    #         print("Creation of the directory %s failed" % fits_input_pass_mutation_dir)
+    #     else:
+    #         print("Successfully created the directory %s " % fits_input_pass_mutation_dir)
+    #     for position in df_mutation["pos"].iloc[0:-1]:
+    #         df_pos = df_mutation.groupby(["pos"]).get_group(position)
+    #         df_pos.to_csv(fits_input_pass_dir + "%s/final_%sMutations_sorted_%s.txt" % (mutation, mutation_type,  position), index=False,
+    #                           sep="\t")
+    # """2. Run FITS_jobarray_mutation.cmd"""
+    # if virus == "OPV":
+    #     no_generations = (to_passage*2)+1
+    # with open(fits_input_dir+"parameters_mutation.txt", "w") as parameter_mutation:
+    #     parameter_mutation.write("# basic parameters\n"
+    #                              "N 1000000\n"
+    #                              "num_alleles 2\n"
+    #                              "num_generations %s\n"
+    #                              "min_log_mutation_rate0_0 -9\n"
+    #                              "min_log_mutation_rate0_1 -9\n"
+    #                              "min_log_mutation_rate1_0 -9\n"
+    #                              "min_log_mutation_rate1_1 -9\n"
+    #                              "max_log_mutation_rate0_0 -3\n"
+    #                              "max_log_mutation_rate0_1 -3\n"
+    #                              "max_log_mutation_rate1_0 -3\n"
+    #                              "max_log_mutation_rate1_1 -3\n"
+    #                              "# bottleneck\n"
+    #                              "bottleneck_interval 2\n"
+    #                              "bottleneck_size 1000000\n"
+    #                              "fitness_allele0 1.0\n"
+    #                              "fitness_allele1 1.0\n"
+    #                              "num_samples_from_prior 100000\n"
+    #                              "acceptance_rate 0.01" % (no_generations))
     try:
         os.mkdir(input_dir + "fits/output/")
     except OSError:
@@ -234,44 +238,57 @@ def main(args):
     else:
         print("Successfully created the directory %s " % fits_mutation_output_dir)
 
-    cmds = "module load gcc/gcc-8.2.0\n" \
-           "VIRUS=$VIRUS\n" \
-           "PASSAGES=$PASSAGES\n" \
-           "fits_dir=$fits_dir\n" \
-           "PARAM='mutation'\n" \
-           "namesj=('AG' 'UC' 'GA' 'CU' 'AG_adar' 'AG_nonadar')\n"\
-           "j=$(($[PBS_ARRAY_INDEX-1]%${#namesj[@]}))\n"\
-           "i=$(($[PBS_ARRAY_INDEX-1-j]/${#namesj[@]}))\n" \
-           "element=$(ls ${fits_dir}/input/${PASSAGES}/${namesj[j]}| grep 'syn'| grep -oh '[0-9]'*)\n"\
-           "namesi=($element)\n" \
-           "for element in '${namesi[@]}';do echo '$element';done\n" \
-           "mkdir ${fits_dir}/output/${PARAM}/${PASSAGES}\n" \
-           "mkdir ${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}\n" \
-           "/sternadi/home/volume1/talzinger/FITS_Analyses/FITS_bin/fits1.3.3 -$PARAM ${fits_dir}/input/${PASSAGES}/" \
-            "parameters_${PARAM}.txt ${fits_dir}/input/${PASSAGES}/${namesj[j]}/final_synMutations_sorted_" \
-            "${namesi[i]}.txt ${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}/posterior_${PARAM}_syn_${namesi[i]}.txt " \
-            "${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}/summary_${PARAM}_syn_${namesi[i]}.txt"
-    part_lst = []
-    for mutation in mutation_lst:
-        list = os.listdir(fits_input_dir + mutation) # dir is your directory path
-        number_files = len(list)
-        part_lst.append(number_files)
-    n = max(part_lst)
-    print(n)
-    a1 = 1
-    d = len(mutation_lst)
-    jnum = a1 + d * (n - 1)
-    print(jnum)
-
-    cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/new_FITS_jobarray_mutation_%s.cmd" % virus
-    create_array_pbs_cmd(cmd_file, jnum, alias="Fits_mutation", gmem=3, cmds=cmds)
-    print("qsub -v VIRUS='%s',PASSAGES='%s', fits_dir='%s' %s" % (virus, passages, fits_dir, cmd_file))
-    job_id = submit("-v VIRUS='%s',PASSAGES='%s, fits_dir=%s' %s" % (virus, passages, fits_dir, cmd_file))
-    job_id = job_id.split("[")[0]
-    print("Running new_FITS_jobarray_mutation_%s.cmd, job_id:%s" % (virus, job_id))
-    status = check_pbs(job_id)
-    if status == "Done":
-        print("Done!")
+    # cmds = "module load gcc/gcc-8.2.0\n" \
+    #        "VIRUS=$VIRUS\n" \
+    #        "PASSAGES=$PASSAGES\n" \
+    #        "fits_dir=$fits_dir\n" \
+    #        "PARAM='mutation'\n" \
+    #        "namesj=('AG' 'UC' 'GA' 'CU' 'AG_adar' 'AG_nonadar')\n"\
+    #        "j=$(($[PBS_ARRAY_INDEX-1]%${#namesj[@]}))\n"\
+    #        "i=$(($[PBS_ARRAY_INDEX-1-j]/${#namesj[@]}))\n" \
+    #        "element=$(ls ${fits_dir}/input/${PASSAGES}/${namesj[j]}| grep 'syn'| grep -oh '[0-9]'*)\n"\
+    #        "namesi=($element)\n" \
+    #        "for element in '${namesi[@]}';do echo '$element';done\n" \
+    #        "mkdir ${fits_dir}/output/${PARAM}/${PASSAGES}\n" \
+    #        "mkdir ${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}\n" \
+    #        "/sternadi/home/volume1/talzinger/FITS_Analyses/FITS_bin/fits1.3.3 -$PARAM ${fits_dir}/input/${PASSAGES}/" \
+    #         "parameters_${PARAM}.txt ${fits_dir}/input/${PASSAGES}/${namesj[j]}/final_synMutations_sorted_" \
+    #         "${namesi[i]}.txt ${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}/posterior_${PARAM}_syn_${namesi[i]}.txt " \
+    #         "${fits_dir}/output/${PARAM}/${PASSAGES}/${namesj[j]}/summary_${PARAM}_syn_${namesi[i]}.txt"
+    # part_lst = []
+    # for mutation in mutation_lst:
+    #     list = os.listdir(fits_input_dir + mutation) # dir is your directory path
+    #     number_files = len(list)
+    #     part_lst.append(number_files)
+    # n = max(part_lst)
+    # print(n)
+    # a1 = 1
+    # d = len(mutation_lst)
+    # jnum = a1 + d * (n - 1)
+    # print(jnum)
+    # jnum_half = int(np.round(jnum/2))
+    # jnum1 = "1-%s" % (str(jnum_half))
+    # jnum2 = "%s-%s" % (str(jnum_half), str(jnum))
+    #
+    # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/new_FITS_jobarray_mutation_%s.cmd" % virus
+    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum1, alias="Fits_mutation", gmem=3, cmds=cmds)
+    # print("qsub -v VIRUS='%s',PASSAGES='%s', fits_dir='%s' %s" % (virus, passages, fits_dir, cmd_file))
+    # job_id = pbs_jobs.submit("-v VIRUS='%s',PASSAGES='%s, fits_dir=%s' %s" % (virus, passages, fits_dir, cmd_file))
+    # job_id = job_id.split("[")[0]
+    # print("Running new_FITS_jobarray_mutation_%s.cmd, job_id:%s" % (virus, job_id))
+    # status = pbs_jobs.check_pbs(job_id)
+    # if status == "Done":
+    #     print("Done!")
+    #
+    # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/new_FITS_jobarray_mutation_%s.cmd" % virus
+    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum2, alias="Fits_mutation", gmem=3, cmds=cmds)
+    # print("qsub -v VIRUS='%s',PASSAGES='%s', fits_dir='%s' %s" % (virus, passages, fits_dir, cmd_file))
+    # job_id = pbs_jobs.submit("-v VIRUS='%s',PASSAGES='%s, fits_dir=%s' %s" % (virus, passages, fits_dir, cmd_file))
+    # job_id = job_id.split("[")[0]
+    # print("Running new_FITS_jobarray_mutation_%s.cmd, job_id:%s" % (virus, job_id))
+    # status = pbs_jobs.check_pbs(job_id)
+    # if status == "Done":
+    #     print("Done!")
 
     #For all position at once
     # job_id = submit("/sternadi/home/volume3/okushnir/Cluster_Scripts/FITS_jobarray_mutation_%s.cmd" % virus)
@@ -280,11 +297,11 @@ def main(args):
     # status = check_pbs(job_id)
 
     """3. Run fits_mutation_united"""
-    for mutation in mutation_lst:
-        output_mutation_dir = input_dir + "fits/output/mutation/%s/%s/" % (passages, mutation)
-        output_file = output_mutation_dir + "all.txt"
-        print("Creating the mutation conjugated report of: %s" % output_mutation_dir)
-        fits_mutation_united(output_mutation_dir, output_file)
+    # for mutation in mutation_lst:
+    #     output_mutation_dir = input_dir + "fits/output/mutation/%s/%s/" % (passages, mutation)
+    #     output_file = output_mutation_dir + "all.txt"
+    #     print("Creating the mutation conjugated report of: %s" % output_mutation_dir)
+    #     fits_mutation_united.fits_mutation_united(output_mutation_dir, output_file)
 
     """4. Run fits_parameters.py"""
     print("Creating fitness parameters")
@@ -347,19 +364,19 @@ def main(args):
     print(jnum)
 
     cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/new_FITS_jobarray_fitness_%s.cmd" % virus
-    create_array_pbs_cmd(cmd_file, jnum, alias="Fits_fitness", gmem=3, cmds=cmds)
+    pbs_jobs.create_array_pbs_cmd(cmd_file, jnum, alias="Fits_fitness", gmem=3, cmds=cmds)
     print("qsub -v VIRUS='%s',PASSAGES='%s', fits_dir='%s' %s" % (virus, passages, fits_dir, cmd_file))
-    job_id = submit("-v VIRUS='%s',PASSAGES='%s, fits_dir=%s' %s" % (virus, passages, fits_dir, cmd_file))
+    job_id = pbs_jobs.submit("-v VIRUS='%s',PASSAGES='%s, fits_dir=%s' %s" % (virus, passages, fits_dir, cmd_file))
     job_id = job_id.split("[")[0]
     print("Running new_FITS_jobarray_fitness_%s.cmd, job_id:%s" % (virus, job_id))
-    status = check_pbs(job_id)
+    status = pbs_jobs.check_pbs(job_id)
     if status == "Done":
     # 6. Run fits_fitness_united
         for mutation in mutation_lst:
             output_fitness_dir = input_dir + "fits/output/fitness/%s/%s/" % (passages, mutation)
             output_file = output_fitness_dir + "all.txt"
             print("Creating the fitness conjugated report of: %s" % output_fitness_dir)
-            fits_fitness_united(output_fitness_dir, output_file, mutation_type)
+            fits_mutation_united.fits_mutation_united(output_fitness_dir, output_file)
     # """7. Run fits_plotter.py"""
 
 
@@ -371,5 +388,6 @@ if __name__ == "__main__":
     parser.add_argument("input_dir", type=str, help="the path to the directory that contains data_mutation.csv")
     parser.add_argument("quality", type=str, help="what is the prefix for the data_mutation.csv file; quality of the pipline ; for example: q38")
     parser.add_argument("mutation_type", type=str, help="all/syn")
+    parser.add_argument("replica_no", type=int, help="1/2/3")
     args = parser.parse_args(sys.argv[1:])
     main(args)
