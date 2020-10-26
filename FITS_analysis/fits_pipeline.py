@@ -63,14 +63,14 @@ def fits_adjustments(data):
 def fits_data_construction(input_dir, output_dir, from_passage, to_passage, quality, start_position, without_passage=None):
     all = pd.read_pickle(input_dir + "%s_data_mutation.pkl" % (quality))
     all = all.loc[all.Pos >= start_position]
-    all = all[all["label"] != "RVB14-Next-RNA Control"]
-    all = all[all["label"] != "RVB14-p1"]
+    # all = all[all["label"] != "RVB14-Next-RNA Control"]
+    # all = all[all["label"] != "RVB14-p1"]
 
     # all = all[all["label"] != "%s-RNA Control" % virus]
     # all = all[all["label"] != "%s-%s" % (virus, from_passage)]
     # all = all[all["label"] != "%s-%s" % (virus, from_passage)]
-    all["passage"] = all["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    all["passage"] = np.where(all["passage"] == "RNA Control", 0, all["passage"])
+    # all["passage"] = all["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
+    # all["passage"] = np.where(all["passage"] == "RNA Control", 0, all["passage"])
     all["passage"] = all["passage"].astype(int)
     all = all[all["passage"] >= from_passage]
     all = all[all["passage"] <= to_passage]

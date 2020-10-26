@@ -10,7 +10,6 @@ import glob
 import pandas as pd
 import subprocess
 import os
-from Context_analysis_RV import checkKey
 
 
 def fitness_parameters_pos(input_dir, output_dir):
