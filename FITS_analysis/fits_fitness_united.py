@@ -31,7 +31,7 @@ def fits_fitness_united(input_dir, output_file):
 
         table_row_regex = re.compile(r'(\S)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
 
-        pos_regex = re.compile(r'fitness__([\d]+)')
+        pos_regex = re.compile(r'fitness_syn_([\d]+)')
         pos_match = pos_regex.search(filename)
         pos = pos_match.group(1)
 
