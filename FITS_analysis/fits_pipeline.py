@@ -166,7 +166,7 @@ def main(args):
     # 1. Create fits dataset from data_mutation.csv file
     print("Creating fits dataset from data_mutation.csv file...")
     start_pos_dict = {"OPV": 3832, "RVB14": 3635, "CVB3": 3745, "PV": 3833} # start from 2B for all viruses
-    start_position = Context_analysis_RV.checkKey(start_pos_dict, virus)
+    start_position = checkKey(start_pos_dict, virus)
     fits_data_construction(input_dir, fits_input_pass_dir, from_passage, to_passage, pipline_quality, start_position, without_passage)
 
     # break the dataset to positions datasets
