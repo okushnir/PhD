@@ -10,12 +10,17 @@ import os
 import numpy as np
 import sys, argparse
 import subprocess
-from Context_analysis import Context_analysis_RV
 from time import sleep
 from FITS_analysis import fits_fitness_united
 from FITS_analysis import fits_mutation_united
 from FITS_analysis import fits_parameters_pos
-from pbs_jobs import create_array_pbs_cmd
+from util.pbs_jobs import create_array_pbs_cmd
+
+def checkKey(dict, key):
+    if key in dict.keys():
+        return dict[key]
+    else:
+        raise Exception()
 
 
 def check_pbs(job_id):
@@ -56,7 +61,7 @@ def fits_adjustments(data):
 
 
 def fits_data_construction(input_dir, output_dir, from_passage, to_passage, quality, start_position, without_passage=None):
-    all = pd.read_csv(input_dir + "%s_data_mutation.csv" % (quality))
+    all = pd.read_pickle(input_dir + "%s_data_mutation.pkl" % (quality))
     all = all.loc[all.Pos >= start_position]
     all = all[all["label"] != "RVB14-Next-RNA Control"]
     all = all[all["label"] != "RVB14-p1"]
@@ -83,7 +88,7 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage, qual
     transitions = ["A>G", "G>A", "U>C", "C>U"]
     for key in df_dict:
         for mutation in transitions:
-            df_mutation = Context_analysis_RV.checkKey(df_dict, key)
+            df_mutation = checkKey(df_dict, key)
             df_mutation = df_mutation[df_mutation["Mutation"] == mutation]
             quarte_allelic_mapping = {'A': 0, 'C': 1, 'G': 2, 'U': 3}
             if mutation == "A>G":
@@ -92,7 +97,7 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage, qual
                 nonadar = df_mutation[df_mutation["ADAR_like"] == False]
                 adar_dict = {"adar": adar, "nonadar": nonadar}
                 for adar_key in adar_dict:
-                    like = Context_analysis_RV.checkKey(adar_dict, adar_key)
+                    like = checkKey(adar_dict, adar_key)
                     like['Base'] = like['Base'].apply(lambda x: quarte_allelic_mapping[x])
                     like['Ref'] = like['Ref'].apply(lambda x: quarte_allelic_mapping[x])
                     like = like.rename(columns={'passage': 'gen', 'Base': 'base', 'Frequency': 'freq', 'Ref': 'ref',
