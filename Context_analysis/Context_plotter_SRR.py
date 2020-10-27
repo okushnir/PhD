@@ -3,8 +3,12 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-from statannot import add_stat_annotation
+from AccuNGS_analysis import old_statannot
 import numpy as np
+
+sns.set(font_scale=1.2)
+sns.set_style("ticks")
+sns.despine()
 
 def plots_for_srr(input_dir, output_dir, virus_path, virus):
     data_mutations = pd.read_csv(input_dir + virus_path + "data_mutation.csv")
@@ -113,7 +117,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
         for organism in organism_list:
             if ax.get_title().split(" = ")[-1] == organism:
                 ax.set_title("%s" % organism, pad=20)
-                add_stat_annotation(ax, data=data_adar[data_adar["Organism"] == organism], x="ADAR_like", y="Frequency",
+                old_statannot.add_stat_annotation(ax, data=data_adar[data_adar["Organism"] == organism], x="ADAR_like", y="Frequency",
                                 boxPairList=[("ADAR-like", "Non\nADAR-like")], test='Mann-Whitney', textFormat='star', loc='inside',
                                     verbose=0, lineOffsetToBox=2, lineHeight=0, stack=False, useFixedOffset=True)
 
@@ -141,7 +145,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
         for organism in organism_list:
             if ax.get_title().split(" = ")[-1] == organism:
                 ax.set_title("3' ADAR context in %s" % organism, pad=20)
-                add_stat_annotation(ax, data=data_adar_3[data_adar_3["Organism"] == organism], x="ADAR_like", y="Frequency",
+                old_statannot.add_stat_annotation(ax, data=data_adar_3[data_adar_3["Organism"] == organism], x="ADAR_like", y="Frequency",
                                 boxPairList=[("ADAR-like", "Non\nADAR-like")], test='Mann-Whitney', textFormat='star', loc='inside',
                                     verbose=0, lineOffsetToBox=2, lineHeight=0, stack=False, useFixedOffset=True)
 
@@ -155,7 +159,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 def main():
     input_dir = "/Users/odedkushnir/Projects/signatures/ADAR/SRA/"
     virus_path_dict = {"RV": "SRP006391_RV/", "PV": "SRP064468_PV/", "EnteroA": "ERP014415_Entero_A/"}
-    output_dir = input_dir + "20201008_plots/"
+    output_dir = input_dir + "20201027_plots/"
     try:
         os.mkdir(output_dir)
     except OSError:
