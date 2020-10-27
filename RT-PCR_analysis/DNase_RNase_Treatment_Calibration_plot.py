@@ -18,6 +18,9 @@ import Bio.Seq as Seq
 import matplotlib.gridspec as gridspec
 import time
 
+sns.set(font_scale=1.2)
+sns.set_style("ticks")
+sns.despine()
 
 def plot_generation_time(file_name1):#1, file_name2):
     """
