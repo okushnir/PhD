@@ -25,7 +25,7 @@ def fits_fitness_united(input_dir, output_file):
         out_handler.write("pos\tinferred_w\tcategory\tlevenes_p\tfilename\n")
 
     for filename in file_list:
-        file_match = summary_regex.search( filename )
+        file_match = summary_regex.search(filename)
         if file_match == None:
             continue
 

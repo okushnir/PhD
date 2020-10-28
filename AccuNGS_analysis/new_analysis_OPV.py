@@ -8,7 +8,12 @@ from scipy import stats
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
+from AccuNGS_analysis import old_statannot
+
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
+
 
 # print(plt.style.available)
 
@@ -24,8 +29,9 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
-    output_dir = input_dir + "/20201008_plots"
+    flatui = ["#3498db", "#9b59b6"]
+    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV"
+    output_dir = input_dir + "/20201027_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -34,7 +40,7 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "q23_data_mutation.csv")
+    data_mutations = pd.read_csv(input_dir + "/q23_data_mutation.csv")
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts", "Consensus>Mutated_codon"]
@@ -53,8 +59,8 @@ def main():
     # data_miseq = data_filter[data_filter["label"] != "RVB14-Next-RNA Control"]
     # data_miseq = data_miseq[data_filter["label"] != "RVB14-p1"]
 
-    data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
+    data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])
+    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
     data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
@@ -85,10 +91,11 @@ def main():
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_xticklabels(fontsize=10, rotation=45)
-    # plt.show()
+    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+                      "/Transition_Mutations_point_plot_OPV", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_OPV", dpi=300)
     plt.close()
-
+    data_filter["passage"] = data_filter["passage"].astype(int)
     # data_pmsc = data_filter[data_filter["Type"] == "Premature Stop Codon"]
     # data_pmsc["mutation_type"] = data_pmsc.Mutation.str.contains("A>G") | data_pmsc.Mutation.str.contains("U>C") | \
     #                              data_pmsc.Mutation.str.contains("C>U") | data_pmsc.Mutation.str.contains("G>A")
@@ -113,39 +120,46 @@ def main():
     # # plt.show()
     # g4.savefig(output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
     # plt.close()
-    #
+
     # # A>G Prev Context
     #
-    # data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    #
-    # data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
-    # data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
-    # data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
-    # data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
-    #
-    # context_order = ["UpA", "ApA", "CpA", "GpA"]
-    # type_order = ["Synonymous", "Non-Synonymous"]
-    #
-    # g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="Prev", order=label_order, palette="tab20",
-    #             kind = "point", dodge=True, hue_order=context_order, estimator=weighted_varaint, orient="v",
-    #                  col="Type", join=False, col_order=type_order)
-    # g5.set_axis_labels("", "Variant Frequency")
-    # g5.set(yscale='log')
-    # g5.set(ylim=(7*10**-7, 4*10**-3))
-    # g5.set_xticklabels(rotation=45)
-    # # plt.show()
-    # g5.savefig(output_dir + "/Context_point_plot", dpi=300)
-    # plt.close()
-    #
-    # data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    #
-    # data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
-    # data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
-    # data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
-    # data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
-    #
-    #
-    # data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA')
+    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
+
+    data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
+    data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
+    data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
+    data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
+
+    context_order = ["UpA", "ApA", "CpA", "GpA"]
+    type_order = ["Synonymous", "Non-Synonymous"]
+    data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA')
+    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette="tab20",
+                kind = "point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
+                     col="Type", join=False, col_order=type_order)
+    g5.set_axis_labels("", "Variant Frequency")
+    g5.set(yscale='log')
+    g5.set(ylim=(7*10**-7, 4*10**-3))
+    g5.set_xticklabels(rotation=45)
+    # plt.show()
+    g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    plt.close()
+    
+    data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
+    data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
+    print(data_filter_ag_pass5.to_string())
+
+    ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=flatui, order=[True, False])
+    ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=[True, False])
+    old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
+                        boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside', verbose=1)
+    ax.set_yscale('log')
+    ax.set_xlabel("ADAR-like\nContext")
+    ax.set_ylabel("Variant Frequency")
+    ax.set(ylim=(10 ** -5, 10 ** -2))
+    sns.despine()
+    # plt.tight_layout()
+    plt.savefig(output_dir + "/context_p5_point_plot_OPV.png", dpi=300)
+    plt.close()
     #
     # print(data_filter_ag.to_string())
     # data_codons = data_filter_ag[data_filter_ag["Prob"] > 0.95]

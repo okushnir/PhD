@@ -17,12 +17,16 @@ import glob
 import Bio.Seq as Seq
 import matplotlib.gridspec as gridspec
 import time
+sns.set(font_scale=1.2)
+sns.set_style("ticks")
+sns.despine()
 
 def plot_generation_time(file_name):
     """
     :param file_name:
     :return: plot and data frame
     """
+    date = "20201027"
     data = pd.read_csv(file_name)
     rvb14_weight = (6.022*10**23)/(7212*1*10**9*660)
     data = data.loc[(data.Sample != "IVT") & (data.Sample != "STD1") & (data.Sample != "STD2") & (data.Sample != "STD3")
@@ -81,7 +85,7 @@ def plot_generation_time(file_name):
 
     output_dir = (file_name.split("/")[0:-1])
     output_dir = '/'.join(output_dir)
-    plt.savefig(output_dir + "/Copy_Number.png", dpi=300)
+    plt.savefig(output_dir + "/%s_Copy_Number.png" % date, dpi=300)
 
     return data
 

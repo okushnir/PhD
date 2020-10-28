@@ -7,8 +7,8 @@ sns.set(font_scale=1.2)
 sns.set_style("ticks")
 
 def main():
-    input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/ADAR/Results/"
-    output_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/"
+    input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Projects/RV/RVB14/ADAR/Results/"
+    output_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots"
     data = []
     for i in (1,2,3):
         for adar in ("ADAR1", "ADAR2", "ADAR3"):
@@ -43,7 +43,7 @@ def main():
     g.set_xlabel("Time [hr]")
     sns.despine()
     plt.tight_layout()
-    plt.savefig(output_dir + "ADAR_expression_over_time_1fig_poster.png", dpi=300)
+    plt.savefig(output_dir + "/Fig7_ADAR_expression_over_time", dpi=300)
 
 if __name__ == "__main__":
     main()

@@ -10,7 +10,9 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
 
 # print(plt.style.available)
 
@@ -21,7 +23,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
-    output_dir = input_dir + "/20201025_plots"
+    output_dir = input_dir + "/20201027_plots"
     data_filter = pd.read_pickle(output_dir + "/data_filter.pkl")
     data_filter_ag = pd.read_pickle(output_dir + "/data_filter_ag.pkl")
     data_filter_uc = pd.read_pickle(output_dir + "/data_filter_uc.pkl")
@@ -30,13 +32,12 @@ def main():
     capsid_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl","Capsid-31-Amicon", "Capsid-33-Ultra",
                     "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]#, "Capsid-32-Ultra"
     rna_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid", "Free"]
+    replica_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid-31-Amicon", "Free-31-Amicon"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
-    # data_filter_ag["weighted_varaint"] = data_filter_ag["frac_and_weight"].apply(lambda x: weighted_varaint(x))
-    #
 
     #Plots
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=capsid_order, palette="tab20",
@@ -74,6 +75,20 @@ def main():
     g_rna.savefig(output_dir + "/Transition_Mutations_point_RNA_plot", dpi=300)
     plt.close()
 
+    g_replica = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=replica_order,
+                     palette="tab20", kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
+                     orient="v", legend=True)
+    g_replica.set_axis_labels("", "Variant Frequency")
+    g_replica.set(yscale='log')
+    g_replica.set(ylim=(10 ** -6, 10 ** -2))
+    # g2.set_yticklabels(fontsize=12)
+    g_replica.set_xticklabels(labels=["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid #1", "Free #1"],
+                              fontsize=9)
+    g_replica.savefig(output_dir + "/Transition_Mutations_point_1Replica_plot", dpi=300)
+    g_replica.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+               "/Fig6a_Transition_Mutations_point_1Replica_plot_Capsid", dpi=300)
+    plt.close()
+
     # A>G Prev Context
     flatui = ["#3498db", "#9b59b6"]
     g5 = sns.catplot("RNA", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=rna_order, palette=flatui,
@@ -84,6 +99,19 @@ def main():
     g5.set(ylim=(7*10**-7, 4*10**-3))
     g5.set_xticklabels(rotation=45)
     g5.savefig(output_dir + "/Context_RNA_point_plot", dpi=300)
+    plt.close()
+
+    g5_label = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=replica_order,
+                           palette=flatui, kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint
+                           , orient="v", col="Type", join=False, col_order=type_order)
+    g5_label.set_axis_labels("", "Variant Frequency")
+    g5_label.set(yscale='log')
+    g5_label.set(ylim=(7*10**-7, 4*10**-3))
+    g5_label.set_xticklabels(labels=["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid #1", "Free #1"],
+                             fontsize=10)
+    g5_label.savefig(output_dir + "/Context_point_plot", dpi=300)
+    g5_label.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+                      "/Fig6b_Context_point_plot_1Replica_plot_Capsid", dpi=300)
     plt.close()
 
     # data_filter_ag_synon = data_filter_ag[data_filter_ag["Type"] == "Synonymous"]
@@ -132,16 +160,22 @@ def main():
 
     data_filter_ag_grouped_silent = data_filter_ag_grouped[data_filter_ag_grouped["Type"] == "Synonymous"]
     data_filter_ag_grouped_silent = data_filter_ag_grouped_silent[data_filter_ag_grouped_silent["Protein"] != "2A"]
-    position_g = sns.scatterplot("Pos", "Frequency", data=data_filter_ag_grouped_silent, hue="Protein",
-                                 palette="tab10", style="ADAR_like", style_order=[True, False], legend="full")
+    data_filter_ag = data_filter_ag.rename(columns={"Protein": "Gene"})
+    position_mutation = sns.relplot(x="Pos", y="Frequency", data=data_filter_ag, hue="Gene", col="label",
+                                    col_wrap=3, style="ADAR_like", style_order=[True, False], palette="tab10")
 
-    # position_g.set_axis_labels("", "Variant Frequency")
-    position_g.set_yscale('log')
-    position_g.set_ylim(10 ** -4, 10 ** -1)
-    position_g.set(xlim=(3500, 7500))
-    position_g.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.tight_layout()
-    plt.savefig(output_dir + "/position.png", dpi=300)
+    position_mutation.set_axis_labels("", "Variant Frequency")
+    # position_mutation.set(yscale="log")
+    position_mutation.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
+    # position_mutation.set(xlim=(3500, 7500))
+    # position_mutation.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    # plt.tight_layout()
+    position_mutation.set(ylim=(10 ** -6, 10 ** -2))
+    # g2.set_yticklabels(fontsize=12)
+    # position_g.set_xticklabels(fontsize=10, rotation=45)
+    # plt.show()
+
+    plt.savefig(output_dir + "/position_mutation.png", dpi=300)
     plt.close()
 
 if __name__ == "__main__":
