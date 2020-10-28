@@ -10,7 +10,10 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
+
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
 
 # print(plt.style.available)
 
@@ -22,7 +25,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    output_dir = input_dir + "/20201017_plots"
+    output_dir = input_dir + "/20201027_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -47,11 +50,7 @@ def main():
 
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-    # data_filter = data_filter[data_filter["label"] != "Free-32-Ultra"]
-    # data_filter = data_filter[data_filter["label"] != "Free-33-Ultra"]
-    # data_filter = data_filter[data_filter["label"] != "Capsid-31-Amicon"]
-    # data_filter["RNA"] = np.where(data_filter["label"] == "RNA Control\nPrimer ID", "RNA Control\nPrimer ID",
-    #                                 data_filter["RNA"])
+
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
     data_filter_misense = data_filter[data_filter["Type"] == "Non-Synonymous"]
@@ -73,16 +72,6 @@ def main():
 
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order2 = ["Synonymous", "Non-Synonymous"]
-
-
-    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
-
-    data_filter_ag['Context'].replace('AA', 'ApA', inplace=True)
-    data_filter_ag['Context'].replace('UA', 'UpA', inplace=True)
-    data_filter_ag['Context'].replace('CA', 'CpA', inplace=True)
-    data_filter_ag['Context'].replace('GA', 'GpA', inplace=True)
-
 
     data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains('ApA')
     print(data_filter_ag.to_string())
@@ -118,10 +107,12 @@ def main():
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
-    g2.set_xticklabels(fontsize=10, rotation=45)
+    g2.set_xticklabels(fontsize=10, rotation=90)
     # plt.show()
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
+    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+                      "/Fig9a_Transition_Mutations_point_plot_Patients", dpi=300)
     plt.close()
 
     # g_rna = sns.catplot(x="RNA", y="frac_and_weight", data=data_filter, hue="Mutation", order=rna_order,
@@ -145,9 +136,11 @@ def main():
     g5.set_axis_labels("", "Variant Frequency")
     g5.set(yscale='log')
     g5.set(ylim=(7*10**-7, 4*10**-3))
-    g5.set_xticklabels(rotation=45)
+    g5.set_xticklabels(rotation=90)
     # plt.show()
     g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    g5.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+               "/Fig9b_Context_point_plot_Patients", dpi=300)
     plt.close()
 
     g6 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette=flatui,

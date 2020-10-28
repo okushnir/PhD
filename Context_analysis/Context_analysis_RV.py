@@ -291,7 +291,7 @@ def main():
                                                                       0))))
     data["Consensus>Mutated_codon"] = data["Consensus_codon"] + ">" + data["Mutated_codon"]
 
-    # data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
     data.to_pickle(input_dir + "/q38_data_mutation.pkl") #with Rank==0
 
     # mutation_for_rna = ["AG"]

@@ -6,10 +6,6 @@ import matplotlib.pyplot as plt
 import matplotlib.pylab as pylab
 from matplotlib.ticker import Locator
 import math
-import matplotlib.gridspec as gridspec
-from matplotlib.ticker import ScalarFormatter
-import matplotlib.ticker as ticker
-import numpy as np
 from scipy import stats
 import seaborn as sns
 from statannot import add_stat_annotation
@@ -95,40 +91,40 @@ def suplabel(axis,label,label_prop=None,
 
 def post_data_mutation(input_dir):
     mutation_lst = glob.glob(input_dir + "/*")
-    columns = ["pos", "inferred_mu", "levenes_p", "filename", "Mutation", "label"]
+    columns = ["pos", "inferred_mu", "levenes_p", "filename", "Mutation"]
     df = pd.DataFrame()
     for mutation in mutation_lst:
         mutation = mutation.split("/")[-1]
         file = input_dir + "/" + str(mutation) + "/all.txt"
         data = pd.read_csv(file, sep="\t")
         data["Mutation"] = file.split("/")[-2]
-        data["label"] = file.split("/")[-7]
+        # data["label"] = file.split("/")[-7]
         df = df.append(data)
     df = pd.DataFrame(df, columns=columns)
     return df
 
 def post_data_fitness(input_dir):
     mutation_lst = glob.glob(input_dir + "/*")
-    columns = ["pos", "inferred_w", "category", "levenes_p", "filename", "Mutation", "label"]
+    columns = ["pos", "inferred_w", "category", "levenes_p", "filename", "Mutation"]
     df = pd.DataFrame()
     for mutation in mutation_lst:
         mutation = mutation.split("/")[-1]
         file = input_dir + "/" + str(mutation) + "/all.txt"
         data = pd.read_csv(file, sep="\t")
         data["Mutation"] = file.split("/")[-2]
-        data["label"] = file.split("/")[-7]
+        # data["label"] = file.split("/")[-7]
         df = df.append(data)
     df = pd.DataFrame(df, columns=columns)
     return df
 
 def syn_fitness(input_dir):
     files = glob.glob(input_dir + "/posterior_fitness_syn_*")
-    columns = ["distance", "allele1", "Mutation", "label"]
+    columns = ["distance", "allele1", "Mutation"]
     df = pd.DataFrame()
     for file in files:
         data = pd.read_csv(file, sep="\t")
         data["Mutation"] = file.split("_")[-1].split(".")[0]
-        data["label"] = file.split("/")[-7]
+        # data["label"] = file.split("/")[-7]
         df = df.append(data)
     df = pd.DataFrame(df, columns=columns)
     return df
@@ -142,25 +138,31 @@ def qqplot(x, y, **kwargs):
     plt.scatter(xr, yr, **kwargs)
 
 def main():
-    date = "20191009"
-    passages = "p0-p12"
+    date = "20201027"
+    passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"
-    # p5_p12 = "p5-p12"
     input_dir = "/Users/odedkushnir/Projects/fitness"
-    rv_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/RVB14/fits/output/mutation/%s_all_pass" % passages)
-    # rv_p0_p5_p12_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/RVB14/fits/output/mutation/p0-p12_without_p2")
-    # rv_p0_p5_p12_mutation_data["label"] = "RVB14_p0-p12\nwithout_p2"
-    # rv_p5_p12_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/RVB14/fits/output/mutation/%s" % p5_p12)
-    # rv_p5_p12_mutation_data["label"] = "RVB14_p5-p12"
-    cv_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/CVB3/fits/output/mutation/%s_all_pass" % passages)
-    # cv_p0_p5_p12_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/CVB3/fits/output/mutation/p0-p12_without_p2")
-    # cv_p0_p5_p12_mutation_data["label"] = "CVB3_p0-p12\nwithout_p2"
-    # cv_p5_p12_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/CVB3/fits/output/mutation/%s" % p5_p12)
-    # cv_p5_p12_mutation_data["label"] = "CVB3_p5-p12"
+    rv_replica1_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
+                                                   "20201008RV-202329127/merged/passages/fits_replica1/output/mutation"
+                                                   "/%s" % passages)
+    rv_replica1_mutation_data["Virus"] = "RVB14 #1"
+    rv_replica2_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
+                                                   "20201008RV-202329127/merged/passages/fits_replica2/output/mutation"
+                                                   "/%s" % passages)
+    rv_replica2_mutation_data["Virus"] = "RVB14 #2"
+    rv_replica3_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
+                                                   "20201008RV-202329127/merged/passages/fits_replica3/output/mutation"
+                                                   "/%s" % passages)
+    rv_replica3_mutation_data["Virus"] = "RVB14 #3"
+    cv_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/CVB3/fits/output/mutation/%s" % passages)
+    cv_mutation_data["Virus"] = "CVB3"
     opv_mutataion_data = post_data_mutation(input_dir + "/CirSeq/PV/OPV/fits/output/mutation/%s" % opv_passages)
+    opv_mutataion_data["Virus"] = "OPV"
     pv_mutataion_data = post_data_mutation(input_dir + "/CirSeq/PV/Mahoney/fits/output/mutation/%s" % pv_passages)
-    output_dir = input_dir + "/CirSeq/PV/Mahoney/fits/output/%s_syn_plots" % date
+    pv_mutataion_data["Virus"] = "Mahoney"
+    output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+                             "%s_fits_syn_plots" % date
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -168,32 +170,39 @@ def main():
     else:
         print("Successfully created the directory %s " % output_dir)
 
-    all_data = pd.concat([rv_mutation_data, rv_p0_p5_p12_mutation_data, rv_p5_p12_mutation_data, cv_mutation_data,
-                          cv_p0_p5_p12_mutation_data, cv_p5_p12_mutation_data, opv_mutataion_data, pv_mutataion_data],
+    all_data = pd.concat([rv_replica1_mutation_data, rv_replica2_mutation_data, rv_replica3_mutation_data,
+                          cv_mutation_data, opv_mutataion_data, pv_mutataion_data],
                          sort=False)
     # print(all_data.to_string())
     all_data = all_data.rename(columns={"inferred_mu": "Mutation rate"})
-    print(all_data["Mutation rate"].dtype)
+    # print(all_data["Mutation rate"].dtype)
     all_data["Mutation rate"] = all_data["Mutation rate"].map(lambda x: str(x).lstrip('*'))
     all_data["Mutation rate"] = pd.to_numeric(all_data["Mutation rate"], errors='coerce')#.astype(float)
-    print(all_data["Mutation rate"].dtype)
-    all_data = all_data.rename(columns={"label": "Virus"})
+    # print(all_data["Mutation rate"].dtype)
     all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x[0]+">"+x[1:]if len(x)<=2 else x)# if len(x)==2 else x[0]+">"+x[1:])
     # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x.split("_")[0] + "\n" + x.split("_")[-1] + "-like" if len(x)>3 else x)
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_nonadar", "A>G\nnonadar-like", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_adar", "A>G\nadar-like", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "A>G", "A>G\nall", all_data["Mutation"])
-    # all_data["Mutation rate"] = np.log10(all_data["Mutation rate"])
+    all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_nonadar", "A>G\nNon-ADAR-like", all_data["Mutation"])
+    all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_adar", "A>G\nADAR-like", all_data["Mutation"])
 
-    mutation_order = ["A>G\nall", "A>G\nadar-like", "A>G\nnonadar-like", "U>C", "G>A", "C>U"]
+    mutation_order = ["C>U", "G>A", "U>C", "A>G", "A>G\nADAR-like", "A>G\nNon-ADAR-like"]
+    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV", "Mahoney"]
+
+    q1 = all_data["Mutation rate"].quantile(0.25)
+    q3 = all_data["Mutation rate"].quantile(0.75)
+    all_data = all_data[all_data["Mutation rate"] > q1]
+    all_data = all_data[all_data["Mutation rate"] < q3]
+
+
 
     #Plots
     plt.style.use('classic')
 
     sns.set_palette("Set2")
 
-    g1 = sns.boxenplot(x="Mutation", y=all_data["Mutation rate"], hue="Virus", data=all_data, order=mutation_order)
+    g1 = sns.boxenplot(x="Mutation", y=all_data["Mutation rate"], hue="Virus", data=all_data, order=mutation_order,
+                       hue_order=virus_order)
     g1.set_yscale("log")
+    g1.set_xticklabels(labels=mutation_order, fontsize=9)
     # add_stat_annotation(g1, data=all_data, x="Mutation", y="Mutation rate", hue="Virus", order=mutation_order,
     #                     boxPairList=[(("A>G\nall", "RVB14"), ("A>G\nall", "CVB3")), (("A>G\nall", "RVB14"), ("A>G\nall",
     #                                                                                                          "OPV")),
@@ -220,7 +229,7 @@ def main():
     # g1.set_yticks(ticks=[10**-5, 10**-6, 0], minor=True)
     # g1.set_ylim(10 ** -8, 10 ** -3)
     g1.legend(bbox_to_anchor=(1.05, 0.5), loc="center left", borderaxespad=0.)
-    sns.set(font_scale=0.8)
+    # sns.set(font_scale=0.6)
     plt.tight_layout()
     # plt.show()
     plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=300)

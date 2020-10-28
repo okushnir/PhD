@@ -8,7 +8,11 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from FITS_analysis import fits_new_plotter
+
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
+
 
 # print(plt.style.available)
 
@@ -26,7 +30,7 @@ def weighted_varaint(x, **kws):
 def main():
     flatui = ["#3498db", "#9b59b6"]
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
-    output_dir = input_dir + "/plots_q38_filtered/20201025"
+    output_dir = input_dir + "/plots_q38_filtered/20201027"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -79,7 +83,8 @@ def main():
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
     # g2.set_xticklabels(fontsize=10, rotation=45)
-    # plt.show()
+    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+                      "/Transition_Mutations_point_plot_CVB3", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_CVB3",
              dpi=300)
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)

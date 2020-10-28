@@ -9,7 +9,10 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from AccuNGS_analysis import old_statannot
+
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
 
 # print(plt.style.available)
 
@@ -88,7 +91,8 @@ def main():
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_xticklabels(fontsize=10, rotation=45)
-    # plt.show()
+    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+                      "/Transition_Mutations_point_plot_Mahoney", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_Mahoney", dpi=300)
     plt.close()
 
@@ -135,16 +139,17 @@ def main():
     data_filter_ag_pass8 = data_filter_ag.loc[data_filter_ag.passage == 8]
     data_filter_ag_pass8 = data_filter_ag_pass8.loc[data_filter_ag_pass8.Type == "Synonymous"]
     print(data_filter_ag_pass8.to_string())
-    # g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="Prev", order=label_order, palette="tab20",
-    #             kind = "point", dodge=True, hue_order=context_order, estimator=weighted_varaint, orient="v",
-    #                  col="Type", join=False, col_order=type_order)
-    # g5.set_axis_labels("", "Variant Frequency")
-    # g5.set(yscale='log')
-    # g5.set(ylim=(7*10**-7, 4*10**-3))
-    # g5.set_xticklabels(rotation=45)
-    # # plt.show()
-    # g5.savefig(output_dir + "/Context_point_plot", dpi=300)
-    # plt.close()
+
+    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette="tab20",
+                kind = "point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
+                     col="Type", join=False, col_order=type_order)
+    g5.set_axis_labels("", "Variant Frequency")
+    g5.set(yscale='log')
+    g5.set(ylim=(7*10**-7, 4*10**-3))
+    g5.set_xticklabels(rotation=45)
+    # plt.show()
+    g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    plt.close()
     #
 
     ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass8, palette=flatui, order=[True, False])
