@@ -37,6 +37,13 @@ def main():
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    output_dir = input_dir + "/Rank0_data_mutation"
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print("Creation of the directory %s failed" % output_dir)
+    else:
+        print("Successfully created the directory %s " % output_dir)
 
     org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
                "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
@@ -291,8 +298,8 @@ def main():
                                                                       0))))
     data["Consensus>Mutated_codon"] = data["Consensus_codon"] + ">" + data["Mutated_codon"]
 
-    data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
-    data.to_pickle(input_dir + "/q38_data_mutation.pkl") #with Rank==0
+    data.to_csv(output_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_pickle(output_dir + "/q38_data_mutation.pkl") #with Rank==0
 
     # mutation_for_rna = ["AG"]
     # dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]

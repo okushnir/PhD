@@ -37,6 +37,13 @@ def main():
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    output_dir = input_dir + "/Rank0_data_mutation"
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print("Creation of the directory %s failed" % output_dir)
+    else:
+        print("Successfully created the directory %s " % output_dir)
 
     org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
                "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
@@ -47,7 +54,7 @@ def main():
                "Echovirus E6": "JX976771", "RVA": "JX025555"}
     virus = "RVB14"
     min_coverage = 5000
-    dirs = glob.glob(input_dir + "/*")
+    dirs = glob.glob(input_dir + "/*_3*")
     lst_srr = []
     for passage in dirs:
         # Checks if the file .merged.with.mutation.type.freqs file exists
@@ -154,6 +161,13 @@ def main():
     data_mutations5["replica"] = int(label_sample5.split("-")[-2][1])
     data_mutations5["method"] = label_sample5.split("-")[-1]
 
+    print("loading " + sample_file6 + " as sample")
+    data_mutations6 = pd.read_table(sample_file6)
+    data_mutations6["label"] = label_sample6
+    data_mutations6["RNA"] = label_sample6.split("-")[0]
+    data_mutations6["replica"] = int(label_sample6.split("-")[-2][1])
+    data_mutations6["method"] = label_sample6.split("-")[-1]
+
     print("loading " + control_file_id + " as RNA control")
     data_control2 = pd.read_table(control_file_id)
     data_control2["label"] = label_control2
@@ -170,9 +184,7 @@ def main():
 
 
     data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4,
-                      data_mutations5,data_control2, data_control3], sort=False)
-
-
+                      data_mutations5, data_mutations6, data_control2, data_control3], sort=False)
 
     toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_sample5,
               label_sample6,label_control2, label_control3]
@@ -197,10 +209,12 @@ def main():
                     on=["Pos", "label"])
     data["mutation_type"] = data["Consensus_y"] + data["Base"]
     data["Mutation"] = data["Consensus_y"] + ">" + data["Base"]
-    """Without Rank==0"""
-    # data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)]
-    """With Rank==0"""
+    """Major Variant"""
     data = data[(data["label"].isin(toPlot)) & (data["Read_count"] > min_coverage)]
+
+    """Minor Variant"""
+    # data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)]
+
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
     # start_pos, end_pos = sequnce_utilities.find_coding_region(ncbi_id)
@@ -236,8 +250,8 @@ def main():
                                                                     np.where(data["Pos"] <= 7168, "3D", "3'UTR"))))))))))))
 
 
-    # data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
-    data.to_pickle(input_dir + "/q38_data_mutation.pkl") #with Rank==0
+    data.to_csv(output_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_pickle(output_dir + "/q38_data_mutation.pkl") #with Rank==0
 
     mutation_for_rna = ["AG"]
     dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]

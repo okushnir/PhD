@@ -36,6 +36,13 @@ def main():
     #for Local
 
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    output_dir = input_dir + "/Rank0_data_mutation"
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print("Creation of the directory %s failed" % output_dir)
+    else:
+        print("Successfully created the directory %s " % output_dir)
 
     org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
                "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
@@ -183,7 +190,11 @@ def main():
                     on=["Pos", "label"])
     data["mutation_type"] = data["Consensus_y"] + data["Base"]
     data["Mutation"] = data["Consensus_y"] + ">" + data["Base"]
-    data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)]#
+    """Major Variant"""
+    data = data[(data["label"].isin(toPlot)) & (data["Read_count"] > min_coverage)]
+    """Minor variant"""
+    # data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)] #
+
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
     # start_pos, end_pos = sequnce_utilities.find_coding_region(ncbi_id)
@@ -217,16 +228,18 @@ def main():
                                                                    np.where(data["Pos"] <= 5617, "3C",
                                                                     np.where(data["Pos"] <= 6728, "3D", "3'UTR"))))))))))))
     data["Type"] = data["Type"].fillna(value="NonCodingRegion")
-    data.to_csv(input_dir + "/q30_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_csv(output_dir + "/q30_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_pickle(output_dir + "/q30_data_mutation.pkl")
 
     mutation_for_rna = ["AG"]
     dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]
-    dataForPlotting_AG.to_csv(input_dir + "/q30_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_AG.to_csv(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_AG.to_pickle(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.pkl")
 
     mutation_for_rna = ["UC"]
     dataForPlotting_UC = data[(data["mutation_type"].isin(mutation_for_rna))]
     dataForPlotting_UC.to_csv(input_dir + "/q30_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
-
+    dataForPlotting_UC.to_pickle(input_dir + "/q30_data_UpX_by_mutation.pkl")
 
 if __name__ == "__main__":
     main()
