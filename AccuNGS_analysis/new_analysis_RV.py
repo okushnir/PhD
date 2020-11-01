@@ -27,7 +27,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/UpA_ApG_context"
+    output_dir = input_dir + "/UpA|ApA&ApG|ApC_context"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -89,8 +89,8 @@ def main():
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
 
-    data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') |\
-                                  data_filter_ag.Next.str.contains('ApG')
+    data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA')| data_filter_ag.Prev.str.contains('ApA')) &\
+                                  (data_filter_ag.Next.str.contains('ApG') | data_filter_ag.Next.str.contains('ApC'))
 
     print(data_filter_ag.to_string())
     data_filter_ag.to_csv(output_dir + "/data_filter_ag.csv", sep=',', encoding='utf-8')

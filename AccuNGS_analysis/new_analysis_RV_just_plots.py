@@ -35,7 +35,7 @@ def main():
     flatui = ["#3498db", "#9b59b6"]
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
-    output_dir = input_dir + "/20201027_new_plots"
+    output_dir = input_dir + "20201101_UpA|ApA&ApG|ApC_Context"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -43,9 +43,11 @@ def main():
     else:
         print("Successfully created the directory %s " % output_dir)
 
-    data_filter = pd.read_pickle(output_dir + "/data_filter.pkl")
-    data_filter_ag = pd.read_pickle(output_dir + "/data_filter_ag.pkl")
-    data_filter_uc = pd.read_pickle(output_dir + "/data_filter_uc.pkl")
+    data_filter = pd.read_pickle(input_dir + "UpA|ApA&ApG|ApC_context/data_filter.pkl")
+    data_filter_ag = pd.read_pickle(input_dir + "UpA|ApA&ApG|ApC_context/data_filter_ag.pkl")
+    data_filter_uc = pd.read_pickle(input_dir + "UpA|ApA&ApG|ApC_context/data_filter_uc.pkl")
+
+    #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
     passage_order = ["0", "2", "5", "8", "10", "12"]
@@ -56,7 +58,6 @@ def main():
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
 
-    #Plots
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
                      palette="tab20",
                      kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
@@ -96,8 +97,8 @@ def main():
     # g2.set_yticklabels(fontsize=12)
     # passage_g.set_xticklabels(fontsize=10, rotation=45)
     # plt.show()
-    passage_g.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-                      "/Transition_Mutations_point_plot_RVB14", dpi=300)
+    # passage_g.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+    #                   "/Transition_Mutations_point_plot_RVB14", dpi=300)
     passage_g.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["passage"].astype(int)
@@ -225,7 +226,7 @@ def main():
     g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
     plt.close()
 
-    g7 = sns.relplot(x="passage", y="frac_and_weight", hue="Context", data=data_filter_ag, palette="Paired",
+    g7 = sns.relplot(x="passage", y="frac_and_weight", hue="Prev", data=data_filter_ag, palette="Paired",
                      kind="line",style="Type", style_order=type_order, hue_order=context_order,
                      estimator=weighted_varaint)
     g7.set(yscale="log")
@@ -246,8 +247,8 @@ def main():
     plt.close()
 
     mutation_g8 = sns.relplot(x="passage", y="frac_and_weight", hue="ADAR_like", data=data_filter_ag, palette=flatui,
-                              kind="line", col="Type", col_order=type_order,
-                              estimator=weighted_varaint)  # , hue_order=context_order)
+                              kind="line", col="Type", col_order=["Synonymous", "Non-Synonymous"],
+                              hue_order=[True, False], estimator=weighted_varaint)  # , hue_order=context_order)
     mutation_g8.set(yscale="log")
     mutation_g8.fig.suptitle("A>G Mutation trajectories in RV", y=0.99)
     mutation_g8.set_axis_labels("Passage", "Variant Frequency")
@@ -256,7 +257,7 @@ def main():
     plt.close()
 
     mutation_g9 = sns.relplot(x="passage", y="frac_and_weight", hue="ADAR_like", data=data_filter_ag, palette=flatui,
-                              kind="line", estimator=weighted_varaint)  # , hue_order=context_order)
+                              kind="line", estimator=weighted_varaint, hue_order=[True, False])
     mutation_g9.set(yscale="log")
     mutation_g9.fig.suptitle("A>G Mutation trajectories in RV", y=0.99)
     mutation_g9.set_axis_labels("Passage", "Variant Frequency")
