@@ -27,7 +27,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/20201019_new_plots"
+    output_dir = input_dir + "/UpA_ApG_context"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -36,7 +36,8 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "/q38_data_mutation.csv")
+    data_mutations = pd.read_csv(input_dir + "/Rank0_data_mutation/q38_data_mutation.csv")
+    data_mutations = data_mutations[data_mutations["Rank"] != 0]
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
@@ -71,28 +72,28 @@ def main():
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
     data_filter.to_pickle(output_dir + "/data_filter.pkl")
 
-    label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
-                   "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
-    miseq_order = ["0", "2", "5", "8", "10", "12"]
-    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
-    transition_order = ["A>G", "U>C", "G>A", "C>U"]
-    # type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
-
     # A>G Prev Context
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
+    # data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
 
-    data_filter_ag['Context'].replace('AA', 'ApA', inplace=True)
-    data_filter_ag['Context'].replace('UA', 'UpA', inplace=True)
-    data_filter_ag['Context'].replace('CA', 'CpA', inplace=True)
-    data_filter_ag['Context'].replace('GA', 'GpA', inplace=True)
+    data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
+    data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
+    data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
+    data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
+
+    data_filter_ag['Next'].replace('AA', 'ApA', inplace=True)
+    data_filter_ag['Next'].replace('AU', 'ApU', inplace=True)
+    data_filter_ag['Next'].replace('AC', 'ApC', inplace=True)
+    data_filter_ag['Next'].replace('AG', 'ApG', inplace=True)
 
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
 
-    data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains('ApA')
+    data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') |\
+                                  data_filter_ag.Next.str.contains('ApG')
+
     print(data_filter_ag.to_string())
-    data_filter_ag.to_csv(output_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
+    data_filter_ag.to_csv(output_dir + "/data_filter_ag.csv", sep=',', encoding='utf-8')
     data_filter_ag.to_pickle(output_dir + "/data_filter_ag.pkl")
 
 
@@ -103,7 +104,7 @@ def main():
     data_filter_uc['Next'].replace('UU', 'UpU', inplace=True)
     data_filter_uc['Next'].replace('UC', 'UpC', inplace=True)
     data_filter_uc['Next'].replace('UG', 'UpG', inplace=True)
-    data_filter_uc = data_filter_uc[data_filter_uc["passage"] != 0]
+    # data_filter_uc = data_filter_uc[data_filter_uc["passage"] != 0]
 
     data_filter_uc.to_csv(output_dir + "/data_filter_uc.csv", sep=',', encoding='utf-8')
     data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")

@@ -30,7 +30,7 @@ def main():
 
 
     capsid_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl","Capsid-31-Amicon", "Capsid-33-Ultra",
-                    "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]#, "Capsid-32-Ultra"
+                    "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]
     rna_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid", "Free"]
     replica_order = ["RNA Control\nPrimer ID", "Mix Populationֿ\nControl", "Capsid-31-Amicon", "Free-31-Amicon"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
