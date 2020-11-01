@@ -23,7 +23,6 @@ def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
     output_dir = input_dir + "/UpA|ApA&ApG|ApC_context"
-    output_plot = input_dir + "/20201101_UpA|ApA&ApG|ApC_Context"
     try:
         os.mkdir(output_dir)
     except OSError:
