@@ -78,3 +78,6 @@ for i in lst:
         print(i)
         continue
 print("Done!")
+
+# Access to the values of the column and the ability to remove what you want
+# data_filter_ag_grouped["passage"] = data_filter_ag_grouped["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])

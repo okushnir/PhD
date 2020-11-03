@@ -27,7 +27,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/UpA|ApA&ApG|ApC_context"
+    output_dir = input_dir + "/inosine_predict_context"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -38,10 +38,12 @@ def main():
 
     data_mutations = pd.read_csv(input_dir + "/Rank0_data_mutation/q38_data_mutation.csv")
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
+    data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/RVB14_adar1_trans.csv")
+    data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
-              "Consensus>Mutated_codon", "passage", "replica"]
+              "Consensus>Mutated_codon", "passage", "replica", "fiveGrade", "threeGrade"]
     data_filter = pd.DataFrame(data_mutations, columns=columns)
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
@@ -69,12 +71,44 @@ def main():
     data_filter["label"] = np.where(data_filter["label"] == "RNA Control_Primer_ID", "RNA Control\nPrimer ID",
                                     data_filter["label"])
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
+
+    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
+    data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
+    """6 groups"""
+    # data_filter["ADAR_grade_five"] = np.where(data_filter["fiveGrade"] == 0, 0, np.where(data_filter["fiveGrade"] <= 20,
+    #                                        0.2, np.where(data_filter["fiveGrade"] <= 40, 0.4,
+    #                                        np.where(data_filter["fiveGrade"] <= 60, 0.6, np.where(data_filter["fiveGrade"] <= 80, 0.8, 1)))))
+    # data_filter["ADAR_grade_three"] = np.where(data_filter["threeGrade"] == 0, 0, np.where(data_filter["threeGrade"] <= 20,
+    #                                        0.2, np.where(data_filter["threeGrade"] <= 40, 0.4,
+    #                                        np.where(data_filter["threeGrade"] <= 60, 0.6, np.where(data_filter["threeGrade"] <= 80, 0.8, 1)))))
+    """3 groups"""
+    print("25_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.25)))
+    print("75_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.75)))
+    print("25_quantile_uc %s" % str(data_filter_uc["threeGrade"].quantile(0.25)))
+    print("75_quantile_uc %s" % str(data_filter_uc["threeGrade"].quantile(0.75)))
+
+    data_filter["ADAR_grade_five"] = np.where(data_filter["fiveGrade"] < data_filter_ag["fiveGrade"].quantile(0.25), 0,
+                                              np.where(data_filter["fiveGrade"] <= data_filter_ag["fiveGrade"].
+                                                       quantile(0.75), 0.5, 1))
+    data_filter["5`_ADAR_Preference"] = np.where(data_filter["fiveGrade"] < data_filter_ag["fiveGrade"].quantile(0.25),
+                                                 "Low", np.where(data_filter["fiveGrade"] <=
+                                                                 data_filter_ag["fiveGrade"].quantile(0.75),
+                                                                 "Intermediate", "High"))
+
+    data_filter["ADAR_grade_three"] = np.where(data_filter["threeGrade"] < data_filter_uc["threeGrade"].quantile(0.25), 0,
+                                               np.where(data_filter["threeGrade"] <= data_filter_uc["threeGrade"].
+                                                        quantile(0.75), 0.5, 1))
+    data_filter["3`_ADAR_Preference"] = np.where(data_filter["threeGrade"] < data_filter_uc["threeGrade"].quantile(0.25),
+                                                 "Low", np.where(data_filter["threeGrade"] <=
+                                                                 data_filter_uc["threeGrade"].quantile(0.75),
+                                                                 "Intermediate", "High"))
+
+
     data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
     data_filter.to_pickle(output_dir + "/data_filter.pkl")
 
     # A>G Prev Context
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    # data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
 
     data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
     data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
@@ -86,11 +120,8 @@ def main():
     data_filter_ag['Next'].replace('AC', 'ApC', inplace=True)
     data_filter_ag['Next'].replace('AG', 'ApG', inplace=True)
 
-    context_order = ["UpA", "ApA", "CpA", "GpA"]
-    type_order = ["Synonymous", "Non-Synonymous"]
+    # data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA'))
 
-    data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA')| data_filter_ag.Prev.str.contains('ApA')) &\
-                                  (data_filter_ag.Next.str.contains('ApG') | data_filter_ag.Next.str.contains('ApC'))
 
     print(data_filter_ag.to_string())
     data_filter_ag.to_csv(output_dir + "/data_filter_ag.csv", sep=',', encoding='utf-8')
@@ -104,11 +135,10 @@ def main():
     data_filter_uc['Next'].replace('UU', 'UpU', inplace=True)
     data_filter_uc['Next'].replace('UC', 'UpC', inplace=True)
     data_filter_uc['Next'].replace('UG', 'UpG', inplace=True)
-    # data_filter_uc = data_filter_uc[data_filter_uc["passage"] != 0]
+    # data_filter_uc["ADAR_like"] = (data_filter_uc.Next.str.contains('UpA') | data_filter_uc.Next.str.contains('UpU'))
 
     data_filter_uc.to_csv(output_dir + "/data_filter_uc.csv", sep=',', encoding='utf-8')
     data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")
-    context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
     #Plots
 #     new_analysis_RV_just_plots.py
