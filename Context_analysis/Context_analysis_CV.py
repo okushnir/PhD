@@ -7,9 +7,10 @@
 
 
 import os.path
-from sequnce_utilities import *
+from Utilities import sequnce_utilities
 import glob
-import urllib
+import pandas as pd
+import numpy as np
 
 
 
@@ -34,29 +35,39 @@ def main():
     #for Local
 
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
+    org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
+               "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
+               "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
+               "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
+               "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
+               "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
+               "Echovirus E6": "JX976771"}
 
     min_coverage = 1000
     dirs = glob.glob(input_dir + "/CVB3_p*")
     lst_srr=[]
     for passage in dirs:
-        file_path = glob.glob(passage + "/q38_3UTR/*" + "merged.freqs")
-        if len(file_path) > 1:
-            for file in file_path:
-                if file.split(".")[-2] == "type":
-                    if file.split(".")[-5] == "merged":
+        # Checks if the file .merged.with.mutation.type.freqs file exists
+        file_path = glob.glob(passage + "/q38_3UTR/*.merged*freqs") #
+        if len(file_path) >= 1:
+            if "merged.with.mutation.type.freqs" in str(file_path):
+                for file in file_path:
+                    if (file.split(".")[-2] == "type") & (len(file.split(".")) > 3):
                         lst_srr.append(file)
+                        virus = "CVB3"
+                        ncbi_id = checkKey(org_dic, virus)
+
+    # for passage in dirs:
+    #     file_path = glob.glob(passage + "/q38_3UTR/*" + "merged.freqs")
+    #     if len(file_path) > 1:
+    #         for file in file_path:
+    #             if file.split(".")[-2] == "type":
+    #                 if file.split(".")[-5] == "merged":
+    #                     lst_srr.append(file)
         else:
             if file_path == []:
                 break
             else:
-
-                org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
-                           "Coxsackievirus A16": "NC_001612", "Enterovirus A": "NC_001612", "Echovirus E3": "KX808644",
-                           "Coxsackievirus B2": "AF081485", "Echovirus E25": "KJ957190", "Human poliovirus 1": "V01149",
-                           "Human poliovirus 2": "V01149", "Human poliovirus 3": "V01149", "Enterovirus C": "V01149",
-                           "Enterovirus D68": "NC_001430", "Enterovirus D": "NC_001430", "Rhinovirus B": "NC_001490",
-                           "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
-                           "Echovirus E6": "JX976771"}
                 print(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
                 virus = os.path.basename(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
                 try:
@@ -65,7 +76,7 @@ def main():
                 except Exception as e:
                     print("type error: " + str(e))
                 try:
-                    append_mutation = find_mutation_type(file_path[0], ncbi_id, min_coverage)
+                    append_mutation = sequnce_utilities.find_mutation_type(file_path[0], ncbi_id, min_coverage)
                     lst_srr.append(file_path[0].split('freqs')[0] + "with.mutation.type.freqs")
                 except Exception as e:
                     print(e)
@@ -81,12 +92,14 @@ def main():
     sample_file3 = lst_srr[3]
     sample_file4 = lst_srr[4]
 
-    rna_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control_L001-ds.738551d760354e7fb0f07567e3ac1f70/q38_3UTR/CVB3-RNA-Control.merged.freqs"
+    rna_control = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control/q38_3UTR/" \
+                  "CVB3-RNA-Control.merged.freqs"
     ncbi_id = "M33854"
-    find_mutation_type(rna_control, ncbi_id, min_coverage)
+    sequnce_utilities.find_mutation_type(rna_control, ncbi_id, min_coverage)
 
 
-    control_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control_L001-ds.738551d760354e7fb0f07567e3ac1f70/q38_3UTR/CVB3-RNA-Control.merged.with.mutation.type.freqs"
+    control_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control/q38_3UTR/" \
+                   "CVB3-RNA-Control.merged.with.mutation.type.freqs"
     label_control = "CVB3-RNA Control"
 
     label_sample0 = sample_file0.split("/")[-1].split(".")[0]
@@ -105,33 +118,41 @@ def main():
     print ("loading " + sample_file0 + " as sample")
     data_mutations0 = pd.read_table(sample_file0)
     data_mutations0["label"] = label_sample0
+    data_mutations0["passage"] = label_sample0.split("-")[1].split("p")[-1]
+    data_mutations0["replica"] = 1
 
     print ("loading " + sample_file1 + " as sample")
     data_mutations1 = pd.read_table(sample_file1)
     data_mutations1["label"] = label_sample1
+    data_mutations1["passage"] = label_sample1.split("-")[1].split("p")[-1]
+    data_mutations1["replica"] = 1
 
     print("loading " + sample_file2 + " as sample")
     data_mutations2 = pd.read_table(sample_file2)
     data_mutations2["label"] = label_sample2
+    data_mutations2["passage"] = label_sample2.split("-")[1].split("p")[-1]
+    data_mutations2["replica"] = 1
 
     print("loading " + sample_file3 + " as sample")
     data_mutations3 = pd.read_table(sample_file3)
     data_mutations3["label"] = label_sample3
+    data_mutations3["passage"] = label_sample3.split("-")[1].split("p")[-1]
+    data_mutations3["replica"] = 1
 
     print("loading " + sample_file4 + " as sample")
     data_mutations4 = pd.read_table(sample_file4)
     data_mutations4["label"] = label_sample4
+    data_mutations4["passage"] = label_sample4.split("-")[1].split("p")[-1]
+    data_mutations4["replica"] = 1
 
 
     print("loading " + control_file + " as RNA control")
     data_control = pd.read_table(control_file)
     data_control["label"] = label_control
+    data_control["passage"] = 0
+    data_control["replica"] = 1
 
     data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4, data_control], sort=False)
-
-    data["passage"] = 0
-    data["replica"] = 0
-    print(data.to_string())
 
     toPlot = [label_sample0, label_sample1, label_sample2, label_sample3, label_sample4, label_control]
 
@@ -151,35 +172,40 @@ def main():
                     on=["Pos", "label"])
     data["mutation_type"] = data["Consensus_y"] + data["Base"]
     data["Mutation"] = data["Consensus_y"] + ">" + data["Base"]
-    data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)] #
+    """Rank 0"""
+    data = data[(data["label"].isin(toPlot)) & (data["Read_count"] > min_coverage)]
+    """Rank 1+"""
+    # data = data[(data["label"].isin(toPlot)) & (data["Rank"] != 0) & (data["Read_count"] > min_coverage)] 
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
-    data.to_csv(input_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data["Type"] = data["Type"].fillna(value="NonCodingRegion")
+    data["Protein"] = np.where(data["Pos"] <= 739, "5'UTR",
+                                np.where(data["Pos"] <= 948, "VP4",
+                                    np.where(data["Pos"] <= 1737, "VP2",
+                                        np.where(data["Pos"] <= 2451, "VP3",
+                                            np.where(data["Pos"] <= 3303, "VP1",
+                                                np.where(data["Pos"] <= 3744, "2A",
+                                                    np.where(data["Pos"] <= 4041, "2B",
+                                                        np.where(data["Pos"] <= 5028, "2C",
+                                                            np.where(data["Pos"] <= 5295, "3A",
+                                                                np.where(data["Pos"] <= 5361, "3B",
+                                                                   np.where(data["Pos"] <= 5910, "3C",
+                                                                    np.where(data["Pos"] <= 7299, "3D", "3'UTR"))))))))))))
+    rank_prefix = "/Rank0_data_mutation"
+    data.to_csv(input_dir + rank_prefix +"/q38_data_mutation.csv", sep=',', encoding='utf-8')
+    data.to_pickle(input_dir + rank_prefix + "/q38_data_mutation.pkl")
 
 # Context data
     mutation_for_rna = ["AG"]
     dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]#& (data["Type"] == "Synonymous")]
 
-    dataForPlotting_AG["Type"] = dataForPlotting_AG["Type"].fillna(value="NonCodingRegion")
-    dataForPlotting_AG["Protein"] = np.where(dataForPlotting_AG["Pos"] <= 739, "5'UTR",
-                                np.where(dataForPlotting_AG["Pos"] <= 948, "VP4",
-                                    np.where(dataForPlotting_AG["Pos"] <= 1737, "VP2",
-                                        np.where(dataForPlotting_AG["Pos"] <= 2451, "VP3",
-                                            np.where(dataForPlotting_AG["Pos"] <= 3303, "VP1",
-                                                np.where(dataForPlotting_AG["Pos"] <= 3744, "2A",
-                                                    np.where(dataForPlotting_AG["Pos"] <= 4041, "2B",
-                                                        np.where(dataForPlotting_AG["Pos"] <= 5028, "2C",
-                                                            np.where(dataForPlotting_AG["Pos"] <= 5295, "3A",
-                                                                np.where(dataForPlotting_AG["Pos"] <= 5361, "3B",
-                                                                   np.where(dataForPlotting_AG["Pos"] <= 5910, "3C",
-                                                                    np.where(dataForPlotting_AG["Pos"] <= 7299, "3D", "3'UTR"))))))))))))
-
-    dataForPlotting_AG.to_csv(input_dir + "/q38_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_AG.to_csv(input_dir + rank_prefix +"/q38_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_AG.to_pickle(input_dir + rank_prefix + "/q38_data_XpA_by_mutation.pkl")
 
     mutation_for_rna = ["UC"]
     dataForPlotting_UC = data[(data["mutation_type"].isin(mutation_for_rna))]  # & (data["Type"] == "Synonymous")]
-    dataForPlotting_UC.to_csv(input_dir + "/q38_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
-
+    dataForPlotting_UC.to_csv(input_dir + rank_prefix + "/q38_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
+    dataForPlotting_UC.to_pickle(input_dir + rank_prefix + "/q38_data_UpX_by_mutation.pkl")
 #     fig1 = plt.figure(figsize=(16, 9))
 #     ax = plt.subplot()
 #     make_boxplot_mutation(freqs_file_mutations, ax, out_plots_dir)
