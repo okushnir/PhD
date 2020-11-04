@@ -74,17 +74,17 @@ output:
 
 def main():
 #RV
-    # sample = "Free_33_Amicon"
-    # base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
-    # freqs_file_path = base_dir + "/%s/20201012_q38/%s.freqs" % (sample, sample.replace("_", "-"))
-    # out_dir = base_dir + "/Coverage_plots"
-    # coverage_graph(freqs_file_path, out_dir)
-#CV
-    sample = "CVB3_RNA_Control"
-    base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3/"
+    sample = "RVB14_p12"
+    base_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     freqs_file_path = base_dir + "/%s/q38_3UTR/%s.freqs" % (sample, sample.replace("_", "-"))
     out_dir = base_dir + "/Coverage_plots"
     coverage_graph(freqs_file_path, out_dir)
+#CV
+    # sample = "CVB3_RNA_Control"
+    # base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3/"
+    # freqs_file_path = base_dir + "/%s/q38_3UTR/%s.freqs" % (sample, sample.replace("_", "-"))
+    # out_dir = base_dir + "/Coverage_plots"
+    # coverage_graph(freqs_file_path, out_dir)
 
 
 if __name__ == "__main__":
