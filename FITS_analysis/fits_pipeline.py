@@ -12,7 +12,8 @@ import sys, argparse
 import subprocess
 from time import sleep
 from FITS_analysis import fits_fitness_united
-from FITS_analysis import fits_mutation_united
+from FITS_analysis import fits_mutation_united_syn
+from FITS_analysis import fits_mutation_united_all
 from FITS_analysis import fits_parameters_pos
 from util import pbs_jobs
 
@@ -427,7 +428,7 @@ def main(args):
                         output_fitness_dir = input_dir + "fits/output/fitness/%s/%s/" % (passages, mutation)
                         output_file = output_fitness_dir + "all.txt"
                         print("Creating the fitness conjugated report of: %s" % output_fitness_dir)
-                        fits_fitness_united.fits_fitness_united(output_fitness_dir, output_file)
+                        fits_fitness_united_syn.fits_fitness_united(output_fitness_dir, output_file)
 
 """7. Run fits_plotter.py"""
 
