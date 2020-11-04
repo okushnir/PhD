@@ -14,43 +14,37 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-import argparse
-import glob
+sns.set(font_scale=1.2)
+sns.set_style("ticks")
+sns.despine()
 
-
-def main():
-#RV
-    # freqs_file_path = "Z:/volume1/okushnir/Cirseq/RV/20170322_output_all_23_qscore/RVB14p2.freqs"
-    # out_dir = "Z:/volume1/okushnir/Cirseq/RV/20170322_output_all_23_qscore/plots/"
-    # coverage_graph(freqs_file_path, out_dir)
-#CV
-    freqs_file_path = r"W:\volume1\okushnir\Cirseq\CV\20170719_q30r2_edited\CVB3-p2.freqs"
-    out_dir = r"W:\volume1\okushnir\Cirseq\CV\20170719_q30r2_edited\plots"
-    coverage_graph(freqs_file_path, out_dir)
 
 def coverage_graph(freqs, out_dir):
-    # show a unified graph otherwise
+    sample = freqs.split("/")[-1].split(".")[0]
+    df = pd.read_table(freqs, sep="\t")
 
-    data = parse_reads(freqs)
-    pos = data[0]
-    reads = data[1]
-    graph = plt.plot(pos, reads, color="DarkOrchid")
+    # remove all duplicates from Pos except the first occurrence
+    # remove all x.number duplicates
+    df[["Pos"]] = df[["Pos"]].astype(int)
+    df = df.drop_duplicates("Pos")
+    df = df[df["Base"] != "-"]
+    df = df[df["Read_count"] > 1000]
+    med_reads = df["Read_count"].median()
+    print("%s: %s" % (sample, str(med_reads)))
 
-    plt.xlabel("Position In The Genome[bp]", fontsize=20)
-    plt.ylabel("Number Of Reads", fontsize=20)
-    plt.title("Coverage", fontsize=30)
-    plt.xticks(fontsize=16)
-    plt.yticks(fontsize=16)
-    sns.set_style("darkgrid")
-    # plt.legend()
-    plt.xlim(0, 6550)
-    plt.ylim(1, 100000000)
-    plt.yscale("log")
+    graph = sns.lineplot(x="Pos", y="Read_count", data=df)
+
+    graph.set_xlabel("Position In The Genome[bp]")
+    graph.set_ylabel("Number Of Reads")
+    graph.set_title("Coverage")
+    graph.set_xlim(0, (df["Pos"].values[-1]+100))
+    graph.set_ylim(1, (df["Read_count"].max()+1000))
+    plt.axhline(med_reads, color='red', ls='--')
+    plt.text(0, med_reads+100, str(med_reads), color="red")
     plt.tight_layout()
-    plt.savefig(out_dir + "\coverage_0_106.png", dpi=680)
+    plt.savefig(out_dir + "/coverage_%s.png" % sample, dpi=300)
     plt.close('all')
-
-    return graph
+    return df
 
 
 def parse_reads(freqs):
@@ -63,18 +57,34 @@ output:
 '''
 
     path = freqs
-    df = pd.read_csv(path, sep='\t')
+    df = pd.read_table(path, sep="\t")
 
     # remove all duplicates from Pos except the first occurrence
     # remove all x.number duplicates
     df[["Pos"]] = df[["Pos"]].astype(int)
     df = df.drop_duplicates("Pos")
+    df = df[df["Base"] != "-"]
+    df = df[df["Read_count"] > 1000]
 
     pos = df["Pos"]  # a vector of all positions
     reads = df["Read_count"]
     med_reads = reads.median()
     print(med_reads)
     return pos, reads
+
+def main():
+#RV
+    # sample = "Free_33_Amicon"
+    # base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    # freqs_file_path = base_dir + "/%s/20201012_q38/%s.freqs" % (sample, sample.replace("_", "-"))
+    # out_dir = base_dir + "/Coverage_plots"
+    # coverage_graph(freqs_file_path, out_dir)
+#CV
+    sample = "CVB3_RNA_Control"
+    base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3/"
+    freqs_file_path = base_dir + "/%s/q38_3UTR/%s.freqs" % (sample, sample.replace("_", "-"))
+    out_dir = base_dir + "/Coverage_plots"
+    coverage_graph(freqs_file_path, out_dir)
 
 
 if __name__ == "__main__":
