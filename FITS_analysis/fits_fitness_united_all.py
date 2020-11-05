@@ -16,7 +16,7 @@ COL_CATEGORY = 9
 COL_LEVENES_P = 10
 
 
-def fits_fitness_united(input_dir, output_file):
+def fits_fitness_united_all(input_dir, output_file):
     mypath = input_dir
     #mypath = "/Users/talzinger/Nobackup/FITS_Final_Figures/FigureAccuracyFitness_20170718_summary_bi/"
     file_list = [f for f in listdir(mypath) if isfile(join(mypath, f))]
@@ -56,7 +56,7 @@ def main(args):
     input_dir = args.input_dir # directory contains q23_data_mutation.csv
     output_file = args.output_file
 
-    fits_fitness_united(input_dir, output_file)
+    fits_fitness_united_all(input_dir, output_file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
