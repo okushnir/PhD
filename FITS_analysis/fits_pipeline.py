@@ -11,9 +11,10 @@ import numpy as np
 import sys, argparse
 import subprocess
 from time import sleep
-from FITS_analysis import fits_fitness_united
-from FITS_analysis import fits_mutation_united_syn
 from FITS_analysis import fits_mutation_united_all
+from FITS_analysis import fits_mutation_united_syn
+from FITS_analysis.fits_fitness_united_syn import fits_fitness_united_syn
+from FITS_analysis.fits_fitness_united_all import fits_fitness_united_all
 from FITS_analysis import fits_parameters_pos
 from util import pbs_jobs
 
@@ -317,11 +318,18 @@ def main(args):
     # status = check_pbs(job_id)
 
     """3. Run fits_mutation_united"""
-    for mutation in mutation_lst:
-        output_mutation_dir = input_dir + "fits/output/mutation/%s/%s/" % (passages, mutation)
-        output_file = output_mutation_dir + "all.txt"
-        print("Creating the mutation conjugated report of: %s" % output_mutation_dir)
-        fits_mutation_united.fits_mutation_united(output_mutation_dir, output_file)
+    if mutation_type == "all":
+        for mutation in mutation_lst:
+            output_mutation_dir = input_dir + "fits/output/mutation/%s/%s/" % (passages, mutation)
+            output_file = output_mutation_dir + "all.txt"
+            print("Creating the mutation conjugated report of: %s" % output_mutation_dir)
+            fits_mutation_united_all.fits_mutation_united_all(output_mutation_dir, output_file)
+    if mutation_type == "syn":
+        for mutation in mutation_lst:
+            output_mutation_dir = input_dir + "fits/output/mutation/%s/%s/" % (passages, mutation)
+            output_file = output_mutation_dir + "all.txt"
+            print("Creating the mutation conjugated report of: %s" % output_mutation_dir)
+            fits_mutation_united_syn.fits_mutation_united_syn(output_mutation_dir, output_file)
 
     """4. Run fits_parameters.py"""
     print("Creating fitness parameters")
@@ -424,11 +432,20 @@ def main(args):
                 if status == "Done":
 
                     """6. Run fits_fitness_united"""
-                    for mutation in mutation_lst:
-                        output_fitness_dir = input_dir + "fits/output/fitness/%s/%s/" % (passages, mutation)
-                        output_file = output_fitness_dir + "all.txt"
-                        print("Creating the fitness conjugated report of: %s" % output_fitness_dir)
-                        fits_fitness_united_syn.fits_fitness_united(output_fitness_dir, output_file)
+                    if mutation_type == "all":
+                        for mutation in mutation_lst:
+                            output_fitness_dir = input_dir + "fits/output/fitness/%s/%s/" % (passages, mutation)
+                            output_file = output_fitness_dir + "all.txt"
+                            print("Creating the fitness conjugated report of: %s" % output_fitness_dir)
+                            fits_fitness_united_all(output_fitness_dir, output_file)
+                    if mutation_type == "syn":
+                        for mutation in mutation_lst:
+                            output_fitness_dir = input_dir + "fits/output/fitness/%s/%s/" % (passages, mutation)
+                            output_file = output_fitness_dir + "all.txt"
+                            print("Creating the fitness conjugated report of: %s" % output_fitness_dir)
+                            fits_fitness_united_syn(output_fitness_dir, output_file)
+
+
 
 """7. Run fits_plotter.py"""
 
