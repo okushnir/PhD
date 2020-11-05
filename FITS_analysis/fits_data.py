@@ -10,11 +10,10 @@ import pandas as pd
 import os
 import numpy as np
 import subprocess
-from Context_analysis_RV import checkKey
+from Context_analysis.Context_analysis_RV import checkKey
 import rpy2.robjects as robjects
 import glob
-from Context_analysis_RV import checkKey
-from fits_plotter import *
+from FITS_analysis.fits_plotter import *
 
 
 def fitness_parameters(input_dir, output_dir):
