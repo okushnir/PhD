@@ -15,6 +15,7 @@ sns.set(font_scale=1.2)
 sns.set_style("ticks")
 sns.despine()
 
+
 # print(plt.style.available)
 
 # tips = sns.load_dataset("tips")
@@ -27,56 +28,36 @@ def weighted_varaint(x, **kws):
     var, count = map(np.asarray, zip(*x))
     return var.sum() / count.sum()
 
-def checkKey(dict, key):
-    if key in dict.keys():
-        return dict[key]
-    else:
-        raise Exception()
-
 
 def main():
     flatui = ["#3498db", "#9b59b6"]
-    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney/"
-    output_dir = input_dir + "20201109_plots"
+    date = 20201109
+    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
+    prefix = "inosine_predict_context"
+
+    plots_output_dir = input_dir + "%s_%s" % (str(date), prefix)
     try:
-        os.mkdir(output_dir)
+        os.mkdir(plots_output_dir)
     except OSError:
-        print("Creation of the directory %s failed" % output_dir)
+        print("Creation of the directory %s failed" % plots_output_dir)
     else:
-        print("Successfully created the directory %s " % output_dir)
+        print("Successfully created the directory %s " % plots_output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "q30_data_mutation.csv")
-
-    columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
-               "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts", "Consensus>Mutated_codon"]
-    data_filter = pd.DataFrame(data_mutations, columns=columns)
-    data_filter["pval"] = data_filter["pval"].fillna(1)
-    data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
-    # filter based on pval<0.01 and Prob>0.95
-    # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-
-
-    data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-    # data_filter = data_filter[data_filter["label"] != "RVB14-RNA Control"]
-    # data_filter = data_filter[data_filter["label"] != "RVB14-p2"]
-    #
-    # data_miseq = data_filter[data_filter["label"] != "RVB14-Next-RNA Control"]
-    # data_miseq = data_miseq[data_filter["label"] != "RVB14-p1"]
-
-    data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
+    data_filter = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
+    data_filter_ag = pd.read_pickle(input_dir + prefix + "/data_filter_ag.pkl")
+    data_filter_uc = pd.read_pickle(input_dir + prefix +"/data_filter_uc.pkl")
     data_filter["passage"] = data_filter["passage"].astype(int)
-    data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
-    # data_filter = data_filter[data_filter["Mutation"] != "C>U"]
-    data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
 
-    label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
-    passage_order = ["3", "4", "5", "6", "7", "8"]
-    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
+    """Plots"""
+
+    label_order = ["OPV-p1", "OPV-p3", "OPV-p5", "OPV-p6", "OPV-p7"]
+    passage_order = ["1", "3", "5", "6", "7"]
+    mutation_order = ["A>G", "U>C", "G>A", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
+    type_order_ag = ["Synonymous", "Non-Synonymous"]
+    adar_preference = ["High", "Intermediate", "Low"]
 
     g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
@@ -84,28 +65,25 @@ def main():
     g1.set_axis_labels("", "Variant Frequency")
     g1.set_xticklabels(fontsize=9, rotation=45)
     g1.set(yscale='log')
-    g1.set(ylim=(10**-5, 10**-1))
+    g1.set(ylim=(10**-7, 10**-3))
 
     # plt.show()
-    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    g1.savefig(plots_output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
 
     data_filter["passage"] = data_filter["passage"].astype(str)
-    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette=mutation_palette(4)
-                        ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
-                     orient="v")
+    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
+                     palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
+                     estimator=weighted_varaint, orient="v")
     g2.set_axis_labels("Passage", "Variant Frequency")
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_xticklabels(fontsize=10, rotation=45)
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-    #                   "/Transition_Mutations_point_plot_Mahoney", dpi=300)
-    g2.savefig(output_dir + "/Transition_Mutations_point_plot_Mahoney", dpi=300)
+    #                   "/Transition_Mutations_point_plot_OPV", dpi=300)
+    g2.savefig(plots_output_dir + "/Transition_Mutations_point_plot_OPV", dpi=300)
     plt.close()
-
     data_filter["passage"] = data_filter["passage"].astype(int)
-
-
     # data_pmsc = data_filter[data_filter["Type"] == "Premature Stop Codon"]
     # data_pmsc["mutation_type"] = data_pmsc.Mutation.str.contains("A>G") | data_pmsc.Mutation.str.contains("U>C") | \
     #                              data_pmsc.Mutation.str.contains("C>U") | data_pmsc.Mutation.str.contains("G>A")
@@ -118,7 +96,7 @@ def main():
     # g3.axes.flat[0].set_yscale('symlog', linthreshy=10**-5)
     # g3.set_xticklabels(rotation=45)
     # # plt.show()
-    # g3.savefig(output_dir + "/Transitions_PMSC_Mutations_point_plot", dpi=300)
+    # g3.savefig(plots_output_dir + "/Transitions_PMSC_Mutations_point_plot", dpi=300)
     # plt.close()
     #
     # g4 = sns.relplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", palette="tab20",
@@ -128,51 +106,110 @@ def main():
     # g4.axes.flat[0].set_yscale('symlog', linthreshy=10**-5)
     # g4.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g4.savefig(output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
+    # g4.savefig(plots_output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
     # plt.close()
-    #
+
+    data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
+    # data_filter_pass5 = data_filter_pass5[data_filter_pass5["pval"] < 0.01]
+    data_filter_pass5 = data_filter_pass5.loc[data_filter_pass5.Type == "Synonymous"]
+    # data_filter_pass5["ADAR_like"] = (data_filter_pass5.Prev.str.contains('UpA') | data_filter_pass5.Prev.str.contains('ApA'))
+    data_filter_pass5["Mutation"] = np.where(((data_filter_pass5["Mutation"] == "A>G") &
+                                             (data_filter_pass5["5`_ADAR_Preference"] == "High")),
+                                             "High\nADAR-like\nA>G", np.where(((data_filter_pass5["Mutation"] == "A>G")
+                                                      & (data_filter_pass5["5`_ADAR_Preference"] == "Intermediate")),
+                                                      "Intermediate\nADAR-like\nA>G",
+                                                      np.where(((data_filter_pass5["Mutation"] == "A>G") &
+                                                                (data_filter_pass5["5`_ADAR_Preference"] == "Low")),
+                                                               "Low\nADAR-like\nA>G",
+                                                               data_filter_pass5["Mutation"])))
+    data_filter_pass5["Mutation_adar"] = np.where(((data_filter_pass5["Mutation"] == "U>C") &
+                                             (data_filter_pass5["3`_ADAR_Preference"] == "High")),
+                                             "High\nADAR-like\nU>C", np.where(((data_filter_pass5["Mutation"] == "U>C")
+                                                      & (data_filter_pass5["3`_ADAR_Preference"] == "Intermediate")),
+                                                      "Intermediate\nADAR-like\nU>C",
+                                                      np.where(((data_filter_pass5["Mutation"] == "U>C") &
+                                                                (data_filter_pass5["3`_ADAR_Preference"] == "Low")),
+                                                               "Low\nADAR-like\nU>C",
+                                                               data_filter_pass5["Mutation"])))
+    mutation_adar_order = ["High\nADAR-like\nA>G", "Intermediate\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
+                           "High\nADAR-like\nU>C", "Intermediate\nADAR-like\nU>C", "Low\nADAR-like\nU>C", "G>A"]
+
+    ax = sns.violinplot("Mutation_adar", "Frequency", data=data_filter_pass5, palette=mutation_palette(8),
+                        order=mutation_adar_order)
+    # ax = sns.stripplot("Mutation_adar", "Frequency", data=data_filter_pass5, color=".2", order=mutation_adar_order,
+    #                    alpha=.25)
+    # old_statannot.add_stat_annotation(ax, data=data_filter_pass5, x="Mutation_adar", y="Frequency",
+    #                     boxPairList=[("High\nADAR-like\nA>G", "High\nADAR-like\nU>C"),("High\nADAR-like\nA>G", "G>A"),
+    #                                  ("High\nADAR-like\nA>G", "C>U")], test='Mann-Whitney', textFormat='star',
+    #                                   loc='outside', verbose=2,
+    #                                   order=mutation_adar_order)
+
+    ax.set_yscale('log')
+    ax.set_xlabel("Mutation")
+    ax.set_ylabel("Variant Frequency")
+    ax.set(ylim=(10 ** -5, 10 ** -2))
+    plt.xticks(fontsize=7)
+    sns.despine()
+    plt.tight_layout()
+    plt.savefig(plots_output_dir + "/mutation_p5_box_plot_RVB14.png", dpi=300)
+    plt.close()
+
     # # A>G Prev Context
-    #
-    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-
-    data_filter_ag['Prev'].replace('AA', 'ApA', inplace=True)
-    data_filter_ag['Prev'].replace('UA', 'UpA', inplace=True)
-    data_filter_ag['Prev'].replace('CA', 'CpA', inplace=True)
-    data_filter_ag['Prev'].replace('GA', 'GpA', inplace=True)
-
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
-    data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA')
-    data_filter_ag_pass8 = data_filter_ag.loc[data_filter_ag.passage == 8]
-    data_filter_ag_pass8 = data_filter_ag_pass8.loc[data_filter_ag_pass8.Type == "Synonymous"]
-    print(data_filter_ag_pass8.to_string())
-
     g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette=mutation_palette(2),
                 kind = "point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
                      col="Type", join=False, col_order=type_order)
     g5.set_axis_labels("", "Variant Frequency")
     g5.set(yscale='log')
     g5.set(ylim=(7*10**-7, 4*10**-3))
-    g5.set_xticklabels(rotation=45)
+    # g5.set_xticklabels(rotation=45)
     # plt.show()
-    g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    g5.savefig(plots_output_dir + "/Context_point_plot", dpi=300)
     plt.close()
-    #
 
-    ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass8, palette=mutation_palette(2), order=[True, False])
-    ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass8, color=".2", order=[True, False])
-    old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass8, x="ADAR_like", y="Frequency",
+    mutation_ag = sns.catplot("passage", "frac_and_weight", data=data_filter_ag, hue="5`_ADAR_Preference",
+                              palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True, estimator=weighted_varaint,
+                              orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
+    mutation_ag.set(yscale="log")
+    mutation_ag.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
+    mutation_ag.fig.suptitle("A>G ADAR_like Mutation in OPV2", y=0.99)
+    plt.subplots_adjust(top=0.85)
+    mutation_ag.set_axis_labels("Passage", "Variant Frequency")
+    mutation_ag.savefig(plots_output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
+    plt.close()
+    
+    data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
+    data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
+    print(data_filter_ag_pass5.to_string())
+
+    ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=mutation_palette(2), order=[True, False])
+    ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=[True, False])
+    old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
                         boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside', verbose=1)
     ax.set_yscale('log')
     ax.set_xlabel("ADAR-like\nContext")
     ax.set_ylabel("Variant Frequency")
-    ax.set(ylim=(10 ** -4, 10 ** -2))
-    # sns.despine()
+    ax.set(ylim=(10 ** -5, 10 ** -2))
+    sns.despine()
     # plt.tight_layout()
-    plt.savefig(output_dir + "/context_p8_point_plot_v2.png", dpi=300)
+    plt.savefig(plots_output_dir + "/context_p5_point_plot_OPV.png", dpi=300)
+    plt.close()
+
+    """U>C"""
+    mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
+                              palette="rocket", kind="point", dodge=True, estimator=weighted_varaint,
+                              orient="v", col="Type", join=False, hue_order=adar_preference,
+                              col_order=type_order_ag)
+    mutation_uc.set(yscale="log")
+    mutation_uc.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
+    # mutation_uc.set(xticks=["0", "2", "5", "8", "10", "12"])
+    mutation_uc.set_axis_labels("Passage", "Variant Frequency")
+    mutation_uc.savefig(plots_output_dir + "/uc_ADAR_like_Mutation_col.png", dpi=300)
     plt.close()
 
 
+    # print(data_filter_ag.to_string())
     # data_codons = data_filter_ag[data_filter_ag["Prob"] > 0.95]
     # data_codons = data_codons[data_codons["ADAR_like"] == True]
     # data_codons = data_codons[data_codons["Type"] == "Synonymous"]
@@ -185,7 +222,7 @@ def main():
     # # g_codons.set(ylim=(10**-7, 10**-3))
     #
     # # plt.show()
-    # g_codons.savefig(output_dir + "/codons_point_plot", dpi=300)
+    # g_codons.savefig(plots_output_dir + "/codons_point_plot", dpi=300)
     # plt.close()
     #
     # g6 = sns.relplot("passage", "frac_and_weight", data=data_filter_ag, hue="Prev", palette="tab20",
@@ -198,7 +235,7 @@ def main():
     # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
     # g6.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
+    # g6.savefig(plots_output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
     # plt.close()
     #
     # data_filter_ag.to_csv(input_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
@@ -209,7 +246,7 @@ def main():
     # g7.fig.suptitle("A>G Mutation trajectories in OPV", y=0.99)
     # g7.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g7.savefig(output_dir + "/ADAR_like_AG_Mutation_Context_trajectories_Context_.png", dpi=300)
+    # g7.savefig(plots_output_dir + "/ADAR_like_AG_Mutation_Context_trajectories_Context_.png", dpi=300)
     # plt.close()
     #
     #
@@ -220,7 +257,7 @@ def main():
     # g8.fig.suptitle("A>G Mutation trajectories in OPV", y=0.99)
     # g8.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g8.savefig(output_dir + "/ADAR_like_AG_Mutation_ADAR_trajectories_Context.png", dpi=300)
+    # g8.savefig(plots_output_dir + "/ADAR_like_AG_Mutation_ADAR_trajectories_Context.png", dpi=300)
     # plt.close()
     #
     # data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
@@ -242,7 +279,7 @@ def main():
     # g9.set(ylim=(10 ** -7, 10 ** -3))
     # g9.set_xticklabels(rotation=45)
     # # plt.show()
-    # g9.savefig(output_dir + "/UC_Context_point_plot", dpi=300)
+    # g9.savefig(plots_output_dir + "/UC_Context_point_plot", dpi=300)
     # plt.close()
     #
     # g10 = sns.relplot("passage", "frac_and_weight", data=data_filter_uc, hue="Next", palette="tab20",
@@ -256,7 +293,7 @@ def main():
     # # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
     # g10.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g10.savefig(output_dir + "/UC_Context_miseq_sample_time_line_plot", dpi=300)
+    # g10.savefig(plots_output_dir + "/UC_Context_miseq_sample_time_line_plot", dpi=300)
     # plt.close()
     #
     #
@@ -389,7 +426,7 @@ def main():
     # # fig.suptitle("Mutation trajectories", fontsize=14)
     # fig.tight_layout()
     # # plt.show()
-    # plt.savefig(output_dir + "/regplot_AG_Mutation_Context_trajectories.png", dpi=300)
+    # plt.savefig(plots_output_dir + "/regplot_AG_Mutation_Context_trajectories.png", dpi=300)
     # plt.close()
     #
     #
@@ -409,7 +446,7 @@ def main():
     # # textstr = "ADAR-like SYN: y={0:.3g}x+{1:.3g}\nnon ADAR-like SYN: y={2:.3g}x+{3:.3g}".format(slope1, intercept1, slope2, intercept2)
     # # g11.ax.text(0.7, 0.9, textstr, transform=g11.axes.transAxes, fontsize=14, bbox=props)
     # # plt.show()
-    # g11.savefig(output_dir + "/lmplot_ADAR_Context", dpi=300)
+    # g11.savefig(plots_output_dir + "/lmplot_ADAR_Context", dpi=300)
 
 
 if __name__ == "__main__":
