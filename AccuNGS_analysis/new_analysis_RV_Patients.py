@@ -10,6 +10,7 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
+from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -25,7 +26,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    output_dir = input_dir + "/20201027_plots"
+    output_dir = input_dir + "/20201109_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -34,7 +35,8 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
 
-    data_mutations = pd.read_csv(input_dir + "/q30_data_mutation.csv")
+    data_mutations = pd.read_csv(input_dir + "/Rank0_data_mutation/q30_data_mutation.csv")
+    data_mutations = data_mutations[data_mutations["Rank"] != 0]
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
@@ -100,7 +102,7 @@ def main():
     # plt.show()
     g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
-    g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20"
+    g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette=mutation_palette(4)
                         ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v", legend=True)
     g2.set_axis_labels("", "Variant Frequency")
@@ -111,8 +113,8 @@ def main():
     # plt.show()
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
-    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-                      "/Fig9a_Transition_Mutations_point_plot_Patients", dpi=300)
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+    #                   "/Fig9a_Transition_Mutations_point_plot_Patients", dpi=300)
     plt.close()
 
     # g_rna = sns.catplot(x="RNA", y="frac_and_weight", data=data_filter, hue="Mutation", order=rna_order,
@@ -130,22 +132,22 @@ def main():
 
     # A>G Prev Context
     flatui = ["#3498db", "#9b59b6"]
-    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette=flatui,
-                kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
-                     col="Type", join=False, col_order=type_order2)
+    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
+                     palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
+                     estimator=weighted_varaint, orient="v", col="Type", join=False, col_order=type_order2)
     g5.set_axis_labels("", "Variant Frequency")
     g5.set(yscale='log')
     g5.set(ylim=(7*10**-7, 4*10**-3))
     g5.set_xticklabels(rotation=90)
     # plt.show()
     g5.savefig(output_dir + "/Context_point_plot", dpi=300)
-    g5.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-               "/Fig9b_Context_point_plot_Patients", dpi=300)
+    # g5.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+    #            "/Fig9b_Context_point_plot_Patients", dpi=300)
     plt.close()
 
-    g6 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order, palette=flatui,
-                kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint, orient="v",
-                     join=False)
+    g6 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
+                     palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
+                     estimator=weighted_varaint, orient="v", join=False)
     g6.set_axis_labels("", "Variant Frequency")
     g6.set(yscale='log')
     g6.set(ylim=(7*10**-7, 4*10**-3))
@@ -165,7 +167,7 @@ def main():
     g9.savefig(output_dir + "/UC_Context_point_plot", dpi=300)
     plt.close()
 
-    data_filter_ag_grouped = data_filter_ag.groupby(["ADAR_like", "label", "Type", "Pos", "Protein"])["frac_and_weight"].agg(lambda x: weighted_varaint(x))
+    data_filter_ag_grouped = data_filter_ag.groupby(["ADAR_like", "label", "Type"])["frac_and_weight"].agg(lambda x: weighted_varaint(x))
     data_filter_ag_grouped = data_filter_ag_grouped.reset_index()
     data_filter_ag_grouped = data_filter_ag_grouped.rename(columns={"frac_and_weight": "Frequency"})
     data_filter_ag_grouped["Frequency"] = data_filter_ag_grouped["Frequency"].astype(float)
@@ -173,17 +175,16 @@ def main():
 
     data_filter_ag_grouped_silent = data_filter_ag_grouped[data_filter_ag_grouped["Type"] == "Synonymous"]
     data_filter_ag_grouped_silent = data_filter_ag_grouped_silent[data_filter_ag_grouped_silent["label"] == "Cell Cultureֿ\nControl"]
-    position_g = sns.scatterplot("Pos", "Frequency", data=data_filter_ag_grouped_silent, hue="Protein",
-                                 palette="tab10", style="ADAR_like", style_order=[True, False], legend="full")
 
-    # position_g.set_axis_labels("", "Variant Frequency")
-    position_g.set_yscale('log')
-    position_g.set_ylim(10 ** -4, 10 ** -1)
-    # position_g.set(xlim=(3500, 7500))
-    position_g.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.tight_layout()
-    plt.savefig(output_dir + "/position_cells.png", dpi=300)
-    plt.close()
+    # position_mutation = sns.relplot(x="Pos", y="Frequency", data=data_filter_ag_grouped_silent, hue="5`_ADAR_Preference",
+    #                                 col="RNA", col_wrap=2, style="5`_ADAR_Preference", palette=mutation_palette(3, adar=True, ag=True),
+    #                                 hue_order=adar_preference, style_order=["High", "Low", "Intermediate"], height=4)
+    #
+    # position_mutation.set_axis_labels("", "Variant Frequency")
+    # position_mutation.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
+    # position_mutation.axes.flat[0].set_ylim(10**-5, 10 ** -2)
+    # plt.savefig(output_dir + "/position_mutation.png", dpi=300)
+    # plt.close()
 
 if __name__ == "__main__":
     main()
