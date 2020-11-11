@@ -34,7 +34,7 @@ def weighted_varaint(x, **kws):
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201108_%s" % prefix
+    output_dir = input_dir + "20201111_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -59,33 +59,33 @@ def main():
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     adar_preference = ["High", "Intermediate", "Low"]
 
-    g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-                     palette="Set2",
-                     kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
-                     orient="v")
-    g1.set_axis_labels("", "Variant Frequency")
-    g1.set_xticklabels(fontsize=9, rotation=45)
-    g1.set(yscale='log')
-    g1.set(ylim=(10 ** -7, 10 ** -3))
-
-    # plt.show()
-    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
-    plt.close()
-
-    g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-                     palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
-                     estimator=weighted_varaint,
-                     orient="v", legend=True)
-    g2.set_axis_labels("", "Variant Frequency")
-    g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -2))
-    # g2.set_yticklabels(fontsize=12)
-    g2.set_xticklabels(fontsize=9, rotation=90)
+    # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
+    #                  palette="Set2",
+    #                  kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
+    #                  orient="v")
+    # g1.set_axis_labels("", "Variant Frequency")
+    # g1.set_xticklabels(fontsize=9, rotation=45)
+    # g1.set(yscale='log')
+    # g1.set(ylim=(10 ** -7, 10 ** -3))
+    #
+    # # plt.show()
+    # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    # plt.close()
+    #
+    # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
+    #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
+    #                  estimator=weighted_varaint,
+    #                  orient="v", legend=True)
+    # g2.set_axis_labels("", "Variant Frequency")
+    # g2.set(yscale='log')
+    # g2.set(ylim=(10 ** -6, 10 ** -2))
+    # # g2.set_yticklabels(fontsize=12)
+    # g2.set_xticklabels(fontsize=9, rotation=90)
     # plt.show()
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
-    g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
-    plt.close()
-
+    # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
+    # plt.close()
+    #
     data_filter["passage"] = data_filter["passage"].astype(str)
     passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order,
@@ -101,17 +101,18 @@ def main():
     passage_g.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["passage"].astype(int)
+    #
+    #
+    # g4 = sns.relplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", palette=mutation_palette(4),
+    #                  hue_order=transition_order, estimator=weighted_varaint, col="Type", kind="line",
+    #                  col_order=type_order)
+    #
+    # g4.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -5)
+    # g4.set_axis_labels("Passage", "Variant Frequency")
+    # # plt.show()
+    # g4.savefig(output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
+    # plt.close()
 
-
-    g4 = sns.relplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", palette=mutation_palette(4),
-                     hue_order=transition_order, estimator=weighted_varaint, col="Type", kind="line",
-                     col_order=type_order)
-
-    g4.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -5)
-    g4.set_axis_labels("Passage", "Variant Frequency")
-    # plt.show()
-    g4.savefig(output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
-    plt.close()
     data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     ata_filter_pass5 = data_filter.loc[data_filter.replica == 2]
     data_filter_pass5 = data_filter_pass5[data_filter_pass5["pval"] < 0.01]
@@ -139,85 +140,86 @@ def main():
                            "High\nADAR-like\nU>C", "Intermediate\nADAR-like\nU>C", "Low\nADAR-like\nU>C", "G>A",
                            "C>U"]
 
-    data_filter_pass5["log10_Frequency"] = np.log10(data_filter_pass5["Frequency"])
-    ax = sns.violinplot("Mutation_adar", "Frequency", data=data_filter_pass5, palette=mutation_palette(8),
-                        order=mutation_adar_order, cut=0, bw=.2)
-    ax = sns.stripplot("Mutation_adar", "Frequency", data=data_filter_pass5, color=".2", order=mutation_adar_order,
-                       alpha=.25)
-    old_statannot.add_stat_annotation(ax, data=data_filter_pass5, x="Mutation_adar", y="Frequency",
+    data_filter_pass5["log10_Frequency"] = data_filter_pass5["Frequency"].apply(lambda x: np.log10(x))
+    print(data_filter_pass5.to_string())
+    ax = sns.violinplot("Mutation_adar", "log10_Frequency", data=data_filter_pass5, palette=mutation_palette(8, gray=True),
+                        order=mutation_adar_order)
+    # # ax = sns.stripplot("Mutation_adar", "Frequency", data=data_filter_pass5, color=".2", order=mutation_adar_order,
+    # #                    alpha=.25)
+    old_statannot.add_stat_annotation(ax, data=data_filter_pass5, x="Mutation_adar", y="log10_Frequency",
                         boxPairList=[("High\nADAR-like\nA>G", "High\nADAR-like\nU>C"),("High\nADAR-like\nA>G", "G>A"),
                                      ("High\nADAR-like\nA>G", "C>U")], test='Mann-Whitney', textFormat='star',
                                       loc='outside', verbose=2,
                                       order=mutation_adar_order)
-
-    ax.set_yscale('log')
+    #
+    # ax.set_yscale('log')
     ax.set_xlabel("Mutation")
-    ax.set_ylabel("Variant Frequency")
-    ax.set(ylim=(10 ** -4, 10 ** -2))
+    ax.set_ylabel("Variant Frequency [log10]")
+    ax.set(ylim=(-5, -1))
     plt.xticks(fontsize=7)
     sns.despine()
     plt.tight_layout()
-    # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot_v2.png", dpi=300)
+    # # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot_v2.png", dpi=300)
     plt.savefig(output_dir + "/mutation_p5_box_plot_RVB14.png", dpi=300)
     plt.close()
 
-    # A>G Prev Context
-    data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA'))
-
-    g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
-                     palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
-                     orient="v", col="Type", join=False, col_order=type_order_ag)
-    g5.set_axis_labels("", "Variant Frequency")
-    g5.set(yscale='log')
-    g5.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
-    g5.set_xticklabels(fontsize=9, rotation=90)
-    # plt.show()
-    g5.savefig(output_dir + "/Context_point_plot", dpi=300)
-    plt.close()
-
-    adar_all_g = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
-                             palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
-                             estimator=weighted_varaint, orient="v", join=False)
-    adar_all_g.set_axis_labels("", "Variant Frequency")
-    adar_all_g.set(yscale='log')
-    adar_all_g.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
-    adar_all_g.set_xticklabels(rotation=45)
-    # plt.show()
-    adar_all_g.savefig(output_dir + "/Context_point_all_mutations_plot", dpi=300)
-    plt.close()
-    data_filter_ag["passage"] = data_filter_ag["passage"].astype(int)
-
-    data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
-    data_filter_ag_pass5 = data_filter_ag_pass5[data_filter_ag_pass5["pval"] < 0.01]
-    data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
-
-    g_context = sns.catplot("ADAR_like", "frac_and_weight", data=data_filter_ag_pass5,
-                            order=[True, False], palette=mutation_palette(2), kind="point",
-                            join=False, estimator=weighted_varaint, orient="v", dodge=True)
-    # add_stat_annotation(g_context, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency", order=[True, False],
-    #                     boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside', verbose=2)
-    g_context.set_axis_labels("ADAR-like\nContext", "Variant Frequency")
-    g_context.set_xticklabels(rotation=45)
-    g_context.set(yscale='log')
-    g_context.set(ylim=(5 * 10 ** -5, 5 * 10 ** -3))
-    plt.tight_layout()
-    # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot.png", dpi=300)
-    plt.savefig(output_dir + "/context_p5_point_plot.png", dpi=300)
-    plt.close()
-
-    ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=mutation_palette(2), order=(True, False))
-    ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=(True, False))
-    old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
-                        boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='outside', verbose=2)
-    ax.set_yscale('log')
-    ax.set_xlabel("ADAR-like\nContext")
-    ax.set_ylabel("Variant Frequency")
-    ax.set(ylim=(10 ** -5, 10 ** -2))
-    sns.despine()
-    plt.tight_layout()
-    # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot_v2.png", dpi=300)
-    plt.savefig(output_dir + "/context_p5_box_plot_RVB14.png", dpi=300)
-    plt.close()
+    # # A>G Prev Context
+    # data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA'))
+    #
+    # g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
+    #                  palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
+    #                  orient="v", col="Type", join=False, col_order=type_order_ag)
+    # g5.set_axis_labels("", "Variant Frequency")
+    # g5.set(yscale='log')
+    # g5.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
+    # g5.set_xticklabels(fontsize=9, rotation=90)
+    # # plt.show()
+    # g5.savefig(output_dir + "/Context_point_plot", dpi=300)
+    # plt.close()
+    #
+    # adar_all_g = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
+    #                          palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
+    #                          estimator=weighted_varaint, orient="v", join=False)
+    # adar_all_g.set_axis_labels("", "Variant Frequency")
+    # adar_all_g.set(yscale='log')
+    # adar_all_g.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
+    # adar_all_g.set_xticklabels(rotation=45)
+    # # plt.show()
+    # adar_all_g.savefig(output_dir + "/Context_point_all_mutations_plot", dpi=300)
+    # plt.close()
+    # data_filter_ag["passage"] = data_filter_ag["passage"].astype(int)
+    #
+    # data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
+    # data_filter_ag_pass5 = data_filter_ag_pass5[data_filter_ag_pass5["pval"] < 0.01]
+    # data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
+    #
+    # g_context = sns.catplot("ADAR_like", "frac_and_weight", data=data_filter_ag_pass5,
+    #                         order=[True, False], palette=mutation_palette(2), kind="point",
+    #                         join=False, estimator=weighted_varaint, orient="v", dodge=True)
+    # # add_stat_annotation(g_context, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency", order=[True, False],
+    # #                     boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside', verbose=2)
+    # g_context.set_axis_labels("ADAR-like\nContext", "Variant Frequency")
+    # g_context.set_xticklabels(rotation=45)
+    # g_context.set(yscale='log')
+    # g_context.set(ylim=(5 * 10 ** -5, 5 * 10 ** -3))
+    # plt.tight_layout()
+    # # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot.png", dpi=300)
+    # plt.savefig(output_dir + "/context_p5_point_plot.png", dpi=300)
+    # plt.close()
+    #
+    # ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=mutation_palette(2), order=(True, False))
+    # ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=(True, False))
+    # old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
+    #                     boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='outside', verbose=2)
+    # ax.set_yscale('log')
+    # ax.set_xlabel("ADAR-like\nContext")
+    # ax.set_ylabel("Variant Frequency")
+    # ax.set(ylim=(10 ** -5, 10 ** -2))
+    # sns.despine()
+    # plt.tight_layout()
+    # # plt.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/context_p5_point_plot_v2.png", dpi=300)
+    # plt.savefig(output_dir + "/context_p5_box_plot_RVB14.png", dpi=300)
+    # plt.close()
 
     # data_codons = data_filter_ag[data_filter_ag["pval"] < 0.01]
     # data_codons = data_codons[data_codons["ADAR_like"] == True]

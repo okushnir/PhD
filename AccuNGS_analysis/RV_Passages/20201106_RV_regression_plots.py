@@ -35,7 +35,7 @@ def main():
     replica_lst = (1, 2, 3)
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201108_%s" % prefix
+    output_dir = input_dir + "20201111_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -211,7 +211,7 @@ def main():
         L_labels[0].set_text(label_line_12)
 
         reg_plot.set(xlim=(0, 13))
-        reg_plot.set(ylim=(0.000, 0.003))
+        reg_plot.set(ylim=(0.000, 0.001))
         # reg_plot.fig.suptitle("RV #%s" % str(replica), y=0.99)
         # plt.tight_layout()
         reg_plot.savefig(output_dir + "/transition_lmplot_replica%s.png" % str(replica), dpi=300)
@@ -252,7 +252,7 @@ def main():
                          palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True, estimator=weighted_varaint,
                          orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
         mutation_ag.set(yscale="log")
-        mutation_ag.set(ylim=(1*10**-6, 2*10**-3))
+        mutation_ag.set(ylim=(1*10**-5, 1*10**-2))
         mutation_ag.fig.suptitle("A>G ADAR_like Mutation in RV #%s" % replica, y=0.99)
         plt.subplots_adjust(top=0.85)
         mutation_ag.set_axis_labels("Passage", "Variant Frequency")
@@ -375,6 +375,19 @@ def main():
         plt.savefig(output_dir + "/ag_position_mutation_replica%s.png" % replica, dpi=300)
         plt.close()
 
+        columns = ["Mutation", "Replica", "Type", "Slope", "Intercept"]
+        mutation_rate_ag_df = pd.DataFrame(columns=columns)
+        mutation_rate_ag_df.loc[0] = ["High ADAR-like A>G", replica, "Synonymous", stat_slope1, stat_intercept1]
+        mutation_rate_ag_df.loc[1] = ["Intermediate ADAR-like A>G", replica, "Synonymous", stat_slope2, stat_intercept2]
+        mutation_rate_ag_df.loc[2] = ["Low ADAR-like A>G", replica, "Synonymous", stat_slope3, stat_intercept3]
+        mutation_rate_ag_df.loc[3] = ["High ADAR-like A>G", replica, "Non-Synonymous", stat_slope4, stat_intercept4]
+        mutation_rate_ag_df.loc[4] = ["Intermediate ADAR-like A>G", replica, "Non-Synonymous", stat_slope5, stat_intercept5]
+        mutation_rate_ag_df.loc[5] = ["Low ADAR-like A>G", replica, "Non-Synonymous", stat_slope6, stat_intercept6]
+
+
+        mutation_rate_ag_df.to_csv(output_dir + "/mutation_rate_ag%s.csv" % replica , sep=',', encoding='utf-8')
+        mutation_rate_ag_df.to_pickle(output_dir + "/mutation_rate_ag%s.pkl" % replica)
+
 
         """U>C Context"""
         mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
@@ -382,7 +395,7 @@ def main():
                                   orient="v", col="Type", join=False, hue_order=adar_preference,
                                   col_order=type_order_ag)
         mutation_uc.set(yscale="log")
-        mutation_uc.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
+        mutation_uc.set(ylim=(1 * 10 ** -5, 1 * 10 ** -2))
         # mutation_uc.set(xticks=["0", "2", "5", "8", "10", "12"])
         mutation_uc.set_axis_labels("Passage", "Variant Frequency")
         mutation_uc.savefig(output_dir + "/uc_ADAR_like_Mutation_col_replica%s.png" % replica, dpi=300)
@@ -509,7 +522,22 @@ def main():
     mutation_rate_df3 = pd.read_pickle(output_dir + "/mutation_rate3.pkl")
     mutation_rate_df_all = pd.concat([mutation_rate_df1, mutation_rate_df2, mutation_rate_df3], sort=False)
     mutation_rate_df_all.to_csv(output_dir + "/mutation_rate_all.csv", sep=',', encoding='utf-8')
+    mutation_rate_df_all_grouped = mutation_rate_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept"].agg(np.median)
+    mutation_rate_df_all_grouped = mutation_rate_df_all_grouped.reset_index()
+    mutation_rate_df_all_grouped.to_csv(output_dir + "/mutation_rate_median.csv", sep=',', encoding='utf-8')
+
+    mutation_rate_ag_df1 = pd.read_pickle(output_dir + "/mutation_rate_ag1.pkl")
+    mutation_rate_ag_df2 = pd.read_pickle(output_dir + "/mutation_rate_ag2.pkl")
+    mutation_rate_ag_df3 = pd.read_pickle(output_dir + "/mutation_rate_ag3.pkl")
+    mutation_rate_ag_df_all = pd.concat([mutation_rate_ag_df1, mutation_rate_ag_df2, mutation_rate_ag_df3], sort=False)
+    mutation_rate_ag_df_all.to_csv(output_dir + "/mutation_rate_ag_all.csv", sep=',', encoding='utf-8')
+    mutation_rate_ag_df_all.to_pickle(output_dir + "/mutation_rate_ag_all.pkl")
+
+    # mutation_rate_ag_df = pd.read_csv(output_dir + "/mutation_rate_ag_all.csv", sep=',', encoding='utf-8')
+    mutation_rate_ag_df_all_grouped = mutation_rate_ag_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept"].agg(np.median)
+    mutation_rate_ag_df_all_grouped = mutation_rate_ag_df_all_grouped.reset_index()
+    mutation_rate_ag_df_all_grouped.to_csv(output_dir + "/mutation_rate_ag_median.csv", sep=',', encoding='utf-8')
+
 
 if __name__ == "__main__":
     main()
-
