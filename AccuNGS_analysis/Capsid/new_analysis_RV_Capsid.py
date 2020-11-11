@@ -30,7 +30,7 @@ def main():
     else:
         print("Successfully created the directory %s " % output_dir)
 
-    data_mutations = pd.read_csv(input_dir + "/Rank0_data_mutation/q38_data_mutation.csv")
+    data_mutations = pd.read_pickle(input_dir + "/Rank0_data_mutation/q38_data_mutation.pkl")
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
     data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/RVB14_adar1_trans.csv")
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
@@ -100,9 +100,6 @@ def main():
     data_filter_ag['Next'].replace('AC', 'ApC', inplace=True)
     data_filter_ag['Next'].replace('AG', 'ApG', inplace=True)
 
-    context_order = ["UpA", "ApA", "CpA", "GpA"]
-    type_order = ["Synonymous", "Non-Synonymous"]
-
     data_filter_ag["ADAR_like"] = (data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA')) & \
                                   (data_filter_ag.Next.str.contains('ApG'))
     print(data_filter_ag.to_string())
@@ -120,10 +117,9 @@ def main():
 
     data_filter_uc.to_csv(output_dir + "/data_filter_uc.csv", sep=',', encoding='utf-8')
     data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")
-    context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
     #Plots
-    # new_analysis_RV_Capsid_Just_plots
+    # new_analysis_RV_Capsid_just_plots
 
 
 if __name__ == "__main__":

@@ -101,7 +101,7 @@ def main():
 
     control_file_mix = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p8_2/" \
                        "20201012_q38/p8-2.merged.with.mutation.type.freqs"
-    label_control3 = "p8 Mix Populationֿ"
+    label_control3 = "p8 Mixed Population"
     # next_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_Next_RNA_Control/q35/RVB14-Next_Control.merged.with.mutation.type.freqs"
     # label_next = "RVB14-Next-RNA Control"
 
