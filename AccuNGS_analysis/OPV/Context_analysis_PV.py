@@ -7,7 +7,7 @@
 
 
 import os.path
-from sequnce_utilities import *
+from Utilities.sequnce_utilities import *
 import glob
 import urllib
 
