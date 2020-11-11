@@ -10,6 +10,7 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
+from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 sns.set_style("ticks")
 
 # print(plt.style.available)
@@ -23,7 +24,7 @@ def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201104_%s" % prefix
+    output_dir = input_dir + "20201109_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -67,7 +68,7 @@ def main():
     # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     # plt.close()
 
-    g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=capsid_order, palette="tab20"
+    g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=capsid_order, palette=mutation_palette(4)
                         ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v", legend=True)
     g2.set_axis_labels("", "Variant Frequency")
@@ -81,7 +82,7 @@ def main():
     plt.close()
 
     g_rna = sns.catplot(x="RNA", y="frac_and_weight", data=data_filter, hue="Mutation", order=rna_order,
-                     palette="tab20", kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
+                     palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v", legend=True)
     g_rna.set_axis_labels("", "Variant Frequency")
     g_rna.set(yscale='log')
@@ -91,7 +92,8 @@ def main():
 
     # A>G Prev Context
     g4 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="5`_ADAR_Preference", order=capsid_order,
-                     palette="rocket", kind="point", dodge=True, hue_order=adar_preference, estimator=weighted_varaint,
+                     palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True,
+                     hue_order=adar_preference, estimator=weighted_varaint,
                      orient="v", col="Type", join=False, col_order=type_order_ag)
     g4.set_axis_labels("", "Variant Frequency")
     g4.set(yscale='log')
@@ -102,14 +104,14 @@ def main():
     plt.close()
 
     mutation_g8 = sns.catplot("RNA", "frac_and_weight", data=data_filter_ag_replica1, hue="5`_ADAR_Preference",
-                     palette="rocket", kind="point", dodge=True, estimator=weighted_varaint, order=rna_order_replica1,
+                     palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True, estimator=weighted_varaint, order=rna_order_replica1,
                      orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
     mutation_g8.set(yscale="log")
     # mutation_g8.fig.suptitle("A>G Mutation trajectories in RV", y=0.99)
     mutation_g8.set_axis_labels("", "Variant Frequency")
     mutation_g8.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
     # plt.show()
-    mutation_g8.savefig(output_dir + "/ADAR_like_AG_Mutation_col.png", dpi=300)
+    mutation_g8.savefig(output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
     plt.close()
 
     data_filter_ag_grouped = data_filter_ag.groupby(["5`_ADAR_Preference", "label", "Type", "Pos", "Protein", "RNA"])["frac_and_weight"].agg(lambda x: weighted_varaint(x))
@@ -124,7 +126,7 @@ def main():
     data_filter_ag_grouped_silent = data_filter_ag_grouped_silent[data_filter_ag_grouped_silent["Protein"] != "3'UTR"]
 
     position_mutation = sns.relplot(x="Pos", y="Frequency", data=data_filter_ag_grouped_silent, hue="5`_ADAR_Preference",
-                                    col="RNA", col_wrap=2, style="5`_ADAR_Preference", palette="rocket",
+                                    col="RNA", col_wrap=2, style="5`_ADAR_Preference", palette=mutation_palette(3, adar=True, ag=True),
                                     hue_order=adar_preference, style_order=["High", "Low", "Intermediate"], height=4)
 
     position_mutation.set_axis_labels("", "Variant Frequency")
