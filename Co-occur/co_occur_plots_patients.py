@@ -5,13 +5,9 @@
 
 """
 
-import sys, argparse
-import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from AccuNGS_analysis import add_Protein_to_pd_df
-from AccuNGS_analysis import new_analysis_RV
 import numpy as np
 
 def find_haplotype(pdser):
