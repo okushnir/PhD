@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from AccuNGS_analysis import old_statannot
 import numpy as np
+from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -102,10 +103,10 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     # 5’ neighbors preferences
     #stat
     if virus == "EnteroA":
-        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mypalette, col="Organism",
+        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mutation_palette(2), col="Organism",
                                         flierprops={"marker": "."}, kind="box", col_wrap=int(len(no_organism)/2), order=adar_order)
     else:
-        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mypalette, col="Organism",
+        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mutation_palette(2), col="Organism",
                                         flierprops={"marker": "."}, kind="box", col_wrap=len(no_organism), order=adar_order)
 
     context_stat_plot.set(yscale='log')
@@ -130,10 +131,10 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     # 3’ neighbors preferences
     #stat
     if virus == "EnteroA":
-        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar_3, palette=mypalette, col="Organism",
+        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar_3, palette=mutation_palette(2), col="Organism",
                                         flierprops={"marker": "."}, kind="box", col_wrap=int(len(no_organism)/2), order=adar_order)
     else:
-        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar_3, palette=mypalette, col="Organism",
+        context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar_3, palette=mutation_palette(2), col="Organism",
                                         flierprops={"marker": "."}, kind="box", col_wrap=len(no_organism), order=adar_order)
 
     context_stat_plot.set(yscale='log')
@@ -159,7 +160,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 def main():
     input_dir = "/Users/odedkushnir/Projects/signatures/ADAR/SRA/"
     virus_path_dict = {"RV": "SRP006391_RV/", "PV": "SRP064468_PV/", "EnteroA": "ERP014415_Entero_A/"}
-    output_dir = input_dir + "20201027_plots/"
+    output_dir = input_dir + "20201109_plots/"
     try:
         os.mkdir(output_dir)
     except OSError:

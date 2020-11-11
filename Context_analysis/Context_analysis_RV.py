@@ -11,6 +11,7 @@ from Utilities import sequnce_utilities
 import glob
 import pandas as pd
 import numpy as np
+from AccuNGS_analysis.add_Protein_to_pd_df import add_Protein_to_pd_df_func
 import urllib
 
 
@@ -232,17 +233,17 @@ def main():
     data_mutations14["passage"] = label_sample14.split("-")[0].split("p")[-1]
     data_mutations14["replica"] = label_sample14.split("-")[-1]
     #
-    print("loading " + control_file_rnd + " as RNA control")
+    print("loading " + control_file_rnd + " as RNA control RND")
     data_control1 = pd.read_table(control_file_rnd)
     data_control1["label"] = label_control1
     data_control1["passage"] = 0
-    data_control1["replica"] = 1
+    data_control1["replica"] = 3
 
-    print("loading " + control_file_id + " as RNA control")
+    print("loading " + control_file_id + " as RNA control PrimerID")
     data_control2 = pd.read_table(control_file_id)
     data_control2["label"] = label_control2
     data_control2["passage"] = 0
-    data_control1["replica"] = 2
+    data_control1["replica"] = 1
 
     data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4,
                       data_mutations5, data_mutations6, data_mutations7, data_mutations8, data_mutations9,
@@ -297,26 +298,26 @@ def main():
                                                                       3,
                                                                       0))))
     data["Consensus>Mutated_codon"] = data["Consensus_codon"] + ">" + data["Mutated_codon"]
-
+    data["Type"] = data["Type"].fillna(value="NonCodingRegion")
+    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    data = add_Protein_to_pd_df_func(data, region_lst)
+    # data["Protein"] = np.where(data["Pos"] <= 629, "5'UTR",
+    #                             np.where(data["Pos"] <= 835, "VP4",
+    #                                 np.where(data["Pos"] <= 1621, "VP2",
+    #                                     np.where(data["Pos"] <= 2329, "VP3",
+    #                                         np.where(data["Pos"] <= 3196, "VP1",
+    #                                             np.where(data["Pos"] <= 3634, "2A",
+    #                                                 np.where(data["Pos"] <= 3925, "2B",
+    #                                                     np.where(data["Pos"] <= 4915, "2C",
+    #                                                         np.where(data["Pos"] <= 5170, "3A",
+    #                                                             np.where(data["Pos"] <= 5239, "3B",
+    #                                                                np.where(data["Pos"] <= 5785, "3C",
+    #                                                                 np.where(data["Pos"] <= 7168, "3D", "3'UTR"))))))))))))
     data.to_csv(output_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
     data.to_pickle(output_dir + "/q38_data_mutation.pkl") #with Rank==0
 
     # mutation_for_rna = ["AG"]
     # dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]
-    #
-    # dataForPlotting_AG["Type"] = dataForPlotting_AG["Type"].fillna(value="NonCodingRegion")
-    # dataForPlotting_AG["Protein"] = np.where(dataForPlotting_AG["Pos"] <= 629, "5'UTR",
-    #                             np.where(dataForPlotting_AG["Pos"] <= 835, "VP4",
-    #                                 np.where(dataForPlotting_AG["Pos"] <= 1621, "VP2",
-    #                                     np.where(dataForPlotting_AG["Pos"] <= 2329, "VP3",
-    #                                         np.where(dataForPlotting_AG["Pos"] <= 3196, "VP1",
-    #                                             np.where(dataForPlotting_AG["Pos"] <= 3634, "2A",
-    #                                                 np.where(dataForPlotting_AG["Pos"] <= 3925, "2B",
-    #                                                     np.where(dataForPlotting_AG["Pos"] <= 4915, "2C",
-    #                                                         np.where(dataForPlotting_AG["Pos"] <= 5170, "3A",
-    #                                                             np.where(dataForPlotting_AG["Pos"] <= 5239, "3B",
-    #                                                                np.where(dataForPlotting_AG["Pos"] <= 5785, "3C",
-    #                                                                 np.where(dataForPlotting_AG["Pos"] <= 7168, "3D", "3'UTR"))))))))))))
     #
     #
     # dataForPlotting_AG.to_csv(input_dir + "/q38_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')

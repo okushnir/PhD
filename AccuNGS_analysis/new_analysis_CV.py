@@ -8,6 +8,7 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
 from FITS_analysis import fits_new_plotter
+from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -29,8 +30,9 @@ def weighted_varaint(x, **kws):
 
 def main():
     flatui = ["#3498db", "#9b59b6"]
+    date = "20201109"
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
-    output_dir = input_dir + "/plots_q38_filtered/20201027"
+    output_dir = input_dir + "/plots_q38_filtered/%s" % date
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -75,7 +77,7 @@ def main():
     g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["passage"].astype(str)
-    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette="tab20",
+    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette=mutation_palette(4),
                         kind="point", hue_order=transition_order, join=False, estimator=weighted_varaint, orient="v",
                      dodge=True, legend=True)
     g2.set_axis_labels("Passage", "Variant Frequency")
@@ -83,10 +85,9 @@ def main():
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
     # g2.set_xticklabels(fontsize=10, rotation=45)
-    g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-                      "/Transition_Mutations_point_plot_CVB3", dpi=300)
-    g2.savefig(output_dir + "/Transition_Mutations_point_plot_CVB3",
-             dpi=300)
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+    #                   "/Transition_Mutations_point_plot_CVB3", dpi=300)
+    g2.savefig(output_dir + "/Transition_Mutations_point_plot_CVB3", dpi=300)
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["passage"].astype(int)
@@ -131,7 +132,7 @@ def main():
     type_order = ["Synonymous", "Non-Synonymous"]
 
     g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
-                     palette=flatui, kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
+                     palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
                      orient="v", col="Type", join=False, col_order=type_order)
     g5.set_axis_labels("", "Variant Frequency")
     g5.set(yscale='log')
@@ -142,7 +143,7 @@ def main():
     plt.close()
 
     data_filter_ag = data_filter_ag[data_filter_ag["passage"] != 0]
-    g6 = sns.relplot("passage", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", palette="tab20",
+    g6 = sns.relplot("passage", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", palette=mutation_palette(2),
                         hue_order=[True, False], estimator=weighted_varaint, col="Type", kind="line",
                      col_order=type_order)
 

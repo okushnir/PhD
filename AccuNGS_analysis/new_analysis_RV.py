@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from FITS_analysis import fits_new_plotter
 import numpy as np
 from scipy import stats
-from AccuNGS_analysis import add_Protein_to_pd_df
+from AccuNGS_analysis.add_Protein_to_pd_df import add_Protein_to_pd_df_func
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.ticker as ticker
 import seaborn as sns
@@ -47,40 +47,26 @@ def main():
     data_filter = pd.DataFrame(data_mutations, columns=columns)
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
-    # data_filter = data_filter[data_filter["passage"] != 0]
-    # filter based on pval<0.01 and Prob>0.95
+    """filter based on pval<0.01 and Prob>0.95"""
     data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
     data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    data_filter = add_Protein_to_pd_df.add_Protein_to_pd_df_func(data_filter, region_lst)
-
+    data_filter = add_Protein_to_pd_df_func(data_filter, region_lst)
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-    #p5-p12
-    # data_filter = data_filter[data_filter["label"] != "RVB14-RNA Control"]
-    # data_filter = data_filter[data_filter["label"] != "RVB14-p2"]
 
-    # data_filter = data_filter[data_filter["label"] != "RVB14-Next-RNA Control"]
-    # data_filter = data_filter[data_filter["label"] != "RVB14-p1"]
-
-    # data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
-    # data_filter["passage"] = data_filter["passage"].astype(int)
+    data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["label"] = np.where(data_filter["label"] == "RNA Control_RND", "RNA Control\nRND",
                                     data_filter["label"])
     data_filter["label"] = np.where(data_filter["label"] == "RNA Control_Primer_ID", "RNA Control\nPrimer ID",
                                     data_filter["label"])
+    data_filter["replica"] = np.where(data_filter["label"] == "RNA Control\nRND", 3, data_filter["replica"])
+    data_filter["replica"] = np.where(data_filter["label"] == "RNA Control\nPrimer ID", 1, data_filter["replica"])
+
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
 
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
     data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
-    """6 groups"""
-    # data_filter["ADAR_grade_five"] = np.where(data_filter["fiveGrade"] == 0, 0, np.where(data_filter["fiveGrade"] <= 20,
-    #                                        0.2, np.where(data_filter["fiveGrade"] <= 40, 0.4,
-    #                                        np.where(data_filter["fiveGrade"] <= 60, 0.6, np.where(data_filter["fiveGrade"] <= 80, 0.8, 1)))))
-    # data_filter["ADAR_grade_three"] = np.where(data_filter["threeGrade"] == 0, 0, np.where(data_filter["threeGrade"] <= 20,
-    #                                        0.2, np.where(data_filter["threeGrade"] <= 40, 0.4,
-    #                                        np.where(data_filter["threeGrade"] <= 60, 0.6, np.where(data_filter["threeGrade"] <= 80, 0.8, 1)))))
     """3 groups"""
     print("25_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.25)))
     print("75_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.75)))
