@@ -49,7 +49,12 @@ def main():
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
 
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
+    data_filter_ag = data_filter_ag[(data_filter_ag["label"] == "p3 Cell Culture\nControl") |
+                                       (data_filter_ag["label"] == "RNA Control\nPrimer ID")]
     data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
+    data_filter_uc = data_filter_uc[(data_filter_uc["label"] == "p3 Cell Culture\nControl") |
+                                       (data_filter_uc["label"] == "RNA Control\nPrimer ID")]
+
 
     """3 groups"""
     print("25_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.25)))
@@ -64,6 +69,8 @@ def main():
                                                  "Low", np.where(data_filter["fiveGrade"] <=
                                                                  data_filter_ag["fiveGrade"].quantile(0.75),
                                                                  "Intermediate", "High"))
+
+
 
     data_filter["ADAR_grade_three"] = np.where(data_filter["threeGrade"] < data_filter_uc["threeGrade"].quantile(0.25),
                                                0,
@@ -87,15 +94,13 @@ def main():
 
     # A>G Prev Context
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
+    data_filter_ag["Prev"].replace('AA', 'ApA', inplace=True)
+    data_filter_ag["Prev"].replace('UA', 'UpA', inplace=True)
+    data_filter_ag["Prev"].replace('CA', 'CpA', inplace=True)
+    data_filter_ag["Prev"].replace('GA', 'GpA', inplace=True)
 
-    data_filter_ag['Context'].replace('AA', 'ApA', inplace=True)
-    data_filter_ag['Context'].replace('UA', 'UpA', inplace=True)
-    data_filter_ag['Context'].replace('CA', 'CpA', inplace=True)
-    data_filter_ag['Context'].replace('GA', 'GpA', inplace=True)
-
-    data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains('ApA')
-    data_filter_ag.to_csv(output_dir + "/data_filter_ag", sep=',', encoding='utf-8')
+    data_filter_ag["ADAR_like"] = data_filter_ag.Prev.str.contains('UpA') | data_filter_ag.Prev.str.contains('ApA')
+    data_filter_ag.to_csv(output_dir + "/data_filter_ag.csv", sep=',', encoding='utf-8')
     data_filter_ag.to_pickle(output_dir + "/data_filter_ag.pkl")
 
     # U>C Prev Context

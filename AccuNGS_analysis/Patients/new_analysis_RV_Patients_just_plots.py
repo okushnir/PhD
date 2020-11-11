@@ -48,6 +48,8 @@ def main():
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order2 = ["Synonymous", "Non-Synonymous"]
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
+    type_order_ag = ["Synonymous", "Non-Synonymous", "NonCodingRegion"]
+    adar_preference = ["High", "Intermediate", "Low"]
 
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
@@ -101,6 +103,19 @@ def main():
     g5.savefig(output_dir + "/Context_point_plot", dpi=300)
     # g5.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
     #            "/Fig9b_Context_point_plot_Patients", dpi=300)
+    plt.close()
+
+    mutation_ag = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="5`_ADAR_Preference",
+                              palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True,
+                              estimator=weighted_varaint, order=label_order,
+                              orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
+    mutation_ag.set(yscale="log")
+    mutation_ag.set(ylim=(1 * 10 ** -5, 1 * 10 ** -2))
+    mutation_ag.set_xticklabels(rotation=90)
+    mutation_ag.fig.suptitle("A>G ADAR_like Mutation in RV patients", y=0.99)
+    plt.subplots_adjust(top=0.85)
+    mutation_ag.set_axis_labels("", "Variant Frequency")
+    mutation_ag.savefig(output_dir + "/ag_ADAR_like_Mutation_col_patients.png", dpi=300)
     plt.close()
 
     g6 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
