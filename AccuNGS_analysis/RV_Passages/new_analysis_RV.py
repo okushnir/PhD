@@ -48,8 +48,9 @@ def main():
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
     """filter based on pval<0.01 and Prob>0.95"""
-    data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
+    # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
     data_filter = add_Protein_to_pd_df_func(data_filter, region_lst)
 
