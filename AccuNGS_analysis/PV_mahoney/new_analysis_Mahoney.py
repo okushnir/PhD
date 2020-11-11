@@ -37,7 +37,7 @@ def checkKey(dict, key):
 def main():
     flatui = ["#3498db", "#9b59b6"]
     input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney/"
-    output_dir = input_dir + "20201109_plots"
+    output_dir = input_dir + "20201111_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -53,10 +53,9 @@ def main():
     data_filter = pd.DataFrame(data_mutations, columns=columns)
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
-    # filter based on pval<0.01 and Prob>0.95
+    """filter based on pval<0.01 and Prob>0.95"""
     # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-
+    # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     # data_filter = data_filter[data_filter["label"] != "RVB14-RNA Control"]
