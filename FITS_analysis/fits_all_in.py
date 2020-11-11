@@ -5,15 +5,11 @@
 
 """
 
-import sys
 import pandas as pd
 import os
 import numpy as np
-import subprocess
-from Context_analysis import Context_analysis_RV
+from AccuNGS_analysis.RV_Passages import Context_analysis_RV
 import rpy2.robjects as robjects
-import glob
-from FITS_analysis import fits_plotter
 from FITS_analysis import fits_parameters
 
 
