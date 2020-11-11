@@ -106,7 +106,7 @@ def main():
     label_control2 = "RNA Control\nPrimer ID"
 
     control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
-    label_control3 = "Cell Cultureֿ\nControl"
+    label_control3 = "p3 Cell Culture\nControl"
 
     # next_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_Next_RNA_Control/q35/RVB14-Next_Control.merged.with.mutation.type.freqs"
     # label_next = "RVB14-Next-RNA Control"
@@ -231,15 +231,15 @@ def main():
     data.to_csv(output_dir + "/q30_data_mutation.csv", sep=',', encoding='utf-8')
     data.to_pickle(output_dir + "/q30_data_mutation.pkl")
 
-    mutation_for_rna = ["AG"]
-    dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]
-    dataForPlotting_AG.to_csv(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
-    dataForPlotting_AG.to_pickle(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.pkl")
-
-    mutation_for_rna = ["UC"]
-    dataForPlotting_UC = data[(data["mutation_type"].isin(mutation_for_rna))]
-    dataForPlotting_UC.to_csv(input_dir + "/q30_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
-    dataForPlotting_UC.to_pickle(input_dir + "/q30_data_UpX_by_mutation.pkl")
+    # mutation_for_rna = ["AG"]
+    # dataForPlotting_AG = data[(data["mutation_type"].isin(mutation_for_rna))]
+    # dataForPlotting_AG.to_csv(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.csv", sep=',', encoding='utf-8')
+    # dataForPlotting_AG.to_pickle(input_dir + "/Rank0_data_mutation/q30_data_XpA_by_mutation.pkl")
+    #
+    # mutation_for_rna = ["UC"]
+    # dataForPlotting_UC = data[(data["mutation_type"].isin(mutation_for_rna))]
+    # dataForPlotting_UC.to_csv(input_dir + "/q30_data_UpX_by_mutation.csv", sep=',', encoding='utf-8')
+    # dataForPlotting_UC.to_pickle(input_dir + "/q30_data_UpX_by_mutation.pkl")
 
 if __name__ == "__main__":
     main()

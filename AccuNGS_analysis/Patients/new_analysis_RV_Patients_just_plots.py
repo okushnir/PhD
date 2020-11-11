@@ -25,8 +25,9 @@ def weighted_varaint(x, **kws):
 
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    output_dir = input_dir + "/20201109_plots"
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+    prefix = "inosine_predict_context"
+    output_dir = input_dir + "20201111_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -34,63 +35,20 @@ def main():
     else:
         print("Successfully created the directory %s " % output_dir)
 
+    data_filter = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
+    data_filter_ag = pd.read_pickle(input_dir + prefix + "/data_filter_ag.pkl")
+    data_filter_uc = pd.read_pickle(input_dir + prefix +"/data_filter_uc.pkl")
 
-    data_mutations = pd.read_csv(input_dir + "/Rank0_data_mutation/q30_data_mutation.csv")
-    data_mutations = data_mutations[data_mutations["Rank"] != 0]
-
-    columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
-               "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
-              "Consensus>Mutated_codon", "Protein"]
-    data_filter = pd.DataFrame(data_mutations, columns=columns)
-    data_filter["pval"] = data_filter["pval"].fillna(1)
-    data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
-
-    # filter based on pval<0.01 and Prob>0.95
-    data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-
-
-
-    data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-
-    data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
-    data_filter.to_csv(output_dir + "/data_filter.csv", sep=',', encoding='utf-8')
-    data_filter_misense = data_filter[data_filter["Type"] == "Non-Synonymous"]
-
-    label_order = ["RNA Control\nPrimer ID", "Cell Cultureֿ\nControl", "Patient-1", "Patient-4", "Patient-5",
+    #Plots
+    label_order = ["RNA Control\nPrimer ID", "p3 Cell Culture\nControl", "Patient-1", "Patient-4", "Patient-5",
                    "Patient-9", "Patient-16", "Patient-17", "Patient-20"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order1 = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
-
-    # A>G Prev Context
-    data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
-    data_filter_ag = data_filter_ag.rename(columns={"Prev": "Context"})
-
-    data_filter_ag['Context'].replace('AA', 'ApA', inplace=True)
-    data_filter_ag['Context'].replace('UA', 'UpA', inplace=True)
-    data_filter_ag['Context'].replace('CA', 'CpA', inplace=True)
-    data_filter_ag['Context'].replace('GA', 'GpA', inplace=True)
-
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order2 = ["Synonymous", "Non-Synonymous"]
-
-    data_filter_ag["ADAR_like"] = data_filter_ag.Context.str.contains('UpA') | data_filter_ag.Context.str.contains('ApA')
-    print(data_filter_ag.to_string())
-    data_filter_ag.to_csv(output_dir + "/data_mutation_AG_trajectories.csv", sep=',', encoding='utf-8')
-
-    # U>C Prev Context
-    data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
-
-    data_filter_uc['Next'].replace('UA', 'UpA', inplace=True)
-    data_filter_uc['Next'].replace('UU', 'UpU', inplace=True)
-    data_filter_uc['Next'].replace('UC', 'UpC', inplace=True)
-    data_filter_uc['Next'].replace('UG', 'UpG', inplace=True)
-
-    data_filter_uc.to_csv(output_dir + "/data_filter_uc.csv", sep=',', encoding='utf-8')
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
 
-    #Plots
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
                      orient="v")
