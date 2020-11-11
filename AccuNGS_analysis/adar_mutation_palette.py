@@ -16,7 +16,7 @@ def mutation_palette(color_num, adar=False, ag=None, uc=None, gray=None):
     :param cu: cu - True/False
     :return: palette
     """
-    palette_dict = {"High\nADAR-like\nA>G": sns.color_palette("muted")[0], "Intermediate\nADAR-like\nA>G": "#52BBFA",
+    palette_dict = {"High\nADAR-like\nA>G": sns.color_palette("muted")[0], "Intermediate\nADAR-like\nA>G": "#7494FC",
                     "Low\nADAR-like\nA>G": "#C8E9FE", "High\nADAR-like\nU>C": "#FE0F00",
                     "Intermediate\nADAR-like\nU>C": "#D11E3C", "Low\nADAR-like\nU>C": "#D4EDFC", "G>A": "#38D04F",
                     "C>U": "#FA9009", "gray": "#D7DADC"}
