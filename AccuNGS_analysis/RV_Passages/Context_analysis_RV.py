@@ -104,10 +104,10 @@ def main():
     sample_file13 = lst_srr[13]
     sample_file14 = lst_srr[14]
 
-    control_file_rnd = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control_L001-ds.850f2223182a41fcaec41c4f3735e428/q38_3UTR/RVB14-RNA-Control.merged.with.mutation.type.freqs"
+    control_file_rnd = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control/q38_3UTR/RVB14-RNA-Control.merged.with.mutation.type.freqs"
     label_control1 = "RNA Control_RND"
 
-    control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_3_Control/20201012_q38/IVT-3-Control.merged.with.mutation.type.freqs"
+    control_file_spe = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_3_Control/20201012_q38/IVT-3-Control.merged.with.mutation.type.freqs"
     label_control2 = "RNA Control\nPrimer ID"
 
     label_sample0 = sample_file0.split("/")[-1].split(".")[0]
@@ -239,11 +239,11 @@ def main():
     data_control1["passage"] = 0
     data_control1["replica"] = 3
 
-    print("loading " + control_file_id + " as RNA control PrimerID")
-    data_control2 = pd.read_table(control_file_id)
+    print("loading " + control_file_spe + " as RNA control PrimerID")
+    data_control2 = pd.read_table(control_file_spe)
     data_control2["label"] = label_control2
     data_control2["passage"] = 0
-    data_control1["replica"] = 1
+    data_control2["replica"] = 1
 
     data = pd.concat([data_mutations0, data_mutations1, data_mutations2, data_mutations3, data_mutations4,
                       data_mutations5, data_mutations6, data_mutations7, data_mutations8, data_mutations9,

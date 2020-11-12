@@ -35,7 +35,7 @@ def main():
     replica_lst = (1, 2, 3)
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201111_%s" % prefix
+    output_dir = input_dir + "20201112_10000coverage_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -49,6 +49,9 @@ def main():
         data_filter["passage"] = data_filter["passage"].astype(int)
         data_filter_ag["passage"] = data_filter_ag["passage"].astype(int)
         data_filter_uc["passage"] = data_filter_uc["passage"].astype(int)
+        data_filter = data_filter[(data_filter['Read_count'] > 10000)]
+        data_filter_ag = data_filter_ag[(data_filter_ag['Read_count'] > 10000)]
+        data_filter_uc = data_filter_uc[(data_filter_uc['Read_count'] > 10000)]
 
         data_filter = data_filter[data_filter["label"] != "p10-1"]
         data_filter_ag = data_filter_ag[data_filter_ag["label"] != "p10-1"]
@@ -137,7 +140,7 @@ def main():
         reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_grouped, hue="Mutation",
                          hue_order=transition_order, fit_reg=True, col="Mutation",
                          col_order=transition_order, row="Type", row_order=type_order, palette=mutation_palette(4),
-                         line_kws={'label': "Linear Reg"}, legend=True, height=6) # markers=["o", "v", "x"]
+                         line_kws={'label': "Linear Reg"}, legend=True, height=6, x_estimator=np.mean, x_jitter=.05) # markers=["o", "v", "x"]
         reg_plot.fig.subplots_adjust(wspace=.02)
         ax = reg_plot.axes[0, 0]
         ax.legend()
@@ -308,7 +311,7 @@ def main():
         ag_reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_ag_grouped, hue="5`_ADAR_Preference",
                          hue_order=adar_preference, markers=["o", "v", "x"], fit_reg=True, col="5`_ADAR_Preference",
                          col_order=adar_preference, row="Type", row_order=type_order_ag, palette=mutation_palette(3, adar=True, ag=True),
-                         line_kws={'label': "Linear Reg"}, legend=True, height=6)
+                         line_kws={'label': "Linear Reg"}, legend=True, height=6, x_estimator=np.mean, x_jitter=.05)
         ag_reg_plot.fig.subplots_adjust(wspace=.02)
         ax = ag_reg_plot.axes[0, 0]
         ax.legend()
