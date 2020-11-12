@@ -50,9 +50,10 @@ def main():
     pi_palette = (sns.color_palette()[0], sns.color_palette()[3], sns.color_palette()[6])
     sns.set_context("paper", font_scale=1.2)
     g = sns.catplot(x="Source", y="Pi", data=pis_data, order=source_order, hue="Source", hue_order=source_order,
-                    size=3.5, palette=pi_palette)
+                    size=3.5, palette=pi_palette, height=4)
     g.set(yscale="log")
     g.set_ylabels("Nucleotide diversity $\pi$")
+    g.set_xlabels("")
     g.set(ylim=(2*10**-4, 2*10**-3))
     plt.tight_layout()
     plt.savefig(output_dir + "/Pi_plot_rnd_primer", dpi=300)
