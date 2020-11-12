@@ -55,6 +55,10 @@ def mutation_palette(color_num, adar=False, ag=None, uc=None, gray=None):
                            checkKey(palette_dict, "Intermediate\nADAR-like\nA>G"),
                            checkKey(palette_dict, "Low\nADAR-like\nA>G")]
         palette = adar_ag_palette
+    elif ((color_num == 2) & (adar == True) & (ag == True)):
+        adar_ag_two_palette = [checkKey(palette_dict, "High\nADAR-like\nA>G"),
+                           checkKey(palette_dict, "Intermediate\nADAR-like\nA>G")]
+        palette = adar_ag_two_palette
     elif ((color_num == 3) & (adar == True) & (uc == True)):
         adar_uc_palette = [checkKey(palette_dict, "High\nADAR-like\nU>C"),
                            checkKey(palette_dict, "Intermediate\nADAR-like\nU>C"),
