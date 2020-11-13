@@ -9,6 +9,7 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+from AccuNGS_analysis.Linear_regression import linear_reg
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -30,7 +31,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     flatui = ["#3498db", "#9b59b6"]
-    date = 20201111
+    date = 20201112
     input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
     prefix = "inosine_predict_context"
 
@@ -161,6 +162,8 @@ def main():
     plt.savefig(plots_output_dir + "/mutation_p5_box_plot_RVB14.png", dpi=300)
     plt.close()
 
+    linear_reg(data_filter, plots_output_dir, transition_order, type_order, virus="OPV2", replica=1, cu=None)
+
     # # A>G Prev Context
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
@@ -209,7 +212,7 @@ def main():
 
     """U>C"""
     mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
-                              palette="rocket", kind="point", dodge=True, estimator=weighted_varaint,
+                              palette=mutation_palette(3, adar=True, uc=True), kind="point", dodge=True, estimator=weighted_varaint,
                               orient="v", col="Type", join=False, hue_order=adar_preference,
                               col_order=type_order_ag)
     mutation_uc.set(yscale="log")
