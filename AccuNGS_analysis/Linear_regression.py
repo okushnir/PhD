@@ -10,7 +10,8 @@ def weighted_varaint(x, **kws):
     var, count = map(np.asarray, zip(*x))
     return var.sum() / count.sum()
 
-def linear_reg(data_filter, output_dir, transition_order, type_order, virus, replica, cu=True):
+def linear_reg(data_filter, output_dir, transition_order, type_order, virus, replica, cu=True,
+               output_file="/mutation_rate"):
     data_filter_grouped = data_filter.groupby(["label", "passage", "Type", "Mutation"])[
         "frac_and_weight"].agg(
         lambda x: weighted_varaint(x))
@@ -171,7 +172,7 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
     # reg_plot.set(ylim=(0.000, 0.001))
     # reg_plot.fig.suptitle("RV #%s" % str(replica), y=0.99)
     # plt.tight_layout()
-    reg_plot.savefig(output_dir + "/transition_lmplot.png", dpi=300)
+    reg_plot.savefig(output_dir + output_file + "_lmplot.png", dpi=300)
     plt.close()
 
     columns = ["Mutation", "Type", "Slope", "Intercept"]
@@ -188,7 +189,7 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
     mutation_rate_df.loc[9] = ["C>U", "Pre Mature Stop Codon", stat_slope12, stat_intercept12]
     mutation_rate_df["Virus"] = virus
     mutation_rate_df["Replica"] = replica
-    mutation_rate_df.to_csv(output_dir + "/mutation_rate.csv", sep=',', encoding='utf-8')
-    mutation_rate_df.to_pickle(output_dir + "/mutation_rate.pkl")
+    mutation_rate_df.to_csv(output_dir + output_file + ".csv", sep=',', encoding='utf-8')
+    mutation_rate_df.to_pickle(output_dir + output_file + ".pkl")
 
     return data_filter_grouped

@@ -10,6 +10,7 @@ import os
 import pbs_runners
 import glob
 import pandas as pd
+from AccuNGS_analysis.creating_data_mutation import creating_data_mutation_df
 
 
 def checkKey(dict, key):
@@ -204,21 +205,104 @@ def main():
 
     """6th run variant_caller localy to check context mutations"""
 
-    """using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
-    I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
-    for example:
-    /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38
-    /Capsid-32-Ultra.freqs /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/
-    IVT_3_Control/20201012_q38/IVT-3-Control.freqs -c 5000 -o /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/
-    20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38/Capsid-32_UltravsControl.csv"""
-
-    """Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
-    I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob
-    Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/Context_analysis_RV.py
-    I created all new q38_data_mutation.csv, q38_data_UpX_by_mutation.csv, q38_data_XpA_by_mutation.csv files with new merged files."""
+    # """using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/variant_caller_github.py (Maoz script)
+    # I added pval to each position according to gamma distribution fit to RNA-Control - args = sample control -c min_coverage -o outpu_file_path
+    # for example:
+    # /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38
+    # /Capsid-32-Ultra.freqs /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/
+    # IVT_3_Control/20201012_q38/IVT-3-Control.freqs -c 5000 -o /Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/
+    # 20201008RV-202329127/merged/capsid/Capsid_32_Ultra/20201012_q38/Capsid-32_UltravsControl.csv"""
+    #
+    # """Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/after_variant_caller.py
+    # I merged the freqs files to the variant_caller output file, to create a dataframe with the pval and Prob
+    # Using /Users/odedkushnir/Google Drive/Studies/PhD/Python_Scripts/Context_analysis_RV.py
+    # I created all new q38_data_mutation.csv, q38_data_UpX_by_mutation.csv, q38_data_XpA_by_mutation.csv files with new merged files."""
 
     """Context_analysis_X.py"""
+    """RV"""
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    prefix = "/p*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201012"
+    q = "q38"
+    control_file_rnd = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control/q38_3UTR/" \
+                       "RVB14-RNA-Control.merged.with.mutation.type.freqs"
+    label_control1 = "RNA Control_RND"
+    control_file_spe = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/" \
+                       "IVT_3_Control/20201012_q38/IVT-3-Control.merged.with.mutation.type.freqs"
+    label_control2 = "RNA Control\nPrimer ID"
+    control_dict = {label_control1: control_file_rnd, label_control2: control_file_spe}
+
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+
+    """RV-Capsid_Free"""
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    prefix = "/*_3*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201012"
+    q = "q38"
+
+    control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/" \
+                      "IVT_3_Control/20201012_q38/IVT-3-Control.merged.with.mutation.type.freqs"
+    label_control1 = "RNA Control\nPrimer ID"
+    control_file_mix = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p8_2/" \
+                       "20201012_q38/p8-2.merged.with.mutation.type.freqs"
+    label_control2 = "p8 Mixed Population"
+    control_dict = {label_control1: control_file_id, label_control2: control_file_mix}
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+
+    """RV-Patients"""
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    prefix = "/*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201017"
+    q = "q30_consensusX5"
+
+    control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.merged.with.mutation.type.freqs"
+    label_control1 = "RNA Control\nPrimer ID"
+    control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
+    label_control2 = "p3 Cell Culture\nControl"
+    control_dict = {label_control1: control_file_id, label_control2: control_file_cell}
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+
+    """CV"""
+    input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
+    prefix = "/CVB3_p*"
+    min_coverage = 5000
+    virus = "CVB3"
+    date = "q38"
+    q ="3UTR"
+
+    control_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control/q38_3UTR/" \
+                   "CVB3-RNA-Control.merged.with.mutation.type.freqs"
+    label_control = "CVB3-RNA Control"
+    control_dict = {label_control: control_file}
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+
+    """PV1"""
+    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney"
+    prefix = "/p*"
+    min_coverage = 10000
+    virus = "Human poliovirus 1"
+    date = "20181210"
+    q = "q30"
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q)
+
+    """OPV2"""
+    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV"
+    prefix = "/p*"
+    min_coverage = 10000
+    virus = "OPV"
+    date = "20190226"
+    q = "q23"
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q)
+
     """AccuNGS_analysis/new_analysis_X.py"""
+    """RV"""
+
 
 if __name__ == "__main__":
     main()
