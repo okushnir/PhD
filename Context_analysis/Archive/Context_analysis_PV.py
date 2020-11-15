@@ -36,6 +36,8 @@ def main():
     input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney"
 
     min_coverage = 10000
+    date = "20181210"
+    q = "q30"
     dirs = glob.glob(input_dir + "/p*")
     lst_srr=[]
     org_dic = {"CVB3": "M33854", "RVB14": "NC_001490", "RV": "NC_001490", "Echovirus E7": "MH732737",
@@ -46,7 +48,7 @@ def main():
                "Rhinovirus B": "NC_001490", "Coxsackievirus B3 (strain Nancy)": "JN048468", "Rhinovirus C": "LC428177",
                "Echovirus E6": "JX976771", "OPV": "AY184220"}
     for passage in dirs:
-        file_path = glob.glob(passage + "/*.freqs")
+        file_path = glob.glob(passage + "/%s_%s/*.merged*freqs" % (date, q))
         if len(file_path) > 1:
             for file in file_path:
                 # continue
