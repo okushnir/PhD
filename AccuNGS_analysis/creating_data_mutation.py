@@ -27,7 +27,7 @@ def creting_data_mutation_df(input_dir, min_coverage, virus, date, q, control_di
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
 
-    output_dir = input_dir + "/test"
+    output_dir = input_dir + "/Rank0_data_mutation"
     try:
         os.mkdir(output_dir)
     except OSError:
