@@ -64,9 +64,6 @@ def main():
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
     data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
 
-
-
-
     print("25_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.25)))
     print("75_quantile_ag %s" % str(data_filter_ag["fiveGrade"].quantile(0.75)))
     print("25_quantile_uc %s" % str(data_filter_uc["threeGrade"].quantile(0.25)))
