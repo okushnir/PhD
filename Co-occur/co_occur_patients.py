@@ -159,22 +159,22 @@ def main():
     #     print("Done!")
 
     """2. Run variants_on_same_read.py"""
-    # cmds = "base=$sample\n" \
-    #        "freqs=`ls ${base} | grep .freqs`\n" \
-    #        "echo ${freqs}\n" \
-    #        "mkdir ${base}/accungs_associations\n" \
-    #        "python /sternadi/home/volume1/maozgelbart/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
-    # cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/co_occur.cmd"
-    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="336-1999", alias="accungs_assoc", gmem=3, cmds=cmds)
-    # pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="2000-3335", alias="accungs_assoc", gmem=3, cmds=cmds)
-    # print("qsub -v sample='%s' %s" % (sample, cmd_file))
-    # job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
-    # print(job_id)
-    # job_id = job_id.replace("[]", "")
-    # print(job_id)
-    # status = pbs_jobs.check_pbs(job_id)
-    # if status == "Done":
-    #     print("Done!")
+    cmds = "base=$sample\n" \
+           "freqs=`ls ${base} | grep .freqs`\n" \
+           "echo ${freqs}\n" \
+           "mkdir ${base}/accungs_associations\n" \
+           "python /sternadi/home/volume1/maozgelbart/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
+    cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/co_occur.cmd"
+    pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="336-1999", alias="accungs_assoc", gmem=3, cmds=cmds)
+    pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="2000-3335", alias="accungs_assoc", gmem=3, cmds=cmds)
+    print("qsub -v sample='%s' %s" % (sample, cmd_file))
+    job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
+    print(job_id)
+    job_id = job_id.replace("[]", "")
+    print(job_id)
+    status = pbs_jobs.check_pbs(job_id)
+    if status == "Done":
+        print("Done!")
 
     """3. Concatenate all the files"""
     # cmds = "cd $sample/accungs_associations; cat *txt>all.txt"
@@ -187,33 +187,35 @@ def main():
     #     print("Done!")
 
     """4. Run collect_cooccurs and merge it to freqs file"""
-    patients_lst = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
-    for patient in patients_lst:
-        sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/%s/20201017_q30_consensusX5" % (
-            patient)
-        label = patient
-        df_path = "%s/accungs_associations/all.txt" % sample
-        df = load_file(df_path, label)
-        freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/q30_data_mutation.csv")
-        # freqs_df = pd.read_csv(
-        #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-        label = label.replace('_', '-')
-        freqs_df = freqs_df.loc[freqs_df.label == label]
-
-        merged_df = collect_cooccurs(freqs_df, df)
-        merged_df = merged_df.loc[merged_df.Stretch != "-"]
-        merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
-                                    (merged_df.Mutation == "G>A") | (merged_df.Mutation == "C>U")]
-        merged_df["Pos"] = merged_df["Pos"].astype(int)
-        merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
-        # merged_df = merged_df.loc[(merged_df.Editing_context != "ADAR (sense)") & (merged_df.Editing_context != "ADAR (antisense)")]
-
-        file_name = sample + "/co_occur_all.csv"
-        co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
-                                 "meandist", "Co-occurrences_identified", "ADAR_context", "ADAR_reverse_context", "Editing_context", "ADAR", "label"]]
-        co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
-        co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
-        print(merged_df)
+    # patients_lst = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
+    # for patient in patients_lst:
+    #     sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/%s/20201017_q30_consensusX5" % (
+    #         patient)
+    #     label = patient
+    #     "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_1/20201017_q30_consensusX5/accungs_associations/all.txt"
+    #     df_path = "%s/accungs_associations/all.txt" % sample
+    #     df = load_file(df_path, label)
+    #     freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    #                            "/Rank0_data_mutation/q30_data_mutation.csv")
+    #     # freqs_df = pd.read_csv(
+    #     #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+    #     label = label.replace('_', '-')
+    #     freqs_df = freqs_df.loc[freqs_df.label == label]
+    #
+    #     merged_df = collect_cooccurs(freqs_df, df)
+    #     merged_df = merged_df.loc[merged_df.Stretch != "-"]
+    #     merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
+    #                                 (merged_df.Mutation == "G>A") | (merged_df.Mutation == "C>U")]
+    #     merged_df["Pos"] = merged_df["Pos"].astype(int)
+    #     merged_df = merged_df.sort_values(by=["meandist", "Stretch", "Pos"])
+    #     # merged_df = merged_df.loc[(merged_df.Editing_context != "ADAR (sense)") & (merged_df.Editing_context != "ADAR (antisense)")]
+    #
+    #     file_name = sample + "/co_occur_all.csv"
+    #     co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
+    #                              "meandist", "Co-occurrences_identified", "ADAR_context", "ADAR_reverse_context", "Editing_context", "ADAR", "label"]]
+    #     co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
+    #     co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
+    #     print(merged_df)
 
 if __name__ == "__main__":
     main()
