@@ -13,6 +13,7 @@ from statannot import add_stat_annotation
 from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 
+
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
 sns.despine()
