@@ -8,7 +8,7 @@
 import pandas as pd
 import os
 import numpy as np
-from AccuNGS_analysis.RV_Passages import Context_analysis_RV
+from Context_analysis.Archive import Context_analysis_RV
 import rpy2.robjects as robjects
 from FITS_analysis import fits_parameters
 
@@ -28,8 +28,8 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage):
     all = all[all["passage"] <= to_passage]
     all["Type"] = all["Type"].fillna("NonCodingRegion")
     all["pval"] = all["pval"].fillna(1)
-    all["Frequency"] = np.where(all["pval"] > 0.01, 0, all["Frequency"])
-    all["Frequency"] = np.where(all["Prob"] < 0.95, 0, all["Frequency"])
+    # all["Frequency"] = np.where(all["pval"] > 0.01, 0, all["Frequency"])
+    # all["Frequency"] = np.where(all["Prob"] < 0.95, 0, all["Frequency"])
 
     syn = all[all['Type'] == "Synonymous"]
 

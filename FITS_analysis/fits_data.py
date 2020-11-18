@@ -5,7 +5,7 @@
 
 """
 
-from AccuNGS_analysis.RV_Passages.Context_analysis_RV import checkKey
+from Context_analysis.Archive.Context_analysis_RV import checkKey
 import rpy2.robjects as robjects
 from FITS_analysis.fits_plotter import *
 

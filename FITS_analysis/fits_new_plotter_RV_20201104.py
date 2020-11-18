@@ -103,16 +103,29 @@ def post_data_mutation(input_dir):
     df = pd.DataFrame(df, columns=columns)
     return df
 
-def post_data_fitness(input_dir):
-    mutation_lst = glob.glob(input_dir + "/*")
-    columns = ["pos", "inferred_w", "category", "levenes_p", "filename", "Mutation"]
+# def post_data_fitness(input_dir):
+#     mutation_lst = glob.glob(input_dir + "/*")
+#     columns = ["pos", "inferred_w", "category", "levenes_p", "filename", "Mutation"]
+#     df = pd.DataFrame()
+#     for mutation in mutation_lst:
+#         mutation = mutation.split("/")[-1]
+#         file = input_dir + "/" + str(mutation) + "/all.txt"
+#         data = pd.read_csv(file, sep="\t")
+#         data["Mutation"] = file.split("/")[-2]
+#         # data["label"] = file.split("/")[-7]
+#         df = df.append(data)
+#     df = pd.DataFrame(df, columns=columns)
+#     return df
+
+"""All At once"""
+def post_data_mutation(input_dir):
+    files = glob.glob(input_dir + "/posterior_mutation_*")
+    columns = ["distance", "allele0_1", "Mutation", "label"]
     df = pd.DataFrame()
-    for mutation in mutation_lst:
-        mutation = mutation.split("/")[-1]
-        file = input_dir + "/" + str(mutation) + "/all.txt"
+    for file in files:
         data = pd.read_csv(file, sep="\t")
-        data["Mutation"] = file.split("/")[-2]
-        # data["label"] = file.split("/")[-7]
+        data["Mutation"] = file.split("_")[-1].split(".")[0]
+        data["label"] = file.split("/")[-6]
         df = df.append(data)
     df = pd.DataFrame(df, columns=columns)
     return df
@@ -144,18 +157,19 @@ def main():
     pv_passages = "p3-p8"
     input_dir = "/Users/odedkushnir/Projects/fitness"
     rv_replica1_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_replica1/output/mutation"
-                                                   "/%s" % passages)
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "replica1_syn/output/mutation/%s" % passages)
     rv_replica1_mutation_data["Virus"] = "RVB14 #1"
     rv_replica2_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_replica2/output/mutation"
-                                                   "/%s" % passages)
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "replica2_syn/output/mutation/%s" % passages)
     rv_replica2_mutation_data["Virus"] = "RVB14 #2"
     rv_replica3_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_replica3/output/mutation"
-                                                   "/%s" % passages)
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "replica3_syn/output/mutation/%s" % passages)
     rv_replica3_mutation_data["Virus"] = "RVB14 #3"
-    cv_mutation_data = post_data_mutation(input_dir + "/AccuNGS/190627_RV_CV/CVB3/fits/output/mutation/%s" % passages)
+    cv_mutation_data = post_data_mutation(input_dir + "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV"
+                                                      "/merged/CVB3/Rank0_data_mutation/fits/output/mutation/%s" % passages)
     cv_mutation_data["Virus"] = "CVB3"
 
     output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
@@ -169,25 +183,26 @@ def main():
 
     all_data = pd.concat([rv_replica1_mutation_data, rv_replica2_mutation_data, rv_replica3_mutation_data,
                           cv_mutation_data], sort=False)
+    all_data = all_data.rename(columns={"allele0_1": "Transition rate"})
     # print(all_data.to_string())
-    all_data = all_data.rename(columns={"inferred_mu": "Mutation rate"})
-    # print(all_data["Mutation rate"].dtype)
-    all_data["Mutation rate"] = all_data["Mutation rate"].map(lambda x: str(x).lstrip('*'))
-    all_data["Mutation rate"] = pd.to_numeric(all_data["Mutation rate"], errors='coerce')#.astype(float)
-    # print(all_data["Mutation rate"].dtype)
-    all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x[0]+">"+x[1:]if len(x)<=2 else x)# if len(x)==2 else x[0]+">"+x[1:])
+    # all_data = all_data.rename(columns={"inferred_mu": "Mutation rate"})
+    # # print(all_data["Mutation rate"].dtype)
+    # all_data["Mutation rate"] = all_data["Mutation rate"].map(lambda x: str(x).lstrip('*'))
+    # all_data["Mutation rate"] = pd.to_numeric(all_data["Mutation rate"], errors='coerce')#.astype(float)
+    # # print(all_data["Mutation rate"].dtype)
+    # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x[0]+">"+x[1:]if len(x)<=2 else x)# if len(x)==2 else x[0]+">"+x[1:])
     # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x.split("_")[0] + "\n" + x.split("_")[-1] + "-like" if len(x)>3 else x)
     all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_nonadar", "A>G\nNon-ADAR-like", all_data["Mutation"])
     all_data["Mutation"] = np.where(all_data["Mutation"] == "AG_adar", "A>G\nADAR-like", all_data["Mutation"])
-    all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
+    # all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
 
     mutation_order = ["C>U", "G>A", "U>C", "A>G", "A>G\nADAR-like", "A>G\nNon-ADAR-like"]
     virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3"]
 
-    q1 = all_data["Mutation rate"].quantile(0.25)
-    q3 = all_data["Mutation rate"].quantile(0.75)
-    all_data = all_data[all_data["Mutation rate"] > q1]
-    all_data = all_data[all_data["Mutation rate"] < q3]
+    # q1 = all_data["Mutation rate"].quantile(0.25)
+    # q3 = all_data["Mutation rate"].quantile(0.75)
+    # all_data = all_data[all_data["Mutation rate"] > q1]
+    # all_data = all_data[all_data["Mutation rate"] < q3]
 
 
 
@@ -196,7 +211,7 @@ def main():
 
     sns.set_palette("Set2")
 
-    g1 = sns.boxplot(x="Mutation", y=all_data["Mutation rate"], hue="Virus", data=all_data, order=mutation_order,
+    g1 = sns.boxplot(x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
                        hue_order=virus_order)
     g1.set_yscale("log")
     g1.set_xticklabels(labels=mutation_order, fontsize=9)
@@ -229,7 +244,7 @@ def main():
     # sns.set(font_scale=0.6)
     plt.tight_layout()
     # plt.show()
-    plt.savefig(output_dir + "/%s_mutation_rate_3d.png" % date, dpi=300)
+    plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=300)
     # plt.savefig(
     #     "/Users/odedkushnir/Google Drive/Studies/PhD/MyArticle-Signatures/plots/20191006_Mutation_rate.png",
     #     dpi=300)
