@@ -66,18 +66,32 @@ import pandas as pd
 
 
 # print(data.to_string())
-lst = (1, 2, 3)
-for i in lst:
-    if i == 1:
-        print(i)
-        continue
-    elif i == 2:
-        print(i)
-        continue
-    elif i == 3:
-        print(i)
-        continue
-print("Done!")
+# lst = (1, 2, 3)
+# for i in lst:
+#     if i == 1:
+#         print(i)
+#         continue
+#     elif i == 2:
+#         print(i)
+#         continue
+#     elif i == 3:
+#         print(i)
+#         continue
+# print("Done!")
 
 # Access to the values of the column and the ability to remove what you want
 # data_filter_ag_grouped["passage"] = data_filter_ag_grouped["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
+def main():
+    all_mappings = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+                             "Patient_1/20201017_q30_consensusX5/all_parts.blast.cropped", names=["read_id","start","end"],
+                             sep="\t")
+    mutation = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+                           "Patient_1/20201017_q30_consensusX5/mutations_all.txt.cropped",
+                           names=["pos", "read_id", "mutant", "read_positions"], sep="\t")
+    grouped = mutation.groupby(['read_id'])
+    grouped = grouped.reset_index()
+    print(grouped.to_string())
+
+
+if __name__ == "__main__":
+    main()
