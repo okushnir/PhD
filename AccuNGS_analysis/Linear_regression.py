@@ -201,11 +201,11 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
         leg._loc = 2
         L_labels = leg.get_texts()
         L_labels[0].set_text(label_line_12)
-
-    # reg_plot.set(xlim=(0, 13))
-    # reg_plot.set(ylim=(0.000, 0.001))
-    # reg_plot.fig.suptitle("RV #%s" % str(replica), y=0.99)
-    # plt.tight_layout()
+    if virus == "RVB14":
+        reg_plot.set(xlim=(0, 13))
+        reg_plot.set(ylim=(0.000, 0.001))
+        # reg_plot.fig.suptitle("RV #%s" % str(replica), y=0.99)
+    plt.tight_layout()
     reg_plot.savefig(output_dir + output_file + "_lmplot_%s.png" % replica, dpi=300)
     plt.close()
 
