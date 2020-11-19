@@ -11,6 +11,11 @@ sns.set(font_scale=1.2)
 sns.set_style("ticks")
 sns.despine()
 
+def weighted_varaint(x, **kws):
+    var, count = map(np.asarray, zip(*x))
+    return var.sum() / count.sum()
+
+
 def plots_for_srr(input_dir, output_dir, virus_path, virus):
     data_mutations = pd.read_csv(input_dir + virus_path + "data_mutation.csv")
     # data_mutations["Mutation"] = data_mutations["Mutation"].apply(lambda x: x.split("->")[0] + ">" + x.split("->")[1])
@@ -19,7 +24,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
 
     # data_mutations = data_mutations[data_mutations["pval"] < 0.01]
-    data_mutations = data_mutations[data_mutations["Prob"] > 0.95]
+    data_mutations = data_mutations[data_mutations["Prob"] > 0]
 
     # plt.style.use('classic')
     sns.set_style("ticks")
@@ -55,6 +60,8 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 ##Context
     #5'
     data_context = pd.read_csv(input_dir + virus_path + "data_XpA_by_mutation.csv")
+    data_context["no_variants"] = data_context["Freq"] * data_context["Read_count"]
+    data_context["freq_and_weight"] = list(zip(data_context.no_variants, data_context.Read_count))
     if virus == "EnteroA":
         data_context = data_context.loc[data_context.Organism != "Coxsackievirus A16"]
     # data_context["Mutation"] = data_context["Mutation"].apply(lambda x: x.split("->")[0] + ">" + x.split("->")[1])
@@ -66,7 +73,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     data_context['Type'].replace('Synonymous', 'Silent', inplace=True)
     data_context['Type'].replace('Non-Synonymous', 'Missense', inplace=True)
     # data_context_rv = data_context_rv[data_context_rv["pval"] < 0.01]
-    data_context = data_context[data_context["Prob"] > 0.95]
+    data_context = data_context[data_context["Prob"] > 0]
 
     context_order = ["UpA", "ApA", "CpA", "GpA"]
 
@@ -89,7 +96,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     data_context_3['Type'].replace('Synonymous', 'Silent', inplace=True)
     data_context_3['Type'].replace('Non-Synonymous', 'Missense', inplace=True)
     # data_context_rv = data_context_rv[data_context_rv["pval"] < 0.01]
-    data_context_3 = data_context_3[data_context_3["Prob"] > 0.95]
+    data_context_3 = data_context_3[data_context_3["Prob"] > 0]
 
     context_order_3 = ["UpA", "UpU", "UpC", "UpG"]
 
@@ -102,15 +109,18 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 
     # 5’ neighbors preferences
     #stat
+    data_adar["log10_Frequency"] = data_adar["Frequency"].apply(lambda x: np.log10(x))
+    data_adar["log10_Frequency"] = data_adar["log10_Frequency"].astype(float)
     if virus == "EnteroA":
         context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mutation_palette(2), col="Organism",
-                                        flierprops={"marker": "."}, kind="box", col_wrap=int(len(no_organism)/2), order=adar_order)
+                                         kind="boxen", col_wrap=int(len(no_organism)/2), order=adar_order) #flierprops={"marker": "."},
     else:
         context_stat_plot = sns.catplot("ADAR_like", "Frequency", data=data_adar, palette=mutation_palette(2), col="Organism",
-                                        flierprops={"marker": "."}, kind="box", col_wrap=len(no_organism), order=adar_order)
+                                        kind="boxen", col_wrap=len(no_organism), order=adar_order) #flierprops={"marker": "."},
 
     context_stat_plot.set(yscale='log')
-    context_stat_plot.set(ylim=(10 ** -5, 0))
+    context_stat_plot.set(ylim=(10 ** -4, 10 ** -2))
+    # context_stat_plot.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -5)
     context_stat_plot.set_axis_labels("", "Variant Frequency")
     organism_list = data_adar["Organism"].unique()
     for ax in context_stat_plot.axes.flat:
@@ -124,7 +134,26 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 
     # context_stat_plot.legend(bbox_to_anchor=(1.05, 0.5), loc=3, borderaxespad=0., fontsize='small')
     plt.tight_layout()
-    plt.savefig(output_dir + "Stat_synonymous_variant_frequency_in_%s.png" % virus, dpi=300)
+    plt.savefig(output_dir + "Boxenplot_Stat_synonymous_variant_frequency_in_%s.png" % virus, dpi=300)
+    plt.close()
+    if virus == "EnteroA":
+        context_stat_plot = sns.catplot(x="ADAR_like", y="freq_and_weight", data=data_adar, palette=mutation_palette(2),
+                                        col="Organism", kind="point", dodge=True, col_wrap=int(len(no_organism)/2),
+                                        order=adar_order, join=False, estimator=weighted_varaint, orient="v",
+                                        legend=True) #flierprops={"marker": "."},
+    else:
+        context_stat_plot = sns.catplot(x="ADAR_like", y="freq_and_weight", data=data_adar, palette=mutation_palette(2),
+                                        col="Organism", kind="point", col_wrap=len(no_organism), order=adar_order,
+                                        join=False, estimator=weighted_varaint, orient="v", legend=True) #flierprops={"marker": "."}
+
+    context_stat_plot.set(yscale='log')
+    context_stat_plot.set(ylim=(10 ** -4, 10 ** -2))
+    # context_stat_plot.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -5)
+    context_stat_plot.set_axis_labels("", "Variant Frequency")
+    organism_list = data_adar["Organism"].unique()
+    # context_stat_plot.legend(bbox_to_anchor=(1.05, 0.5), loc=3, borderaxespad=0., fontsize='small')
+    plt.tight_layout()
+    plt.savefig(output_dir + "Pointplot_Stat_synonymous_variant_frequency_in_%s.png" % virus, dpi=300)
     plt.close()
 
 
@@ -160,7 +189,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 def main():
     input_dir = "/Users/odedkushnir/Projects/signatures/ADAR/SRA/"
     virus_path_dict = {"RV": "SRP006391_RV/", "PV": "SRP064468_PV/", "EnteroA": "ERP014415_Entero_A/"}
-    output_dir = input_dir + "20201109_plots/"
+    output_dir = input_dir + "20201118_plots/"
     try:
         os.mkdir(output_dir)
     except OSError:
