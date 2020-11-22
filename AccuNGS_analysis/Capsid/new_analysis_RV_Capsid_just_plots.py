@@ -24,7 +24,7 @@ def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201111_new_%s" % prefix
+    output_dir = input_dir + "20201122_new_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -63,9 +63,8 @@ def main():
 
     data_filter_ag_replica1.to_csv(input_dir + prefix +"/data_filter_ag_rep1.csv", sep=",", encoding='utf-8')
     #Plots
-    label_order = ["RNA Control\nPrimer ID", "p8 Mixed Population", "Capsid-31-Amicon", "Capsid-32-Ultra",
-                    "Capsid-33-Ultra",
-                    "Free-31-Amicon", "Free-33-Amicon", "Free-32-Ultra", "Free-33-Ultra"]  #
+    label_order = ["RNA Control\nPrimer ID", "p8 Mixed Population", "Capsid-31-Amicon","Capsid-33-Ultra",
+                    "Free-31-Amicon", "Free-33-Ultra"]  #
 
     rna_order_replica1 = ["RNA Control\nPrimer ID", "p8 Mixed\nPopulation", "p9 Capsid #1", "p9 Free #1"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
