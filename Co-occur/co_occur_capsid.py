@@ -164,7 +164,7 @@ def main(args):
     sample = args.sample
 
     """2. Run variants_on_same_read.py"""
-    # section_lst = ("3522-4999", "5000-6499", "6500-7212")
+    # section_lst = ["3522-4999", "5000-6499", "6500-7212"]
     # for jnum in section_lst:
     #     cmds = "base=$sample\n" \
     #            "freqs=`ls ${base} | grep freqs`\n" \
@@ -193,16 +193,16 @@ def main(args):
         print("Done!")
 
     """4. Run collect_cooccurs and merge it to freqs file"""
-    # passages_lst = ["RVB14_p0", "RVB14_p2", "RVB14_p5", "RVB14_p8", "RVB14_p10", "RVB14_p12"]
-    # for passage in passages_lst:
-    #     sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/%s/20191029_q38" % (
+    # samples_lst = ["Capsid_31_Amicon" ,"Capsid_32_Ultra", "Capsid_33_Ultra", "Free_31_Amicon", "Free_32_Ultra", "Free_33_Ultra", "Free_33_Amicon"]
+    # for sample in samples_lst:
+    #     sample = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/%s/20201012_q38" % (
     #         passage)
-    #     label = "RVB14_" + sample.split("/")[-2].split("_")[1]
+    #     label = sample.split("/")[-2]
     #     df_path = "%s/accungs_associations/all.txt" % sample
     #     df = load_file(df_path, label)
-    #     freqs_df = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
-    #     # freqs_df = pd.read_csv(
-    #     #     "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/RVB14/q38_data_mutation.csv")
+    #     freqs_df = pd.from_pickel("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/"
+    #                               "capsid/Rank0_data_mutation/q38_data_mutation.pkl")
+
     #     label = label.replace('_', '-')
     #     freqs_df = freqs_df.loc[freqs_df.label == label]
     #
