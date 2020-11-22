@@ -162,6 +162,7 @@ def main():
     plt.savefig(output_dir + "/position_mutation.png", dpi=300)
     plt.close()
 
+
     # g5 = sns.catplot("RNA", "frac_and_weight", data=data_filter_ag_replica1, hue="ADAR_like", order=rna_order_replica1,
     #                  palette=flatui, kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
     #                  orient="v", col="Type", join=False, col_order=type_order_ag)

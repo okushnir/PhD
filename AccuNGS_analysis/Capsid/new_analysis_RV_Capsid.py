@@ -37,6 +37,7 @@ def main():
     data_mutations = data_mutations.loc[data_mutations.label != "Free-32-Ultra"]
     data_mutations = data_mutations.loc[data_mutations.label != "Free-33-Amicon"]
     data_mutations["replica"] = np.where(data_mutations["replica"] == 3, 2, data_mutations["replica"])
+
     data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/RVB14_adar1_trans.csv")
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
 
