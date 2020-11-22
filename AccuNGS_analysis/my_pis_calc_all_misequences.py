@@ -11,7 +11,7 @@ sns.set_style("ticks")
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/"
-    output_dir = input_dir + "/20201112_plots"
+    output_dir = input_dir + "/20201120_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -21,15 +21,15 @@ def main():
 
 
     data_capsid = pd.read_pickle(input_dir + "capsid/Rank0_data_mutation/q38_data_mutation.pkl")
-    data_capsid["RNA"] = np.where((data_capsid["label"] == "RNA Control\nPrimer ID"), "Control",
-                                    data_capsid["RNA"])
+    data_capsid = data_capsid.rename(columns={"RNA": "Source"})
+    data_capsid["Source"] = np.where((data_capsid["label"] == "RNA Control\nPrimer ID"), "Control",
+                                    data_capsid["Source"])
     data_capsid["label"] = np.where((data_capsid["label"] == "RNA Control\nPrimer ID"), "3`RNA Control\nPrimer ID",
                                     data_capsid["label"])
     data_capsid = data_capsid[data_capsid["label"] != "p8 Mixed Population"]
-    data_capsid["RNA"] = np.where((data_capsid["RNA"] == "Capsid"), "RV\nCapsid", data_capsid["RNA"])
-    data_capsid["RNA"] = np.where((data_capsid["RNA"] == "Free"), "RV\nFree", data_capsid["RNA"])
+    data_capsid["Source"] = np.where((data_capsid["Source"] == "Capsid"), "RV\nCapsid", data_capsid["Source"])
+    data_capsid["Source"] = np.where((data_capsid["Source"] == "Free"), "RV\nFree", data_capsid["Source"])
 
-    data_capsid = data_capsid.rename(columns={"RNA": "Source"})
 
     data_passages = pd.read_pickle(input_dir + "passages/Rank0_data_mutation/q38_data_mutation.pkl")
     data_passages["replica"] = data_passages["replica"].astype(int)
