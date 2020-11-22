@@ -83,14 +83,38 @@ import pandas as pd
 # data_filter_ag_grouped["passage"] = data_filter_ag_grouped["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
 def main():
     all_mappings = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-                             "Patient_1/20201017_q30_consensusX5/all_parts.blast.cropped", names=["read_id","start","end"],
+                             "Patient_1/20201017_q30_consensusX5/all_parts.blast.cropped", names=["Read_id","Start","End"],
                              sep="\t")
     mutation = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
                            "Patient_1/20201017_q30_consensusX5/mutations_all.txt.cropped",
-                           names=["pos", "read_id", "mutant", "read_positions"], sep="\t")
-    grouped = mutation.groupby(['read_id'])
-    grouped = grouped.reset_index()
-    print(grouped.to_string())
+                           names=["Pos", "Read_id", "Mutant", "Read_positions"], sep="\t")
+    freqs = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+                        "Patient_1/20201017_q30_consensusX5/Patient-1.freqs",
+                           sep="\t")
+
+    freqs = freqs.loc[(freqs.Rank == 0) & (freqs.Base != "-") & (freqs.Ref != "-")]
+    mutation = mutation.merge(freqs[["Pos", "Ref", "Freq"]], on="Pos", how="right")
+    # mutation = mutation.merge(all_mappings, on="Read_id", how="left")
+    mutation[["Read_id"]] = mutation[["Read_id"]].fillna(value="remove")
+    mutation = mutation[mutation["Read_id"] != "remove"]
+    mutation["Mutant"] = mutation["Mutant"].astype(str)
+    mutation["Read_positions"] = mutation["Read_positions"].astype(str)
+    mutation["Pos"] = mutation["Pos"].astype(str)
+    mutation["Read_id"] = mutation["Read_id"].astype(str)
+    mutation["Ref"] = mutation["Ref"].astype(str)
+    mutation["Freq"] = mutation["Freq"].astype(str)
+    # mutation["Read_count"] = mutation["Read_count"].astype(str)
+    # mutation["Start"] = mutation["Start"].astype(str)
+    # mutation["End"] = mutation["End"].astype(str)
+
+    grouped = mutation.groupby(['Read_id']).agg(lambda x: x.mean() if np.issubdtype(x.dtype, np.number)
+    else ', '.join(x)).reset_index()
+    # grouped = grouped.sort_values(by=["Pos"])
+    grouped["filter"] = grouped["Pos"].str.contains(",")
+    grouped = grouped[grouped["filter"] == True]
+
+    grouped.to_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_1/"
+                   "20201017_q30_consensusX5/grouped.csv", sep=",")
 
 
 if __name__ == "__main__":

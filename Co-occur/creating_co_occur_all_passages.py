@@ -104,14 +104,14 @@ def creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst):
     return df_co_occur
 
 
-def grouped_co_occur(df, input_dir, output_dir):
+def grouped_co_occur(df, input_dir, output_dir, q):
     """
     :param df: pd.DataFrame with the stretches
     :param input_dir: input directory path, where all the sub directory are located
     :param output_dir: output directory path, all files will be stored there
     :return: pd.DataFrame with aggregated stretches
     """
-    data_mutation = pd.read_pickle(input_dir +"/Rank0_data_mutation" + "/q38_data_mutation.pkl")
+    data_mutation = pd.read_pickle(input_dir +"/Rank0_data_mutation" + "/%s_data_mutation.pkl" % q)
     data_mutation["Pos"] = data_mutation["Pos"].astype(int)
     df = df.merge(data_mutation, "inner", on=["Pos", "label", "Rank"])
     df["Pos"] = df["Pos"].astype(str)
@@ -145,7 +145,7 @@ def grouped_co_occur(df, input_dir, output_dir):
     return df_co_occur_new
 
 
-def regression_stretches(df_co_occur_new, output_dir, df_adar_path, input_dir=None):
+def regression_stretches(df_co_occur_new, output_dir, df_adar_path, min_coverage):
     """
     :param df_co_occur_new: pd.DataFrame with aggregated stretches
     :param output_dir: output directory path, all files will be stored there
@@ -189,7 +189,7 @@ def regression_stretches(df_co_occur_new, output_dir, df_adar_path, input_dir=No
     df_co_occur_new["Stretch_Type_Non-Synonymous"] = df_co_occur_new["Stretch_Type_Non-Synonymous"].fillna("Else")
     df_co_occur_new = df_co_occur_new[df_co_occur_new["label"] != "RNA Control\nPrimer ID"]
     df_co_occur_new = df_co_occur_new[df_co_occur_new["label"] != "RNA Control\nRND"]
-    df_co_occur_new = df_co_occur_new[df_co_occur_new["Read_count"] > 10000]
+    df_co_occur_new = df_co_occur_new[df_co_occur_new["Read_count"] > min_coverage]
     df_co_occur_new["Frequency"] = df_co_occur_new["Frequency"].astype(float)
     # df_co_occur_new.to_csv(output_dir + "/all_co_occur_grouped_adar_preferences.csv", sep=",", encoding='utf-8')
     # df_co_occur_new.to_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
@@ -354,26 +354,26 @@ def main():
 
     # for Local
     """RV"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    output_dir = input_dir + "/Co_occur_all_passages"
-    prefix = "/p*"
-    min_coverage = 5000
-    virus = "RVB14"
-    date = "20201012"
-    q = "q38"
-    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    # data_all_passages = creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst)
-
-
-    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, output_dir)
-    df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
-                   "inosine_predict_context/data_filter.csv"
-
-    df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path)
-    # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
-    # df_regression_adar = regression_stretches_adar_preferences(df_regression, output_dir)
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    # output_dir = input_dir + "/Co_occur_all_passages"
+    # prefix = "/p*"
+    # min_coverage = 5000
+    # virus = "RVB14"
+    # date = "20201012"
+    # q = "q38"
+    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    # # data_all_passages = creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst)
+    #
+    #
+    # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    # # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, output_dir)
+    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+    #                "inosine_predict_context/data_filter.csv"
+    #
+    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, min_coverage)
+    # # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
+    # # df_regression_adar = regression_stretches_adar_preferences(df_regression, output_dir)
 
 
     # """RV-Capsid_Free"""
@@ -394,19 +394,25 @@ def main():
     # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
     #
     # """RV-Patients"""
-    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    # prefix = "/*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201017"
-    # q = "q30_consensusX5"
-    #
-    # control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.merged.with.mutation.type.freqs"
-    # label_control1 = "RNA Control\nPrimer ID"
-    # control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
-    # label_control2 = "p3 Cell Culture\nControl"
-    # control_dict = {label_control1: control_file_id, label_control2: control_file_cell}
-    # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    output_dir = input_dir + "/Co_occur_patients"
+    prefix = "/*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201017"
+    q = "q30_consensusX5"
+
+    region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
+    data_all_passages = creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst)
+    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, output_dir, q=q.split("_")[0])
+    df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+                   "inosine_predict_context/data_filter.csv"
+
+    df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, min_coverage)
+    # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
+    df_regression_adar = regression_stretches_adar_preferences(df_regression, output_dir)
     #
     # """CV"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"

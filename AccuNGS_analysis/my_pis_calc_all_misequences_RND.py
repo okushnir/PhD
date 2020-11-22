@@ -11,7 +11,7 @@ sns.set_style("ticks")
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/"
-    output_dir = input_dir + "/20201112_plots"
+    output_dir = input_dir + "/20201120_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
