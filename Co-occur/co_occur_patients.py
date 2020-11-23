@@ -163,7 +163,7 @@ def main():
            "freqs=`ls ${base} | grep .freqs`\n" \
            "echo ${freqs}\n" \
            "mkdir ${base}/accungs_associations\n" \
-           "python /sternadi/home/volume1/maozgelbart/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
+           "python /sternadi/home/volume1/okushnir/PhD/variants_on_same_read.py ${base}/all_parts.blast.cropped ${base}/mutations_all.txt.cropped $PBS_ARRAY_INDEX ${base}/${freqs} > ${base}/accungs_associations/$PBS_ARRAY_INDEX.txt"
     cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/co_occur.cmd"
     pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="336-1999", alias="accungs_assoc", gmem=3, cmds=cmds)
     pbs_jobs.create_array_pbs_cmd(cmd_file, jnum="2000-3335", alias="accungs_assoc", gmem=3, cmds=cmds)
