@@ -32,11 +32,11 @@ def main():
 
     data_mutations = pd.read_pickle(input_dir + "/Rank0_data_mutation/q38_data_mutation.pkl")
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
-    # remove replica #2 and #3_Amicon
-    data_mutations = data_mutations.loc[data_mutations.label != "Capsid-32-Ultra"]
-    data_mutations = data_mutations.loc[data_mutations.label != "Free-32-Ultra"]
+    # remove #3_Amicon
+    # data_mutations = data_mutations.loc[data_mutations.label != "Capsid-32-Ultra"]
+    # data_mutations = data_mutations.loc[data_mutations.label != "Free-32-Ultra"]
     data_mutations = data_mutations.loc[data_mutations.label != "Free-33-Amicon"]
-    data_mutations["replica"] = np.where(data_mutations["replica"] == 3, 2, data_mutations["replica"])
+    # data_mutations["replica"] = np.where(data_mutations["replica"] == 3, 2, data_mutations["replica"])
 
     data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/RVB14_adar1_trans.csv")
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")

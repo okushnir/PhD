@@ -26,7 +26,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    output_dir = input_dir + "/inosine_predict_context"
+    output_dir = input_dir + "/inosine_predict_context_freq0.01"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -37,6 +37,7 @@ def main():
 
     data_mutations = pd.read_pickle(input_dir + "/Rank0_data_mutation/q30_data_mutation.pkl")
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
+    data_mutations = data_mutations[data_mutations["Frequency"] < 0.01]
     data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/RVB14_adar1-7212_trans.csv")
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
 

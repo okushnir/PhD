@@ -148,7 +148,7 @@ def grouped_co_occur(df, input_dir, experiment, output_dir, q):
     return df_co_occur_new
 
 
-def regression_stretches(input_dir, df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage):
+def regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage):
     """
     :param df_co_occur_new: pd.DataFrame with aggregated stretches
     :param output_dir: output directory path, all files will be stored there
@@ -455,7 +455,7 @@ def main():
                    "inosine_predict_context/data_filter.csv"
 
     df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    df_regression = regression_stretches(input_dir, df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
+    df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
     """4"""
     # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
     plot_capsid_free_plot(df_regression, output_dir)

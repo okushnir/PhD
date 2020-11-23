@@ -26,8 +26,8 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-    prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201111_%s" % prefix
+    prefix = "inosine_predict_context_freq0.01"
+    output_dir = input_dir + "20201123_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -52,10 +52,10 @@ def main():
     adar_preference = ["High", "Intermediate", "Low"]
 
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
-                        kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
+                        kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
                      orient="v")
     g1.set_axis_labels("", "Variant Frequency")
-    g1.set_xticklabels(fontsize=9, rotation=45)
+    g1.set_xticklabels(fontsize=9, rotation=90)
     g1.set(yscale='log')
     # g1.set(ylim=(10**-7, 10**-3))
 
@@ -67,7 +67,7 @@ def main():
                      orient="v", legend=True)
     g2.set_axis_labels("", "Variant Frequency")
     g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -2))
+    g2.set(ylim=(10 ** -5, 10 ** -3))
     # g2.set_yticklabels(fontsize=12)
     g2.set_xticklabels(fontsize=10, rotation=90)
     # plt.show()
@@ -124,7 +124,7 @@ def main():
     g6.set_axis_labels("", "Variant Frequency")
     g6.set(yscale='log')
     g6.set(ylim=(7*10**-7, 4*10**-3))
-    g6.set_xticklabels(rotation=45)
+    g6.set_xticklabels(rotation=90)
     # plt.show()
     g6.savefig(output_dir + "/Context_point_all_mutations_type_plot", dpi=300)
     plt.close()
@@ -134,8 +134,8 @@ def main():
                      col="Type", join=False, col_order=type_order2)
     g9.set_axis_labels("", "Variant Frequency")
     g9.set(yscale='log')
-    g9.set(ylim=(10 ** -7, 10 ** -3))
-    g9.set_xticklabels(rotation=45)
+    g9.set(ylim=(10 ** -5, 10 ** -2))
+    g9.set_xticklabels(rotation=90)
     # plt.show()
     g9.savefig(output_dir + "/UC_Context_point_plot", dpi=300)
     plt.close()
