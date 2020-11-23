@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 
-def merge_mutation_all(all_mappings, mutation, freqs):
+def merge_mutation_all(all_mappings, mutation, freqs, output_dir):
     freqs = freqs.loc[(freqs.Base != "-") & (freqs.Ref != "-")]
     mutation = mutation.rename(columns={"Mutant": "Base"})
     mutation = mutation.merge(freqs[["Pos", "Base", "Ref", "Freq"]], on=("Pos", "Base"), how="right")
@@ -26,21 +26,19 @@ def merge_mutation_all(all_mappings, mutation, freqs):
     grouped["filter"] = grouped["Pos"].str.contains(",")
     grouped = grouped[grouped["filter"] == True]
 
-    grouped.to_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_1/"
-                   "20201017_q30_consensusX5/grouped.csv", sep=",")
+    grouped.to_csv(output_dir + "/grouped.csv", sep=",")
     return grouped
 
 def main():
-    all_mappings = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-                             "Patient_1/20201017_q30_consensusX5/all_parts.blast.cropped", names=["Read_id","Start","End"],
-                             sep="\t")
-    mutation = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-                           "Patient_1/20201017_q30_consensusX5/mutations_all.txt.cropped",
-                           names=["Pos", "Read_id", "Mutant", "Read_positions"], sep="\t")
-    freqs = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-                        "Patient_1/20201017_q30_consensusX5/Patient-1.freqs",
-                           sep="\t")
-    grouped_df = merge_mutation_all(all_mappings, mutation, freqs)
+    all_blast = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/all_parts.blast.cropped"
+    mutation_all = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/mutations_all.txt.cropped"
+    freqs_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/p2-1.freqs"
+    output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38"
+    all_mappings = pd.read_csv(all_blast, names=["Read_id","Start","End"],sep="\t")
+    mutation = pd.read_csv(mutation_all, names=["Pos", "Read_id", "Mutant", "Read_positions"], sep="\t")
+    freqs = pd.read_csv(freqs_file, sep="\t")
+
+    grouped_df = merge_mutation_all(all_mappings, mutation, freqs, output_dir)
 
 if __name__ == "__main__":
     main()
