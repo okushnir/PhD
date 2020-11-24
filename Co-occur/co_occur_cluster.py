@@ -11,10 +11,11 @@ from util import pbs_jobs
 
 
 
-def blast_muation_creator(cmds):
+def blast_muation_creator(cmds, sample):
     cmd_file = "/sternadi/home/volume3/okushnir/Cluster_Scripts/all_parts.cmd"
     pbs_jobs.create_pbs_cmd(cmd_file, alias="all_parts", gmem=3, cmds=cmds, load_python=False)
-    job_id = pbs_jobs.submit(cmd_file)
+    job_id = pbs_jobs.submit("-v sample='%s' %s" % (sample, cmd_file))
+    print("-v sample='%s' %s" % (sample, cmd_file))
     status = pbs_jobs.check_pbs(job_id)
     if status == "Done":
         print("Done!")
@@ -52,15 +53,15 @@ def main(args):
     blast_mutation = args.blast_mutation
 
     """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
-    if blast_mutation == True:
-        """Patients"""
-        cmds_patients = "for sample in 1 4 5 9 16 17 20; do cd /sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/" \
-               "patients/Patient_${sample}/20201124_q30_consensusX7/; cat mutations_all.txt | grep -v ref_pos > " \
-               "mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; " \
-               "cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped ; done"
-        blast_muation_creator(cmds_patients)
-    else:
-        print("Running variants_on_same_read.py")
+    # if blast_mutation == True:
+    #     print("Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped")
+    #     """Patients"""
+    #     cmds_patients = "cd ${sample}; cat mutations_all.txt | grep -v ref_pos > " \
+    #            "mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; " \
+    #            "cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped"
+    #     blast_muation_creator(cmds_patients, sample)
+    # else:
+    #     print("Running variants_on_same_read.py")
     """2. Run variants_on_same_read.py"""
     """Patients"""
     section_lst_patients = ["336-1999", "2000-3335"]
@@ -71,6 +72,8 @@ def main(args):
 
     concatenate_all_the_files(sample)
 
+    """4. Run collect_cooccurs and merge it to freqs file"""
+#     Run co_occur_patients.py locally
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -78,8 +81,4 @@ if __name__ == "__main__":
     parser.add_argument("sample", type=str, help="sample dir path")
     args = parser.parse_args(sys.argv[1:])
     main(args)
-
-    """4. Run collect_cooccurs and merge it to freqs file"""
-#     Run co_occur_patients.py locally
-
 
