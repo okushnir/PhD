@@ -76,7 +76,7 @@ def main(args):
     concatenate_all_the_files(sample)
 
     """4. Run collect_cooccurs and merge it to freqs file"""
-#     Run co_occur_patients.py locally
+#     Run co_occur_local.py locally
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
