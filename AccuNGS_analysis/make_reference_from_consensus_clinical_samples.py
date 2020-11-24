@@ -12,7 +12,7 @@ def replace_base(row, mut_reference):
 
 def main():
     min_coverage = 0
-    cycle = 5
+    cycle = 7
     patient_lst = ("Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20")
     base_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/"
 

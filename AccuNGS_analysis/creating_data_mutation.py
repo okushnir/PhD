@@ -23,7 +23,7 @@ def checkKey(dict, key):
         raise Exception()
 
 
-def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict={}):
+def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, patient_con="", control_dict={}):
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
 
@@ -47,33 +47,35 @@ def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, c
     lst_srr = []
     for passage in dirs:
         # Checks if the file .merged.with.mutation.type.freqs file exists
-        file_path = glob.glob(passage + "/%s_%s/*.merged*freqs" % (date, q))
+        file_path = glob.glob(passage + "/%s_%s%s/*.with.mutation.type.freqs" % (date, q, patient_con))
         if len(file_path) >= 1:
-            if "merged.with.mutation.type.freqs" in str(file_path):
+            if "with.mutation.type.freqs" in str(file_path):
                 for file in file_path:
                     if (file.split(".")[-2] == "type") & (len(file.split(".")) > 3):
                         lst_srr.append(file)
                         ncbi_id = checkKey(org_dic, virus)
-            else:
-                print(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
-                # virus = os.path.basename(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
-                try:
-                    ncbi_id = checkKey(org_dic, virus)
-                    print("Adding Mutation type to:%s" % (file_path[0].split('/')[-1].split(".")[0]))
-                except Exception as e:
-                    print("type error: " + str(e))
-                try:
-                    append_mutation = sequnce_utilities.find_mutation_type(file_path[0], ncbi_id, min_coverage)
-                    lst_srr.append(file_path[0].split('freqs')[0] + "with.mutation.type.freqs")
-                except Exception as e:
-                    print(e)
-                continue
+        else:
+            print(passage)
+            # virus = os.path.basename(file_path[0].split('/')[-1].split(".")[0].split("-")[0])
+            try:
+                ncbi_id = checkKey(org_dic, virus)
+                print("Adding Mutation type to:%s" % (passage.split('/')[-1]))
+            except Exception as e:
+                print("type error: " + str(e))
+            try:
+                pipeline_dir = ("/%s_%s%s/" % (date, q, patient_con))
+                freqs_file = passage + pipeline_dir + passage.split('/')[-1].replace("_", "-") + ".freqs"
+                append_mutation = sequnce_utilities.find_mutation_type(freqs_file, ncbi_id, min_coverage)
+                lst_srr.append(freqs_file.split('freqs')[0] + "with.mutation.type.freqs")
+            except Exception as e:
+                print(e)
+            continue
     print(lst_srr)
 
     columns = ["Pos", "Base", "Freq", "Ref", "Read_count", "Rank", "Prob", "counts_for_position", "Consensus",
                "BaseToBase", "Mutation_class", "adj_freq", "prevBase", "nextBase", "prev2bases", "next2bases",
-               "Consensus_codon", "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type", "pval", "Var_perc",
-               "SNP_Profile"]
+               "Consensus_codon", "Mutated_codon", "Consensus_aa", "Mutated_aa", "Type"]#, "pval", "Var_perc",
+               #"SNP_Profile"]
     data = pd.DataFrame(columns=columns)
     for i in range(len(lst_srr)):
         sample_file = lst_srr[i]
@@ -120,6 +122,7 @@ def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, c
     data = data[(data["Read_count"] > min_coverage)]
     data['abs_counts'] = data['Freq'] * data["Read_count"]  # .apply(lambda x: abs(math.log(x,10))/3.45)
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
+    ncbi_id = checkKey(org_dic, virus)
     start_pos, end_pos = sequnce_utilities.find_coding_region(ncbi_id)
 
     # No internet connection - for RV
@@ -141,10 +144,38 @@ def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, c
                                                                       0))))
     data["Consensus>Mutated_codon"] = data["Consensus_codon"] + ">" + data["Mutated_codon"]
     data["Type"] = data["Type"].fillna(value="NonCodingRegion")
-    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    data = add_Protein_to_pd_df_func(data, region_lst)
-    data.to_csv(output_dir + "/q38_data_mutation.csv", sep=',', encoding='utf-8')
-    data.to_pickle(output_dir + "/q38_data_mutation.pkl")
+    if virus=="RVA":
+        data["Protein"] = np.where(data["Pos"] <= 503, "5'UTR",
+                                   np.where(data["Pos"] <= 709, "1A",
+                                            np.where(data["Pos"] <= 1495, "1B",
+                                                     np.where(data["Pos"] <= 2197, "1C",
+                                                              np.where(data["Pos"] <= 3094, "1D",
+                                                                       np.where(data["Pos"] <= 3523, "2A",
+                                                                                np.where(data["Pos"] <= 3808, "2B",
+                                                                                         np.where(data["Pos"] <= 4771,
+                                                                                                  "2C",
+                                                                                                  np.where(data[
+                                                                                                               "Pos"] <= 5005,
+                                                                                                           "3A",
+                                                                                                           np.where(
+                                                                                                               data[
+                                                                                                                   "Pos"] <= 5068,
+                                                                                                               "3B",
+                                                                                                               np.where(
+                                                                                                                   data[
+                                                                                                                       "Pos"] <= 5617,
+                                                                                                                   "3C",
+                                                                                                                   np.where(
+                                                                                                                       data[
+                                                                                                                           "Pos"] <= 6728,
+                                                                                                                       "3D",
+                                                                                                                       "3'UTR"))))))))))))
+
+    elif virus == "RVB14":
+        region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+        data = add_Protein_to_pd_df_func(data, region_lst)
+    data.to_csv(output_dir  + "/%s_data_mutation.csv" % q, sep=',', encoding='utf-8')
+    data.to_pickle(output_dir + "/%s_data_mutation.pkl" % q)
 
 
 def main():
@@ -196,18 +227,19 @@ def main():
 
     """RV-Patients"""
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    prefix = "/*"
-    min_coverage = 5000
-    virus = "RVB14"
-    date = "20201017"
-    q = "q30_consensusX5"
+    prefix = "/Patient_*"
+    min_coverage = 10000
+    virus = "RVA"
+    date = "20201124"
+    q = "q30"
+    patient_con = "_consensusX7"
 
     control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.merged.with.mutation.type.freqs"
     label_control1 = "RNA Control\nPrimer ID"
     control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
     label_control2 = "p3 Cell Culture\nControl"
     control_dict = {label_control1: control_file_id, label_control2: control_file_cell}
-    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+    creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, patient_con, control_dict)
 
     """CV"""
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"

@@ -156,7 +156,7 @@ def main():
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
     """Clinical samples"""
-    # make_reference_from_consensus_clinical_samples.py
+    make_reference_from_consensus_clinical_samples.py
 
     cycle = "6"
     patient_lst = ("Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20")
@@ -219,6 +219,7 @@ def main():
     # I created all new q38_data_mutation.csv, q38_data_UpX_by_mutation.csv, q38_data_XpA_by_mutation.csv files with new merged files."""
 
     """Context_analysis_X.py"""
+
     """RV"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
     # prefix = "/p*"
@@ -235,8 +236,8 @@ def main():
     # control_dict = {label_control1: control_file_rnd, label_control2: control_file_spe}
     #
     # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
-    #
-    # """RV-Capsid_Free"""
+
+    """RV-Capsid_Free"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
     # prefix = "/*_3*"
     # min_coverage = 5000
@@ -253,22 +254,23 @@ def main():
     # control_dict = {label_control1: control_file_id, label_control2: control_file_mix}
     # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
     #
-    # """RV-Patients"""
+    """RV-Patients"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    # prefix = "/*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201017"
-    # q = "q30_consensusX5"
+    # prefix = "/Patient_*"
+    # min_coverage = 10000
+    # virus = "RVA"
+    # date = "20201124"
+    # q = "q30"
+    # patient_con = "_consensusX7"
     #
     # control_file_id = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/IVT_5_Control/20201012_q38/IVT-5-Control.merged.with.mutation.type.freqs"
     # label_control1 = "RNA Control\nPrimer ID"
     # control_file_cell = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/controls/p3_Control/20201012_q38/p3-Control.merged.with.mutation.type.freqs"
     # label_control2 = "p3 Cell Culture\nControl"
     # control_dict = {label_control1: control_file_id, label_control2: control_file_cell}
-    # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+    # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, patient_con, control_dict)
     #
-    # """CV"""
+    """CV"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
     # prefix = "/CVB3_p*"
     # min_coverage = 5000
@@ -282,7 +284,7 @@ def main():
     # control_dict = {label_control: control_file}
     # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
     #
-    # """PV1"""
+    """PV1"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney"
     # prefix = "/p*"
     # min_coverage = 10000
@@ -291,7 +293,7 @@ def main():
     # q = "q30"
     # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q)
     #
-    # """OPV2"""
+    """OPV2"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV"
     # prefix = "/p*"
     # min_coverage = 10000
