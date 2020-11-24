@@ -163,8 +163,7 @@ def main(args):
     """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
     if blast_mutation == True:
         blast_muation_creator()
-    else:
-        continue
+
     """2. Run variants_on_same_read.py"""
     section_lst = ["336-1999", "2000-3335"] #
     for jnum in section_lst:
