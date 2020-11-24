@@ -36,7 +36,7 @@ def main():
     replica_lst = [1, 2, 3]
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201118_10000coverage_%s" % prefix
+    output_dir = input_dir + "20201124_10000coverage_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -92,23 +92,23 @@ def main():
         mutation_ag.savefig(output_dir + "/ag_ADAR_like_Mutation_col_replica%s.png" % replica, dpi=300)
         plt.close()
 
-        data_filter_ag_grouped = data_filter_ag.groupby(["label", "Type", "passage", "replica",
-                                                         "ADAR_grade_five", "5`_ADAR_Preference"])[
-            "frac_and_weight"].agg(
-            lambda x: weighted_varaint(x))
-        data_filter_ag_grouped = data_filter_ag_grouped.reset_index()
+        # data_filter_ag_grouped = data_filter_ag.groupby(["label", "Type", "passage", "replica",
+        #                                                  "ADAR_grade_five", "5`_ADAR_Preference"])[
+        #     "frac_and_weight"].agg(
+        #     lambda x: weighted_varaint(x))
+        # data_filter_ag_grouped = data_filter_ag_grouped.reset_index()
 
         # print(data_filter_ag_grouped.to_string())
 
-        data_filter_ag_grouped = data_filter_ag_grouped.rename(columns={"frac_and_weight": "Frequency"})
-        data_filter_ag_grouped["Frequency"] = data_filter_ag_grouped["Frequency"].astype(float)
-        data_filter_ag_grouped = data_filter_ag_grouped[data_filter_ag_grouped["label"] != "RNA Control\nPrimer ID"]
-        data_filter_ag_grouped = data_filter_ag_grouped[data_filter_ag_grouped["label"] != "RNA Control\nRND"]
-        data_filter_ag_grouped = data_filter_ag_grouped[data_filter_ag_grouped["replica"] == replica]
+        # data_filter_ag = data_filter_ag_grouped.rename(columns={"frac_and_weight": "Frequency"})
+        # data_filter_ag_grouped["Frequency"] = data_filter_ag_grouped["Frequency"].astype(float)
+        data_filter_ag = data_filter_ag[data_filter_ag["label"] != "RNA Control\nPrimer ID"]
+        data_filter_ag = data_filter_ag[data_filter_ag["label"] != "RNA Control\nRND"]
+        data_filter_ag = data_filter_ag[data_filter_ag["replica"] == replica]
 
-        data_reg_full_adar = data_filter_ag_grouped[data_filter_ag_grouped["ADAR_grade_five"] == 1]
-        data_reg_semi_adar = data_filter_ag_grouped[data_filter_ag_grouped["ADAR_grade_five"] == 0.5]
-        data_reg_nonadar = data_filter_ag_grouped[data_filter_ag_grouped["ADAR_grade_five"] == 0]
+        data_reg_full_adar = data_filter_ag[data_filter_ag["ADAR_grade_five"] == 1]
+        data_reg_semi_adar = data_filter_ag[data_filter_ag["ADAR_grade_five"] == 0.5]
+        data_reg_nonadar = data_filter_ag[data_filter_ag["ADAR_grade_five"] == 0]
 
         data_reg_full_adar_syn = data_reg_full_adar[data_reg_full_adar["Type"] == "Synonymous"]
         data_reg_semi_adar_syn = data_reg_semi_adar[data_reg_semi_adar["Type"] == "Synonymous"]
@@ -140,32 +140,25 @@ def main():
             data_reg_nonadar_non_syn['passage'],
             data_reg_nonadar_non_syn[
                 'Frequency'])
-        data_filter_ag_grouped = data_filter_ag_grouped.rename(columns={"passage": "Passage"})
-        ag_reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_ag_grouped, hue="5`_ADAR_Preference",
+        data_filter_ag = data_filter_ag.rename(columns={"passage": "Passage"})
+        ag_reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_ag, hue="5`_ADAR_Preference",
                                  hue_order=adar_preference, markers=["o", "v", "x"], fit_reg=True,
                                  col="5`_ADAR_Preference",
                                  col_order=adar_preference, row="Type", row_order=type_order_ag,
                                  palette=mutation_palette(3, adar=True, ag=True),
-                                 line_kws={'label': "Linear Reg"}, legend=True, height=6, x_estimator=np.mean,
-                                 x_jitter=.05)
+                                 line_kws={'label': "Linear Reg"}, legend=True, height=6)
         ag_reg_plot.fig.subplots_adjust(wspace=.02)
         ax = ag_reg_plot.axes[0, 0]
         ax.legend()
         leg = ax.get_legend()
         leg._loc = 2
         L_labels = leg.get_texts()
-        label_line_1 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope1, intercept1, p_value1,
-                                                                                  r_value1 ** 2)
-        label_line_2 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope2, intercept2, p_value2,
-                                                                                  r_value2 ** 2)
-        label_line_3 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope3, intercept3, p_value3,
-                                                                                  r_value3 ** 2)
-        label_line_4 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope4, intercept4, p_value4,
-                                                                                  r_value4 ** 2)
-        label_line_5 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope5, intercept5, p_value5,
-                                                                                  r_value5 ** 2)
-        label_line_6 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope6, intercept6, p_value6,
-                                                                                  r_value6 ** 2)
+        label_line_1 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope1, intercept1, p_value1)
+        label_line_2 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope2, intercept2, p_value2)
+        label_line_3 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope3, intercept3, p_value3)
+        label_line_4 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope4, intercept4, p_value4)
+        label_line_5 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope5, intercept5, p_value5)
+        label_line_6 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope6, intercept6, p_value6)
         L_labels[0].set_text(label_line_1)
         ax = ag_reg_plot.axes[0, 1]
         ax.legend()
@@ -210,7 +203,7 @@ def main():
         data_filter_ag = data_filter_ag[data_filter_ag["Type"] == "Synonymous"]
 
         position_mutation_ag = sns.relplot(x="Pos", y="Frequency", data=data_filter_ag, hue="5`_ADAR_Preference",
-                                           col="passage", col_wrap=3, palette=mutation_palette(3, adar=True, ag=True),
+                                           col="Passage", col_wrap=3, palette=mutation_palette(3, adar=True, ag=True),
                                            hue_order=adar_preference, height=4,
                                            style="5`_ADAR_Preference", style_order=["High", "Low", "Intermediate"])
 
@@ -232,6 +225,7 @@ def main():
 
         mutation_rate_ag_df.to_csv(output_dir + "/mutation_rate_ag%s.csv" % replica, sep=',', encoding='utf-8')
         mutation_rate_ag_df.to_pickle(output_dir + "/mutation_rate_ag%s.pkl" % replica)
+
         """U>C Context"""
         mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
                                   palette=mutation_palette(3, adar=True, uc=True), kind="point", dodge=True, estimator=weighted_varaint,
@@ -243,20 +237,20 @@ def main():
         mutation_uc.savefig(output_dir + "/uc_ADAR_like_Mutation_col_replica%s.png" % replica, dpi=300)
         plt.close()
 
-        data_filter_uc_grouped = data_filter_uc.groupby(["label", "Type", "passage", "replica",
-                                                         "ADAR_grade_three", "3`_ADAR_Preference"])["frac_and_weight"].agg(
-            lambda x: weighted_varaint(x))
-        
-        data_filter_uc_grouped = data_filter_uc_grouped.reset_index()
-        data_filter_uc_grouped = data_filter_uc_grouped.rename(columns={"frac_and_weight": "Frequency"})
-        data_filter_uc_grouped["Frequency"] = data_filter_uc_grouped["Frequency"].astype(float)
-        data_filter_uc_grouped = data_filter_uc_grouped[data_filter_uc_grouped["label"] != "RNA Control\nPrimer ID"]
-        data_filter_uc_grouped = data_filter_uc_grouped[data_filter_uc_grouped["label"] != "RNA Control\nRND"]
-        data_filter_uc_grouped = data_filter_uc_grouped[data_filter_uc_grouped["replica"] == replica]
+        # data_filter_uc_grouped = data_filter_uc.groupby(["label", "Type", "passage", "replica",
+        #                                                  "ADAR_grade_three", "3`_ADAR_Preference"])["frac_and_weight"].agg(
+        #     lambda x: weighted_varaint(x))
+        #
+        # data_filter_uc_grouped = data_filter_uc_grouped.reset_index()
+        # data_filter_uc_grouped = data_filter_uc_grouped.rename(columns={"frac_and_weight": "Frequency"})
+        # data_filter_uc_grouped["Frequency"] = data_filter_uc_grouped["Frequency"].astype(float)
+        data_filter_uc = data_filter_uc[data_filter_uc["label"] != "RNA Control\nPrimer ID"]
+        data_filter_uc = data_filter_uc[data_filter_uc["label"] != "RNA Control\nRND"]
+        data_filter_uc = data_filter_uc[data_filter_uc["replica"] == replica]
 
-        data_reg_full_adar_uc = data_filter_uc_grouped[data_filter_uc_grouped["ADAR_grade_three"] == 1]
-        data_reg_semi_adar_uc = data_filter_uc_grouped[data_filter_uc_grouped["ADAR_grade_three"] == 0.5]
-        data_reg_nonadar_uc = data_filter_uc_grouped[data_filter_uc_grouped["ADAR_grade_three"] == 0]
+        data_reg_full_adar_uc = data_filter_uc[data_filter_uc["ADAR_grade_three"] == 1]
+        data_reg_semi_adar_uc = data_filter_uc[data_filter_uc["ADAR_grade_three"] == 0.5]
+        data_reg_nonadar_uc = data_filter_uc[data_filter_uc["ADAR_grade_three"] == 0]
 
         data_reg_full_adar_syn_uc = data_reg_full_adar_uc[data_reg_full_adar_uc["Type"] == "Synonymous"]
         data_reg_semi_adar_syn_uc = data_reg_semi_adar_uc[data_reg_semi_adar_uc["Type"] == "Synonymous"]
@@ -285,8 +279,8 @@ def main():
         stat_slope12, stat_intercept12, r_value12, p_value12, std_err12 = stats.linregress(data_reg_nonadar_non_syn_uc['passage'],
                                                                                       data_reg_nonadar_non_syn_uc[
                                                                                           'Frequency'])
-        data_filter_uc_grouped = data_filter_uc_grouped.rename(columns={"passage": "Passage"})
-        uc_lmplot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_uc_grouped, hue="3`_ADAR_Preference",
+        data_filter_uc = data_filter_uc.rename(columns={"passage": "Passage"})
+        uc_lmplot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_uc, hue="3`_ADAR_Preference",
                                markers=["o", "v", "x"], hue_order=adar_preference, fit_reg=True, col="3`_ADAR_Preference",
                                col_order=adar_preference, row="Type", row_order=type_order_ag,
                                palette=mutation_palette(3, adar=True, uc=True),
@@ -347,7 +341,7 @@ def main():
         data_filter_uc = data_filter_uc[data_filter_uc["Type"] == "Synonymous"]
 
         position_mutation_uc = sns.relplot(x="Pos", y="Frequency", data=data_filter_uc, hue="3`_ADAR_Preference",
-                                        col="passage", col_wrap=3, palette=mutation_palette(3, adar=True, uc=True),
+                                        col="Passage", col_wrap=3, palette=mutation_palette(3, adar=True, uc=True),
                                         hue_order=adar_preference, height=4,
                                            style="3`_ADAR_Preference", style_order=["High", "Low", "Intermediate"])
 
