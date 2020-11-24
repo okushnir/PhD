@@ -7,9 +7,8 @@
 """
 
 import sys, argparse
-import pandas as pd
 from util import pbs_jobs
-import numpy as np
+
 
 
 def blast_muation_creator():
