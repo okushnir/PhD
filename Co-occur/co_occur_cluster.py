@@ -53,18 +53,21 @@ def main(args):
     blast_mutation = args.blast_mutation
 
     """1. Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped"""
-    # if blast_mutation == True:
-    #     print("Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped")
-    #     """Patients"""
-    #     cmds_patients = "cd ${sample}; cat mutations_all.txt | grep -v ref_pos > " \
-    #            "mutations_all.txt.cropped ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; " \
-    #            "cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped"
-    #     blast_muation_creator(cmds_patients, sample)
-    # else:
-    #     print("Running variants_on_same_read.py")
+    if blast_mutation == True:
+        print("Create all_parts.blast, all_parts.blast.cropped, mutations_all.txt.cropped")
+        """Patients"""
+        cmds_patients = "cd ${sample}; cat mutations_all.txt | grep -v ref_pos > " \
+               "mutations_all.txt.cropped; rm all_parts.blast ; for file in `ls tmp/*.blast`; do cat $file >> all_parts.blast ; done ; " \
+               "cat all_parts.blast | cut -f1,2,3 > all_parts.blast.cropped"
+        blast_muation_creator(cmds_patients, sample)
+    else:
+        print("Running variants_on_same_read.py")
     """2. Run variants_on_same_read.py"""
+    """Passages"""
+    section_lst_passages = ["3522-4999", "5000-6499", "6500-7212"]
     """Patients"""
     section_lst_patients = ["336-1999", "2000-3335"]
+
 
     running_variants_on_the_same_read(sample, section_lst_patients)
 
