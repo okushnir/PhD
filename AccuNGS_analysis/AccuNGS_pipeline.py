@@ -167,21 +167,14 @@ def main():
     ref_atcg1 = "/sternadi/home//volume3/okushnir/ref/human/NM_001614.5_ACTG1.fa"
     ref_flna1 = "/sternadi/home/volume3/okushnir/ref/human/FLNA.fasta"
 
-    ref_rv_patient1_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-1_consenX%s.fasta" % cycle
-    ref_rv_patient4_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-4_consenX%s.fasta" % cycle
-    ref_rv_patient5_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-5_consenX%s.fasta" % cycle
-    ref_rv_patient9_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-9_consenX%s.fasta" % cycle
-    ref_rv_patient16_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-16_consenX%s.fasta" % cycle
-    ref_rv_patient17_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-17_consenX%s.fasta" % cycle
-    ref_rv_patient20_consensus = "/sternadi/home/volume3/okushnir/ref/RVA/patient-20_consenX%s.fasta" % cycle
 
-    ref_dic = {"Patient_1": "/sternadi/home/volume3/okushnir/ref/RVA/patient-1_consenX%s.fasta" % cycle,
-    "Patient_4": "/sternadi/home/volume3/okushnir/ref/RVA/patient-4_consenX%s.fasta" % cycle,
-    "Patient_5": "/sternadi/home/volume3/okushnir/ref/RVA/patient-5_consenX%s.fasta" % cycle,
-    "Patient_9": "/sternadi/home/volume3/okushnir/ref/RVA/patient-9_consenX%s.fasta" % cycle,
-    "Patient_16": "/sternadi/home/volume3/okushnir/ref/RVA/patient-16_consenX%s.fasta" % cycle,
-    "Patient_17": "/sternadi/home/volume3/okushnir/ref/RVA/patient-17_consenX%s.fasta" % cycle,
-    "Patient_20": "/sternadi/home/volume3/okushnir/ref/RVA/patient-20_consenX%s.fasta" % cycle}
+    ref_dic = {"Patient_1": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_1_consenX%s.fasta" % cycle,
+    "Patient_4": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_4_consenX%s.fasta" % cycle,
+    "Patient_5": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_5_consenX%s.fasta" % cycle,
+    "Patient_9": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_9_consenX%s.fasta" % cycle,
+    "Patient_16": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_16_consenX%s.fasta" % cycle,
+    "Patient_17": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_17_consenX%s.fasta" % cycle,
+    "Patient_20": "/sternadi/home/volume3/okushnir/ref/RVA/Patient_20_consenX%s.fasta" % cycle}
 
     for patient in patient_lst:
         folders = glob.glob(input_dir_patients + "/%s" % patient)
