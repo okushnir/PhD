@@ -34,7 +34,7 @@ def main(args):
         # y=pair[1]
         maps_for_two_pos = all_mappings[(all_mappings["start"] <= x) & (all_mappings["end"] >= y)]
         grouped = maps_for_two_pos.groupby('read_id')
-        grouped = grouped.filter(lambda x: len(x)%2 == 0)
+        grouped = grouped.filter(lambda x: len(x) == 2)
         merged = pd.merge(pd.DataFrame({"read_id": grouped["read_id"].unique()}),
                           all_mutations[all_mutations["pos"] == x][["pos", "read_id"]], on="read_id", how="left")
         merged = pd.merge(merged, all_mutations[all_mutations["pos"] == y][["pos", "read_id"]], on="read_id",
