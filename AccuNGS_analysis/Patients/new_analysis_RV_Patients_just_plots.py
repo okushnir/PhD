@@ -27,7 +27,7 @@ def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
     prefix = "inosine_predict_context_freq0.01"
-    output_dir = input_dir + "20201123_%s" % prefix
+    output_dir = input_dir + "20201124_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:

@@ -25,22 +25,23 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
     :param output_file:
     :return:
     """
-    data_filter_grouped = data_filter.groupby(["label", "passage", "Type", "Mutation", "replica"])[
-        "frac_and_weight"].agg(
-        lambda x: weighted_varaint(x))
-    data_filter_grouped = data_filter_grouped.reset_index()
+    # data_filter = data_filter.groupby(["label", "passage", "Type", "Mutation", "replica"])[
+    #     "frac_and_weight"].agg(
+    #     lambda x: weighted_varaint(x))
+    # data_filter = data_filter.reset_index()
 
-    data_filter_grouped = data_filter_grouped.rename(columns={"frac_and_weight": "Frequency"})
-    data_filter_grouped["Frequency"] = data_filter_grouped["Frequency"].astype(float)
-    data_filter_grouped = data_filter_grouped[data_filter_grouped["label"] != "RNA Control\nPrimer ID"]
-    data_filter_grouped = data_filter_grouped[data_filter_grouped["label"] != "RNA Control\nRND"]
-    data_filter_grouped = data_filter_grouped[data_filter_grouped["replica"] == replica]
-    print(data_filter_grouped.to_string())
+    # data_filter = data_filter.rename(columns={"frac_and_weight": "Frequency"})
+    # data_filter["Frequency"] = data_filter["Frequency"].astype(float)
 
-    data_reg_ag = data_filter_grouped[data_filter_grouped["Mutation"] == "A>G"]
-    data_reg_uc = data_filter_grouped[data_filter_grouped["Mutation"] == "U>C"]
-    data_reg_ga = data_filter_grouped[data_filter_grouped["Mutation"] == "G>A"]
-    data_reg_cu = data_filter_grouped[data_filter_grouped["Mutation"] == "C>U"]
+    data_filter = data_filter[data_filter["label"] != "RNA Control\nPrimer ID"]
+    data_filter = data_filter[data_filter["label"] != "RNA Control\nRND"]
+    data_filter = data_filter[data_filter["replica"] == replica]
+    # print(data_filter.to_string())
+
+    data_reg_ag = data_filter[data_filter["Mutation"] == "A>G"]
+    data_reg_uc = data_filter[data_filter["Mutation"] == "U>C"]
+    data_reg_ga = data_filter[data_filter["Mutation"] == "G>A"]
+    data_reg_cu = data_filter[data_filter["Mutation"] == "C>U"]
 
     data_reg_ag_syn = data_reg_ag[data_reg_ag["Type"] == "Synonymous"]
     data_reg_uc_syn = data_reg_uc[data_reg_uc["Type"] == "Synonymous"]
@@ -89,8 +90,8 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
         slope12, intercept12, r_value12, p_value12, std_err12 = stats.linregress(data_reg_cu_pmsc['passage'],
                                                                                            data_reg_cu_pmsc[
                                                                                                'Frequency'])
-    data_filter_grouped = data_filter_grouped.rename(columns={"passage": "Passage"})
-    reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter_grouped, hue="Mutation",
+    data_filter = data_filter.rename(columns={"passage": "Passage"})
+    reg_plot = sns.lmplot(x="Passage", y="Frequency", data=data_filter, hue="Mutation",
                           hue_order=transition_order, fit_reg=True, col="Mutation",
                           col_order=transition_order, row="Type", row_order=type_order, palette=mutation_palette(4),
                           line_kws={'label': "Linear Reg"}, legend=True, height=6)  # markers=["o", "v", "x"]
@@ -110,26 +111,16 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
         slope8, intercept8, r_value8, p_value8, std_err8 = 0, 0, 0, 0, 0
         slope12, intercept12, r_value12, p_value12, std_err12 = 0, 0, 0, 0, 0
 
-    label_line_1 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope1, intercept1, p_value1,
-                                                                              r_value1 ** 2)
-    label_line_2 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope2, intercept2, p_value2,
-                                                                              r_value2 ** 2)
-    label_line_3 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope3, intercept3, p_value3,
-                                                                              r_value3 ** 2)
-    label_line_4 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope4, intercept4, p_value4,
-                                                                              r_value4 ** 2)
-    label_line_5 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope5, intercept5, p_value5,
-                                                                              r_value5 ** 2)
-    label_line_6 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope6, intercept6, p_value6,
-                                                                              r_value6 ** 2)
-    label_line_7 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope7, intercept7, p_value7,
-                                                                              r_value7 ** 2)
-    label_line_8 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope8, intercept8, p_value8,
-                                                                              r_value8 ** 2)
-    label_line_11 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope11, intercept11, p_value11,
-                                                                              r_value11 ** 2)
-    label_line_12 = "y={0:.3g}x+{1:.3g} pval={2:.3g} r-squared={3:.3g}".format(slope12, intercept12, p_value12,
-                                                                              r_value12 ** 2)
+    label_line_1 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope1, intercept1, p_value1)
+    label_line_2 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope2, intercept2, p_value2)
+    label_line_3 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope3, intercept3, p_value3)
+    label_line_4 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope4, intercept4, p_value4)
+    label_line_5 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope5, intercept5, p_value5)
+    label_line_6 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope6, intercept6, p_value6)
+    label_line_7 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope7, intercept7, p_value7)
+    label_line_8 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope8, intercept8, p_value8)
+    label_line_11 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope11, intercept11, p_value11)
+    label_line_12 = "y={0:.3g}x+{1:.3g} pval={2:.3g}".format(slope12, intercept12, p_value12)
     reg_plot.fig.subplots_adjust(wspace=.02)
     if ag == True:
         ax = reg_plot.axes[0, 0]
@@ -203,7 +194,7 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
         L_labels[0].set_text(label_line_12)
     if virus == "RVB14":
         reg_plot.set(xlim=(0, 13))
-        reg_plot.set(ylim=(0.000, 0.001))
+        reg_plot.set(ylim=(0.000, 0.01))
         # reg_plot.fig.suptitle("RV #%s" % str(replica), y=0.99)
     plt.tight_layout()
     reg_plot.savefig(output_dir + output_file + "_lmplot_%s.png" % replica, dpi=300)
@@ -226,4 +217,4 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
     mutation_rate_df.to_csv(output_dir + output_file + ".csv", sep=',', encoding='utf-8')
     mutation_rate_df.to_pickle(output_dir + output_file + str(replica) + ".pkl")
 
-    return data_filter_grouped
+    return data_filter
