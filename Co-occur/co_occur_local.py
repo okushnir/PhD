@@ -145,7 +145,7 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
 
 
 """4. Run collect_cooccurs and merge it to freqs file"""
-def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None)
+def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None):
     for sample in samples_lst:
         sample = sample_path + "/%s/%s" % (sample, pipeline_dir)
         label = sample.split("/")[-2]
@@ -180,22 +180,22 @@ def main():
                     "p12_1", "p12_2", "p12_3"]
     sample_path_passages = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
     pipeline_dir_passages = "20201012_q38"
-    pkl_path_passages = sample_path + "/Rank0_data_mutation/q38_data_mutation.pkl"
+    pkl_path_passages = sample_path_passages + "/Rank0_data_mutation/q38_data_mutation.pkl"
 
     """Capsid"""
     samples_lst_capsid = ["Capsid_31_Amicon", "Capsid_32_Ultra", "Capsid_33_Ultra", "Free_31_Amicon", "Free_32_Ultra",
                    "Free_33_Ultra", "Free_33_Amicon"]
     sample_path_capsid = "/Volumes/STERNADILABHOME$/volume3/okushnir/20201008RV-202329127/merged/capsid"
     pipeline_dir_capsid = "20201012_q38"
-    pkl_path_capsid = sample_path + "/Rank0_data_mutation/q38_data_mutation.pkl"
+    pkl_path_capsid = sample_path_capsid + "/Rank0_data_mutation/q38_data_mutation.pkl"
 
     """Patients"""
     samples_lst_patients = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
-    sample_path_patients = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    sample_path_capsid = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
     pipeline_dir_patients = "20201124_q30_consensusX7"
-    pkl_path_patients = sample_path + "/Rank0_data_mutation/q30_data_mutation.pkl"
+    pkl_path_patients = sample_path_capsid + "/Rank0_data_mutation/q30_data_mutation.pkl"
 
-    run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=True)
+    run_collect(samples_lst_patients, sample_path_capsid, pipeline_dir_patients, pkl_path_patients, patients=True)
 
 
 if __name__ == "__main__":
