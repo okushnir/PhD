@@ -151,12 +151,9 @@ def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None)
         label = sample.split("/")[-2]
         df_path = "%s/accungs_associations/all.txt" % sample
         df = load_file(df_path, label)
-        freqs_df = pd.from_pickel(pkl_path)
+        freqs_df = pd.read_pickle(pkl_path)
 
-        if patients == True:
-            label = sample
-        else:
-            label = label.replace('_', '-')
+        label = label.replace('_', '-')
         freqs_df = freqs_df.loc[freqs_df.label == label]
 
         merged_df = collect_cooccurs(freqs_df, df)
@@ -176,8 +173,8 @@ def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None)
 
 def main():
     """Passages"""
-    samples_lst_passages = ["p2_1", "p2_2", "p2_3", "p5_1", "p5_2", "p5_3", "p8_1", "p8_2", "p8_3", "p10_1", "p10_2", "p10_3",
-                    "p12_1", "p12_2", "p12_3"]
+    samples_lst_passages = ["p2_1", "p2_2", "p2_3", "p5_1", "p5_2", "p5_3", "p8_1", "p8_2", "p8_3", "p10_1", "p10_2",
+                            "p10_3", "p12_1", "p12_2", "p12_3"]
     sample_path_passages = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
     pipeline_dir_passages = "20201012_q38"
     pkl_path_passages = sample_path_passages + "/Rank0_data_mutation/q38_data_mutation.pkl"
