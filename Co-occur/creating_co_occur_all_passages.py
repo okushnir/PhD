@@ -17,6 +17,11 @@ from statannot import statannot
 import matplotlib.pyplot as plt
 from scipy import stats
 
+sns.set(font_scale=2)
+sns.set_style("ticks")
+sns.set_context("poster")
+sns.despine()
+
 def find_haplotype(pdser):
     global result
     for x in pdser:
@@ -138,15 +143,15 @@ def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region
         data_co_occur_all = pd.read_csv(sample_file, sep=",")
         data = data.append(data_co_occur_all, ignore_index=True)
     data = add_Protein_to_pd_df_func(data, region_lst)
-    grouped = data.groupby(["Pos"])
-    df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
-    df_co_occur = df_co_occur.merge(data, how="outer", on="Pos")
-    df_co_occur = df_co_occur.loc[df_co_occur.Group_Count >= 1]
-    df_co_occur["Patient"] = df_co_occur["label"].apply(lambda x: x.split("-")[1])
-    df_co_occur["New_Stretch"] = df_co_occur["Stretch"] + "_" + df_co_occur["Patient"]
-    df_co_occur.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
-    df_co_occur.to_pickle(output_dir + "/all_co_occur_protein.pkl")
-    return df_co_occur
+    data["Patient"] = data["label"].apply(lambda x: x.split("-")[1])
+    data["New_Stretch"] = data["Stretch"] + "_" + data["Patient"]
+    grouped2 = data.groupby(["New_Stretch"])
+    df_co_occur_stretch = pd.DataFrame(grouped2.size().reset_index(name="Group_Count"))
+    df_co_occur_stretch = df_co_occur_stretch.merge(data, how="left", on="New_Stretch")
+    df_co_occur_stretch = df_co_occur_stretch.loc[df_co_occur_stretch.Group_Count > 2]
+    df_co_occur_stretch.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
+    df_co_occur_stretch.to_pickle(output_dir + "/all_co_occur_protein.pkl")
+    return df_co_occur_stretch
 
 
 def grouped_co_occur(df, input_dir, experiment, output_dir, q):
@@ -165,8 +170,8 @@ def grouped_co_occur(df, input_dir, experiment, output_dir, q):
     df["Freq"] = df["Freq"].astype(str)
     df_co_occur_new = (df.groupby(["label", "Stretch"]).agg(lambda x: x.mean() if np.issubdtype(x.dtype, np.number)
     else ', '.join(x))).reset_index()
-    df_co_occur_new = df_co_occur_new[["label", "Stretch", "Pos", "Freq", "meandist", "Type", "Mutation_x"]]
-    df_co_occur_new = df_co_occur_new.rename(columns={"Freq": "Frequency", "Mutation_x": "Mutation"})
+    df_co_occur_new = df_co_occur_new[["label", "Stretch", "Pos", "Frequency_y", "meandist", "Type", "Mutation_x"]]
+    df_co_occur_new = df_co_occur_new.rename(columns={"Frequency_y": "Frequency", "Mutation_x": "Mutation"})
     if experiment == "capsid":
         # df_co_occur_new = df_co_occur_new.loc[df_co_occur_new.label != "Capsid-32-Ultra"]
         # df_co_occur_new = df_co_occur_new.loc[df_co_occur_new.label != "Free-32-Ultra"]
@@ -417,10 +422,39 @@ def plot_capsid_free_plot(df_regression, output_dir):
     g1.savefig(output_dir + "/capsid_adar_pref.png", dpi=300)
     plt.close()
 
-def plot_patient_plot(df_regression, output_dir):
-    g1 = sns.catplot(x="label", y="Stretch_Freq", data=df_regression, hue="5`_ADAR_Preference", kind="strip")
-    g1.set(yscale='log')
-    g1.savefig(output_dir + "/patient_adar_pref.png", dpi=300)
+
+def plot_patient_plot(data, output_dir, file_name):
+    sns.set(font_scale=1.2)
+    sns.set_style("ticks")
+    sns.set_context("paper")
+    sns.despine()
+    stretch_g1 = sns.catplot(x="label", y="Stretch_Freq", data=data,
+                             hue_order=[False, True], hue="Stretch_Type_Non-Synonymous", kind="strip",
+                                            palette=[sns.color_palette()[2], sns.color_palette()[6]])
+    # title
+    new_title = ''
+    stretch_g1._legend.set_title(new_title)
+    # replace labels
+    new_labels = ["Synonymous\nStretches", "Stretches\nWith Non-Synonymous"]
+    for t, l in zip(stretch_g1._legend.texts, new_labels): t.set_text(l)
+    stretch_g1.set(xlabel="")
+    stretch_g1.set(ylabel="Stretch Frequency")
+    stretch_g1.set(yscale="log")
+    stretch_g1.set(ylim=(10**-5, 2*10**-2))
+    plt.savefig(output_dir + "/" + file_name, dpi=300)
+    plt.close()
+
+def plot_editing_context_plot(data_all, output_dir, file_name):
+    label_order = ["Patient-1", "Patient-4", "Patient-5", "Patient-9", "Patient-16", "Patient-17", "Patient-20"]
+    g1 = sns.relplot(x="Pos", y="meandist", data=data_all, hue="Mutation", hue_order=["A>G", "U>C", "G>A", "C>U"],
+                     kind="scatter", style="Editing_context", style_order=["No editing context", "ADAR (antisense)",
+                                                                           "ADAR (sense)", "APOBEC3F"],
+                     markers={"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"},
+                     col="label", col_order=label_order, col_wrap=3, dashes=True)
+    g1.set(yscale="log")
+    g1.set(ylim=(10**-5, 7*10**-2))
+    g1.set(ylabel="Variant Frequency")
+    plt.savefig(output_dir + "/" + file_name, dpi=300)
     plt.close()
 
 
@@ -542,16 +576,16 @@ def main():
 
     region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
     data_all_patients = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    # data_all_patients = data_all_patients[data_all_patients["ADAR"] != "NO"]
-    g1 = sns.relplot(x="Pos", y="meandist", data=data_all_patients,
-                             hue="Mutation", hue_order=["A>G", "U>C", "G>A", "C>U"], kind="scatter",
-                             style="Editing_context", col="label", col_wrap=3)
-    plt.savefig(output_dir + "/Patient_Editing_context", dpi=300)
+    file_name = "Patient_Editing_context"
+    plot_editing_context_plot(data_all_patients, output_dir, file_name)
+    data_all_patients = data_all_patients[data_all_patients["ADAR"] != "No"]
+    file_name = "Patient_ADAR_context"
+    plot_editing_context_plot(data_all_patients, output_dir, file_name)
 
-    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    # data_all_patients = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
 
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir,experiment, output_dir, q=q.split("_")[0])
-
+    df_co_occur_new = grouped_co_occur(data_all_patients, input_dir,experiment, output_dir, q=q.split("_")[0])
+    plot_patient_plot(df_co_occur_new, output_dir, "Frequencies_of_label_Stertch_Type_Non-Synonymous")
 
     # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/" \
     #                "inosine_predict_context/data_filter.csv"
