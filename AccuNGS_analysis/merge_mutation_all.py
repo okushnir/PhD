@@ -30,10 +30,10 @@ def merge_mutation_all(all_mappings, mutation, freqs, output_dir):
     return grouped
 
 def main():
-    all_blast = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/all_parts.blast.cropped"
-    mutation_all = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/mutations_all.txt.cropped"
-    freqs_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38/p2-1.freqs"
-    output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/20201012_q38"
+    all_blast = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_4/20201124_q30_consensusX7/all_parts.blast.cropped"
+    mutation_all = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_4/20201124_q30_consensusX7/mutations_all.txt.cropped"
+    freqs_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_4/20201124_q30_consensusX7/Patient-4.freqs"
+    output_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_4/20201124_q30_consensusX7/"
     all_mappings = pd.read_csv(all_blast, names=["Read_id","Start","End"],sep="\t")
     mutation = pd.read_csv(mutation_all, names=["Pos", "Read_id", "Mutant", "Read_positions"], sep="\t")
     freqs = pd.read_csv(freqs_file, sep="\t")
