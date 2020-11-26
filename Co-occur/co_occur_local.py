@@ -166,7 +166,8 @@ def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None)
 
         file_name = sample + "/co_occur_all.csv"
         co_occur_df = merged_df[["Pos", "Base",  "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch",
-                                 "meandist", "Co-occurrences_identified", "ADAR_context",	"ADAR_reverse_context",	"Editing_context", "ADAR", "label"]]
+                                 "meandist", "Co-occurrences_identified", "APOBEC3G_context", "APOBEC3F_context",
+                                 "ADAR_context", "ADAR_reverse_context", "Editing_context", "ADAR", "label"]]
         co_occur_df = co_occur_df.sort_values(by=["meandist", "Stretch", "Pos"])
         co_occur_df.to_csv(file_name, sep=",", encoding='utf-8')
         print(merged_df)
