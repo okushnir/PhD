@@ -48,7 +48,7 @@ def weighted_varaint(x, **kws):
     var, count = map(np.asarray, zip(*x))
     return var.sum() / count.sum()
 
-def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst):
+def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir):
     """
     concatenate all co_occur files from co_occur pipeline
     :param input_dir: input directory path, where all the sub directory are located
@@ -59,7 +59,6 @@ def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region
     :return: pd.DataFrame with the stretches
     """
 
-    output_dir = input_dir + "/Co_occur_all_%s" % experiment
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -189,8 +188,9 @@ def regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, 
                                                      df_co_occur_new["5`_ADAR_Preference"])
     df_co_occur_new["Stretch_Type_Non-Synonymous"] = np.where((df_co_occur_new["Stretch_Type_Non-Synonymous"] != True) &
                                                               (df_co_occur_new["Stretch_Type_Non-Synonymous"] != False) &
-                                                              (df_co_occur_new["Type"] == "Synonymous"),
-                                                              "Non-Stretch_Synonymous",
+                                                              (df_co_occur_new["Type"] == "Synonymous") &
+                                                              (df_co_occur_new["Mutation"] == "A>G"),
+                                                              "Non-Stretch A>G Synonymous",
                                                               df_co_occur_new["Stretch_Type_Non-Synonymous"])
     df_co_occur_new["Stretch_Type_Non-Synonymous"] = np.where((df_co_occur_new["Stretch_Type_Non-Synonymous"] != True) &
                                                               (df_co_occur_new["Stretch_Type_Non-Synonymous"] != False) &
@@ -222,16 +222,16 @@ def plot_regression(df_co_occur_new, output_dir):
         df_co_occur_new_replica = df_co_occur_new[df_co_occur_new["replica"] == replica]
 
         df_co_occur_new_replica = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] != "Else"]
-        data_filter_grouped_high = df_co_occur_new_replica[df_co_occur_new_replica["5`_ADAR_Preference"] == "High"]
-        data_filter_grouped_high.to_csv(output_dir + "/data_filter_grouped_high_%s.csv" % str(replica), sep=",",
+        df_co_occur_new_replica_high = df_co_occur_new_replica[df_co_occur_new_replica["5`_ADAR_Preference"] == "High"]
+        df_co_occur_new_replica_high.to_csv(output_dir + "/df_co_occur_new_replica_high_%s.csv" % str(replica), sep=",",
                                         encoding='utf-8')
 
-        data_reg_syn = data_filter_grouped_high[
-            data_filter_grouped_high["Stretch_Type_Non-Synonymous"] == "Stretch_Synonymous"]
-        data_reg_non_stretch = data_filter_grouped_high[
-            data_filter_grouped_high["Stretch_Type_Non-Synonymous"] == "Non-Stretch_Synonymous"]
-        data_reg_non_syn = data_filter_grouped_high[
-            data_filter_grouped_high["Stretch_Type_Non-Synonymous"] == "Stretch_syn_non-syn"]
+        data_reg_syn = df_co_occur_new_replica_high[
+            df_co_occur_new_replica_high["Stretch_Type_Non-Synonymous"] == "Stretch_Synonymous"]
+        data_reg_non_stretch = df_co_occur_new_replica_high[
+            df_co_occur_new_replica_high["Stretch_Type_Non-Synonymous"] == "Non-Stretch A>G Synonymous"]
+        data_reg_non_syn = df_co_occur_new_replica_high[
+            df_co_occur_new_replica_high["Stretch_Type_Non-Synonymous"] == "Stretch_syn_non-syn"]
 
         slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(data_reg_syn['passage'],
                                                                             data_reg_syn
@@ -242,9 +242,9 @@ def plot_regression(df_co_occur_new, output_dir):
         slope3, intercept3, r_value3, p_value3, std_err3 = stats.linregress(data_reg_non_syn['passage'],
                                                                             data_reg_non_syn[
                                                                                 'Frequency'])
-        stretch_order = ["Stretch_Synonymous", "Non-Stretch_Synonymous", "Stretch_syn_non-syn"]
+        stretch_order = ["Stretch_Synonymous", "Non-Stretch A>G Synonymous", "Stretch_syn_non-syn"]
 
-        reg_plot = sns.lmplot(x="passage", y="Frequency", data=data_filter_grouped_high,
+        reg_plot = sns.lmplot(x="passage", y="Frequency", data=df_co_occur_new_replica_high,
                               col="Stretch_Type_Non-Synonymous",
                               fit_reg=True, legend=True, line_kws={'label': "Linear Reg"},
                               hue="Stretch_Type_Non-Synonymous", hue_order=stretch_order, col_order=stretch_order,
@@ -292,22 +292,22 @@ def plot_regression_stretches_adar_preferences(df_co_occur_new, output_dir):
     replica_lst = [1, 2, 3]
     for replica in replica_lst:
         df_co_occur_new_replica = df_co_occur_new[df_co_occur_new["replica"] == replica]
-        df_co_occur_new_replica["no_variants"] = df_co_occur_new_replica["Frequency"] * df_co_occur_new["Read_count"]
-        df_co_occur_new_replica["freq_and_weight"] = list(zip(df_co_occur_new_replica.no_variants, df_co_occur_new_replica.Read_count))
-        data_filter_grouped = df_co_occur_new_replica.groupby(["passage", "Stretch_Type_Non-Synonymous", "5`_ADAR_Preference"])[
-            "freq_and_weight"].agg(
-            lambda x: weighted_varaint(x))
-        data_filter_grouped = data_filter_grouped.reset_index()
-        data_filter_grouped = data_filter_grouped.rename(columns={"freq_and_weight": "Frequency"})
-        data_filter_grouped["Frequency"] = data_filter_grouped["Frequency"].astype(float)
+        # df_co_occur_new_replica["no_variants"] = df_co_occur_new_replica["Frequency"] * df_co_occur_new["Read_count"]
+        # df_co_occur_new_replica["freq_and_weight"] = list(zip(df_co_occur_new_replica.no_variants, df_co_occur_new_replica.Read_count))
+        # data_filter_grouped = df_co_occur_new_replica.groupby(["passage", "Stretch_Type_Non-Synonymous", "5`_ADAR_Preference"])[
+        #     "freq_and_weight"].agg(
+        #     lambda x: weighted_varaint(x))
+        # data_filter_grouped = data_filter_grouped.reset_index()
+        # data_filter_grouped = data_filter_grouped.rename(columns={"freq_and_weight": "Frequency"})
+        df_co_occur_new_replica["Frequency"] = df_co_occur_new_replica["Frequency"].astype(float)
 
-        data_reg_syn = data_filter_grouped[data_filter_grouped["Stretch_Type_Non-Synonymous"] == "Stretch_Synonymous"]
-        data_reg_non_stretch = data_filter_grouped[data_filter_grouped["Stretch_Type_Non-Synonymous"] == "Non-Stretch_Synonymous"]
-        data_reg_non_syn = data_filter_grouped[data_filter_grouped["Stretch_Type_Non-Synonymous"] == "Stretch_syn_non-syn"]
-        data_reg_non_adar_ag = data_filter_grouped[data_filter_grouped["Stretch_Type_Non-Synonymous"] ==
+        data_reg_syn = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] == "Stretch_Synonymous"]
+        data_reg_non_stretch = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] == "Non-Stretch A>G Synonymous"]
+        data_reg_non_syn = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] == "Stretch_syn_non-syn"]
+        data_reg_non_adar_ag = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] ==
                                                    "non-ADAR A>G Synonymous"]
 
-        data_reg_else = data_filter_grouped[data_filter_grouped["Stretch_Type_Non-Synonymous"] ==
+        data_reg_else = df_co_occur_new_replica[df_co_occur_new_replica["Stretch_Type_Non-Synonymous"] ==
                                                    "Else"]
 
         slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(data_reg_syn['passage'],
@@ -323,8 +323,8 @@ def plot_regression_stretches_adar_preferences(df_co_occur_new, output_dir):
                                                                                       data_reg_non_adar_ag[
                                                                                           'Frequency'])
 
-        stretch_order_adar = ["Stretch_Synonymous", "Non-Stretch_Synonymous", "Stretch_syn_non-syn", "non-ADAR A>G Synonymous"]
-        adar_plot = sns.lmplot(x="passage", y="Frequency", data=data_filter_grouped, col="Stretch_Type_Non-Synonymous",
+        stretch_order_adar = ["Stretch_Synonymous", "Non-Stretch A>G Synonymous", "Stretch_syn_non-syn", "non-ADAR A>G Synonymous"]
+        adar_plot = sns.lmplot(x="passage", y="Frequency", data=df_co_occur_new_replica, col="Stretch_Type_Non-Synonymous",
                                 fit_reg=True, legend=True, line_kws={'label': "Linear Reg"},
                               hue="5`_ADAR_Preference", hue_order=["High", "Intermediate", "Low", "None"],
                                col_order=stretch_order_adar)
@@ -365,6 +365,7 @@ def plot_regression_stretches_adar_preferences(df_co_occur_new, output_dir):
         leg._loc = 2
         L_labels = leg.get_texts()
         L_labels[0].set_text(label_line_4)
+        adar_plot.set(xlim=(0, 13))
         adar_plot.savefig(output_dir + "/new_adar_prefe_lmplot%s.png" % str(replica), dpi=300)
         plt.close()
 
@@ -379,86 +380,90 @@ def plot_capsid_free_plot(df_regression, output_dir):
 
 def main():
     """RV"""
-    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    # experiment = "passages"
-    # output_dir = input_dir + "/Co_occur_all_%s" % experiment
-    # prefix = "/p*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201012"
-    # q = "q38"
-    # """1"""
-    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    # data_all_passages = creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst)
-    #
-    # """2"""
-    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir)
-    #
-    # g1 = sns.boxplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
-    #                  order=[False, True])
-    # old_statannot.add_stat_annotation(g1, data=df_co_occur_new, x="Stretch_Type_Non-Synonymous", y="Stretch_Freq",
-    #                     boxPairList=[(False, True)], test='Mann-Whitney', textFormat='star',
-    #                                   loc='outside', verbose=2,
-    #                                   order=[False, True])
-    # g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
-    # g1.set(xlabel="")
-    # plt.tight_layout()
-    # plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous", dpi=300)
-    # plt.close()
-    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
-    #                "inosine_predict_context/data_filter.csv"
-    # """3"""
-    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, min_coverage)
-    # plot_regression(df_regression, output_dir)
-    # """4"""
-    # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
-    # plot_regression_stretches_adar_preferences(df_regression, output_dir)
-
-
-    """RV-Capsid_Free"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
-    experiment = "capsid"
-    output_dir = input_dir + "/Co_occur_all_%s" % experiment
-    prefix = "/*_3*"
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    experiment = "passages"
+    output_dir = input_dir + "/20201125Co_occur_all_%s" % experiment
+    prefix = "/p*"
     min_coverage = 5000
     virus = "RVB14"
     date = "20201012"
     q = "q38"
     """1"""
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst)
+    data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
 
     """2"""
     # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
     df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
-    #
-    # Plots
-    df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    g1 = sns.catplot(x="RNA", y="Stretch_Freq", data=df_co_occur_new, order=["Capsid", "Free"], kind="strip",
-                     col="replica")
-    g1.set(yscale='log')
-    g1.set(ylim=(10**-5, 10**-1))
+
+    g1 = sns.boxenplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+                     order=[False, True], color="0.8")
+    g1 = sns.stripplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+                     order=[False, True], palette=[sns.color_palette("muted")[3], sns.color_palette("muted")[4]])
+    old_statannot.add_stat_annotation(g1, data=df_co_occur_new, x="Stretch_Type_Non-Synonymous", y="Stretch_Freq",
+                        boxPairList=[(False, True)], test='Mann-Whitney', textFormat='star',
+                                      loc='outside', verbose=2,
+                                      order=[False, True])
+    g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
+    g1.set(xlabel="")
+    g1.set(ylabel = "Stretch Frequency")
+    g1.set(ylim= (0, 0.007))
     plt.tight_layout()
-    plt.savefig(output_dir + "/Frequencies_of_Stertch", dpi=300)
+    plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous", dpi=300)
     plt.close()
-    stretch_g1 = sns.catplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
-                             order=[False, True], hue="RNA", hue_order=["Capsid", "Free"], kind="strip", col="replica")
-    stretch_g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
-    stretch_g1.set(xlabel="")
-    plt.tight_layout()
-    plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous_replicas", dpi=300)
-
-    """3"""
-    df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/" \
+    df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
                    "inosine_predict_context/data_filter.csv"
-
-    df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    """3"""
+    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
     df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
+    plot_regression(df_regression, output_dir)
     """4"""
     # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
-    plot_capsid_free_plot(df_regression, output_dir)
+    plot_regression_stretches_adar_preferences(df_regression, output_dir)
+
+
+    # """RV-Capsid_Free"""
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
+    # experiment = "capsid"
+    # output_dir = input_dir + "/Co_occur_all_%s" % experiment
+    # prefix = "/*_3*"
+    # min_coverage = 5000
+    # virus = "RVB14"
+    # date = "20201012"
+    # q = "q38"
+    # """1"""
+    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst)
+    #
+    # """2"""
+    # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
+    # #
+    # # Plots
+    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    # g1 = sns.catplot(x="RNA", y="Stretch_Freq", data=df_co_occur_new, order=["Capsid", "Free"], kind="strip",
+    #                  col="replica")
+    # g1.set(yscale='log')
+    # g1.set(ylim=(10**-5, 10**-1))
+    # plt.tight_layout()
+    # plt.savefig(output_dir + "/Frequencies_of_Stertch", dpi=300)
+    # plt.close()
+    # stretch_g1 = sns.catplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+    #                          order=[False, True], hue="RNA", hue_order=["Capsid", "Free"], kind="strip", col="replica")
+    # stretch_g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
+    # stretch_g1.set(xlabel="")
+    # plt.tight_layout()
+    # plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous_replicas", dpi=300)
+    #
+    # """3"""
+    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/" \
+    #                "inosine_predict_context/data_filter.csv"
+    #
+    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
+    # """4"""
+    # # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
+    # plot_capsid_free_plot(df_regression, output_dir)
 
     """RV-Patients"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"

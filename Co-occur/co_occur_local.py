@@ -191,11 +191,11 @@ def main():
 
     """Patients"""
     samples_lst_patients = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
-    sample_path_capsid = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    sample_path_patients = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
     pipeline_dir_patients = "20201124_q30_consensusX7"
-    pkl_path_patients = sample_path_capsid + "/Rank0_data_mutation/q30_data_mutation.pkl"
+    pkl_path_patients = sample_path_patients + "/Rank0_data_mutation/q30_data_mutation.pkl"
 
-    run_collect(samples_lst_patients, sample_path_capsid, pipeline_dir_patients, pkl_path_patients, patients=True)
+    run_collect(samples_lst_patients, sample_path_patients, pipeline_dir_patients, pkl_path_patients, patients=True)
 
 
 if __name__ == "__main__":
