@@ -95,7 +95,7 @@ def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region
     # df_co_occur["Passage"] = np.where(df_co_occur["Passage"] == "RNA Control", 0, df_co_occur["Passage"])
     if experiment == "capsid":
         df_co_occur["replica"] = df_co_occur["label"].apply(lambda x: x.split("-")[1][1])
-        df_co_occur["replica"] = np.where(df_co_occur["replica"] == "3", "2", df_co_occur["replica"])
+        # df_co_occur["replica"] = np.where(df_co_occur["replica"] == "3", "2", df_co_occur["replica"])
     else:
         df_co_occur["replica"] = df_co_occur["label"].apply(lambda x: x.split("-")[-1])
 
@@ -103,9 +103,47 @@ def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region
     df_co_occur["Passage"] = df_co_occur["Passage"].astype(str)
     df_co_occur["replica"] = df_co_occur["replica"].astype(str)
     df_co_occur["New_Stretch"] = df_co_occur["Stretch"] + "_" + df_co_occur["Passage"] + "_" + df_co_occur["replica"]
-    df_co_occur["Passage"] = df_co_occur["Passage"].astype(int)
-    df_co_occur["replica"] = df_co_occur["replica"].astype(int)
+    if experiment == "patients":
+        df_co_occur["Passage"] = df_co_occur["Passage"].astype(str)
+        df_co_occur["replica"] = df_co_occur["replica"].astype(int)
+    else:
+        df_co_occur["Passage"] = df_co_occur["Passage"].astype(int)
+    df_co_occur.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
+    df_co_occur.to_pickle(output_dir + "/all_co_occur_protein.pkl")
+    return df_co_occur
 
+
+def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir):
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print("Creation of the directory %s failed" % output_dir)
+    else:
+        print("Successfully created the directory %s " % output_dir)
+
+    dirs = glob.glob(input_dir + prefix)
+    lst_srr = []
+    for passage in dirs:
+        file_path = glob.glob(passage + "/%s_%s/co_occur_all.csv" % (date, q))
+        lst_srr.append(file_path[0])
+    print(lst_srr)
+
+    columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch", "meandist",
+               "Co-occurrences_identified", "ADAR_context", "ADAR_reverse_context", "APOBEC3G_context",
+               "APOBEC3F_context", "Editing_context", "ADAR", "label"]
+    data = pd.DataFrame(columns=columns)
+    for i in range(len(lst_srr)):
+        sample_file = lst_srr[i]
+        print("loading " + sample_file + " as sample")
+        data_co_occur_all = pd.read_csv(sample_file, sep=",")
+        data = data.append(data_co_occur_all, ignore_index=True)
+    data = add_Protein_to_pd_df_func(data, region_lst)
+    grouped = data.groupby(["Pos"])
+    df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
+    df_co_occur = df_co_occur.merge(data, how="outer", on="Pos")
+    df_co_occur = df_co_occur.loc[df_co_occur.Group_Count >= 1]
+    df_co_occur["Patient"] = df_co_occur["label"].apply(lambda x: x.split("-")[1])
+    df_co_occur["New_Stretch"] = df_co_occur["Stretch"] + "_" + df_co_occur["Patient"]
     df_co_occur.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
     df_co_occur.to_pickle(output_dir + "/all_co_occur_protein.pkl")
     return df_co_occur
@@ -180,6 +218,8 @@ def regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, 
         df_adar["replica"] = df_adar["replica"].astype(int)
         df_co_occur_new = df_co_occur_new.merge(df_adar, "outer", on=["Pos", "label", "Mutation", "replica"])
         df_co_occur_new = df_co_occur_new[df_co_occur_new["label"] != "p8 Mixed Population"]
+    elif experiment == "patients":
+        df_co_occur_new = df_co_occur_new.merge(df_adar, "outer", on=["Pos", "label", "Mutation"])
     else:
         df_co_occur_new = df_co_occur_new.merge(df_adar, "outer", on=["Pos", "label", "Mutation", "passage", "replica"])
     df_co_occur_new["Mutation"] = df_co_occur_new["Mutation"].astype(str)
@@ -377,55 +417,61 @@ def plot_capsid_free_plot(df_regression, output_dir):
     g1.savefig(output_dir + "/capsid_adar_pref.png", dpi=300)
     plt.close()
 
+def plot_patient_plot(df_regression, output_dir):
+    g1 = sns.catplot(x="label", y="Stretch_Freq", data=df_regression, hue="5`_ADAR_Preference", kind="strip")
+    g1.set(yscale='log')
+    g1.savefig(output_dir + "/patient_adar_pref.png", dpi=300)
+    plt.close()
+
 
 def main():
     """RV"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    experiment = "passages"
-    output_dir = input_dir + "/20201125Co_occur_all_%s" % experiment
-    prefix = "/p*"
-    min_coverage = 5000
-    virus = "RVB14"
-    date = "20201012"
-    q = "q38"
-    """1"""
-    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    # experiment = "passages"
+    # output_dir = input_dir + "/20201125Co_occur_all_%s" % experiment
+    # prefix = "/p*"
+    # min_coverage = 5000
+    # virus = "RVB14"
+    # date = "20201012"
+    # q = "q38"
+    # """1"""
+    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    #
+    # """2"""
+    # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
+    #
+    # g1 = sns.boxenplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+    #                  order=[False, True], color="0.8")
+    # g1 = sns.stripplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+    #                  order=[False, True], palette=[sns.color_palette("muted")[3], sns.color_palette("muted")[4]])
+    # old_statannot.add_stat_annotation(g1, data=df_co_occur_new, x="Stretch_Type_Non-Synonymous", y="Stretch_Freq",
+    #                     boxPairList=[(False, True)], test='Mann-Whitney', textFormat='star',
+    #                                   loc='outside', verbose=2,
+    #                                   order=[False, True])
+    # g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
+    # g1.set(xlabel="")
+    # g1.set(ylabel = "Stretch Frequency")
+    # g1.set(ylim= (0, 0.007))
+    # plt.tight_layout()
+    # plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous", dpi=300)
+    # plt.close()
+    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+    #                "inosine_predict_context/data_filter.csv"
+    # """3"""
+    # # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
+    # plot_regression(df_regression, output_dir)
+    # """4"""
+    # # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
+    # plot_regression_stretches_adar_preferences(df_regression, output_dir)
 
-    """2"""
-    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
 
-    g1 = sns.boxenplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
-                     order=[False, True], color="0.8")
-    g1 = sns.stripplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
-                     order=[False, True], palette=[sns.color_palette("muted")[3], sns.color_palette("muted")[4]])
-    old_statannot.add_stat_annotation(g1, data=df_co_occur_new, x="Stretch_Type_Non-Synonymous", y="Stretch_Freq",
-                        boxPairList=[(False, True)], test='Mann-Whitney', textFormat='star',
-                                      loc='outside', verbose=2,
-                                      order=[False, True])
-    g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
-    g1.set(xlabel="")
-    g1.set(ylabel = "Stretch Frequency")
-    g1.set(ylim= (0, 0.007))
-    plt.tight_layout()
-    plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous", dpi=300)
-    plt.close()
-    df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
-                   "inosine_predict_context/data_filter.csv"
-    """3"""
-    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
-    plot_regression(df_regression, output_dir)
-    """4"""
-    # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
-    plot_regression_stretches_adar_preferences(df_regression, output_dir)
-
-
-    # """RV-Capsid_Free"""
+    """RV-Capsid_Free"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
     # experiment = "capsid"
-    # output_dir = input_dir + "/Co_occur_all_%s" % experiment
+    # output_dir = input_dir + "/20201126Co_occur_all_%s" % experiment
     # prefix = "/*_3*"
     # min_coverage = 5000
     # virus = "RVB14"
@@ -433,59 +479,88 @@ def main():
     # q = "q38"
     # """1"""
     # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst)
+    # # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
     #
     # """2"""
     # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
+    # # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
     # #
     # # Plots
     # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
     # g1 = sns.catplot(x="RNA", y="Stretch_Freq", data=df_co_occur_new, order=["Capsid", "Free"], kind="strip",
-    #                  col="replica")
+    #                  col="replica", palette=[sns.color_palette("muted")[3], sns.color_palette("muted")[4]],
+    #                  legend=True)
     # g1.set(yscale='log')
     # g1.set(ylim=(10**-5, 10**-1))
     # plt.tight_layout()
     # plt.savefig(output_dir + "/Frequencies_of_Stertch", dpi=300)
     # plt.close()
     # stretch_g1 = sns.catplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
-    #                          order=[False, True], hue="RNA", hue_order=["Capsid", "Free"], kind="strip", col="replica")
+    #                          order=[False, True], hue="RNA", hue_order=["Capsid", "Free"], kind="strip", col="replica",
+    #                                         palette=[sns.color_palette()[2], sns.color_palette()[6]],
+    #                          sharey=True)
     # stretch_g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
     # stretch_g1.set(xlabel="")
+    # stretch_g1.set(ylabel = "Stretch Frequency")
+    # stretch_g1.set(ylim= (0, 0.007))
+    #
     # plt.tight_layout()
+    #
+    # # g1 = sns.boxenplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+    # #                  order=[False, True], color="0.8", hue="RNA", hue_order=["Capsid", "Free"])
+    # # g1 = sns.stripplot(x="Stretch_Type_Non-Synonymous", y="Stretch_Freq", data=df_co_occur_new,
+    # #                  order=[False, True], hue="RNA", hue_order=["Capsid", "Free"], palette=[sns.color_palette("muted")[3], sns.color_palette("muted")[4]])
+    # # # old_statannot.add_stat_annotation(g1, data=df_co_occur_new, x="Stretch_Type_Non-Synonymous", y="Stretch_Freq",
+    # # #                     boxPairList=[(False, True)], test='Mann-Whitney', textFormat='star',
+    # # #                                   loc='outside', verbose=2,
+    # # #                                   order=[False, True])
+    # # g1.set(xticklabels=("Synonymous\nStretches", "Stretches\nWith Non-Synonymous"))
+    # # g1.set(xlabel="")
+    # # g1.set(ylabel = "Stretch Frequency")
     # plt.savefig(output_dir + "/Frequencies_of_Stertch_Type_Non-Synonymous_replicas", dpi=300)
     #
     # """3"""
     # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/" \
     #                "inosine_predict_context/data_filter.csv"
     #
-    # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
+    # # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
     # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
     # """4"""
     # # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
     # plot_capsid_free_plot(df_regression, output_dir)
 
     """RV-Patients"""
-    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    # output_dir = input_dir + "/Co_occur_patients"
-    # prefix = "/*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201017"
-    # q = "q30_consensusX5"
-    #
-    # region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
-    # data_all_passages = creating_co_occur_passages_df(input_dir, prefix, date, q, region_lst)
-    # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, output_dir, q=q.split("_")[0])
-    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    experiment = "patients"
+    output_dir = input_dir + "/20201126Co_occur_%s" % experiment
+    prefix = "/Patient_*"
+    min_coverage = 5000
+    virus = "RVA"
+    date = "20201124"
+    q = "q30_consensusX7"
+
+
+    region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
+    data_all_patients = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # data_all_patients = data_all_patients[data_all_patients["ADAR"] != "NO"]
+    g1 = sns.relplot(x="Pos", y="meandist", data=data_all_patients,
+                             hue="Mutation", hue_order=["A>G", "U>C", "G>A", "C>U"], kind="scatter",
+                             style="Editing_context", col="label", col_wrap=3)
+    plt.savefig(output_dir + "/Patient_Editing_context", dpi=300)
+
+    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+
+    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir,experiment, output_dir, q=q.split("_")[0])
+
+
+    # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/" \
     #                "inosine_predict_context/data_filter.csv"
-    #
+
     # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
-    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, min_coverage)
-    # # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
-    # df_regression_adar = regression_stretches_adar_preferences(df_regression, output_dir)
-    #
+    # df_regression = regression_stretches(df_co_occur_new, output_dir, df_adar_path, experiment, min_coverage)
+    # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
+    # plot_patient_plot(df_regression, output_dir)
+
     # """CV"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
     # prefix = "/CVB3_p*"
