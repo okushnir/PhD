@@ -156,7 +156,7 @@ def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None)
         label = label.replace('_', '-')
         freqs_df = freqs_df.loc[freqs_df.label == label]
 
-        merged_df = collect_cooccurs(freqs_df, df)
+        merged_df = collect_cooccurs(freqs_df, df, distance=5)
         merged_df = merged_df.loc[merged_df.Stretch != "-"]
         merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
                                     (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
@@ -182,10 +182,12 @@ def main():
 
     """Capsid"""
     samples_lst_capsid = ["Capsid_31_Amicon", "Capsid_32_Ultra", "Capsid_33_Ultra", "Free_31_Amicon", "Free_32_Ultra",
-                   "Free_33_Ultra", "Free_33_Amicon"]
-    sample_path_capsid = "/Volumes/STERNADILABHOME$/volume3/okushnir/20201008RV-202329127/merged/capsid"
+                   "Free_33_Ultra"]
+    sample_path_capsid = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
     pipeline_dir_capsid = "20201012_q38"
     pkl_path_capsid = sample_path_capsid + "/Rank0_data_mutation/q38_data_mutation.pkl"
+
+    run_collect(samples_lst_capsid, sample_path_capsid, pipeline_dir_capsid, pkl_path_capsid)
 
     """Patients"""
     samples_lst_patients = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
@@ -193,7 +195,7 @@ def main():
     pipeline_dir_patients = "20201124_q30_consensusX7"
     pkl_path_patients = sample_path_patients + "/Rank0_data_mutation/q30_data_mutation.pkl"
 
-    run_collect(samples_lst_patients, sample_path_patients, pipeline_dir_patients, pkl_path_patients, patients=True)
+    # run_collect(samples_lst_patients, sample_path_patients, pipeline_dir_patients, pkl_path_patients, patients=True)
 
 
 if __name__ == "__main__":
