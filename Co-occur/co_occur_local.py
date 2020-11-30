@@ -145,14 +145,18 @@ def collect_cooccurs(freqs_df, comutations_df, max_pval=10 ** -9, distance=10, a
 
 
 """4. Run collect_cooccurs and merge it to freqs file"""
-def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, patients=None):
+
+
+def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, experiment=None):
     for sample in samples_lst:
         sample = sample_path + "/%s/%s" % (sample, pipeline_dir)
         label = sample.split("/")[-2]
         df_path = "%s/accungs_associations/all.txt" % sample
         df = load_file(df_path, label)
         freqs_df = pd.read_pickle(pkl_path)
-
+        if experiment == "CVB3":
+            freqs_df["label"] = freqs_df["label"].apply(lambda x: x.split("-")[0])
+            freqs_df["label"] = "CVB3-" + freqs_df["label"]
         label = label.replace('_', '-')
         freqs_df = freqs_df.loc[freqs_df.label == label]
 
@@ -187,7 +191,7 @@ def main():
     pipeline_dir_capsid = "20201012_q38"
     pkl_path_capsid = sample_path_capsid + "/Rank0_data_mutation/q38_data_mutation.pkl"
 
-    run_collect(samples_lst_capsid, sample_path_capsid, pipeline_dir_capsid, pkl_path_capsid)
+    # run_collect(samples_lst_capsid, sample_path_capsid, pipeline_dir_capsid, pkl_path_capsid)
 
     """Patients"""
     samples_lst_patients = ["Patient_1", "Patient_4", "Patient_5", "Patient_9", "Patient_16", "Patient_17", "Patient_20"]
@@ -195,7 +199,15 @@ def main():
     pipeline_dir_patients = "20201124_q30_consensusX7"
     pkl_path_patients = sample_path_patients + "/Rank0_data_mutation/q30_data_mutation.pkl"
 
-    # run_collect(samples_lst_patients, sample_path_patients, pipeline_dir_patients, pkl_path_patients, patients=True)
+    # run_collect(samples_lst_patients, sample_path_patients, pipeline_dir_patients, pkl_path_patients, experiment="patients")
+
+    """CVB3"""
+    samples_lst_cvb = ["CVB3_p2", "CVB3_p5", "CVB3_p8", "CVB3_p10", "CVB3_p12"]
+    sample_path_cvb = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3"
+    pipeline_dir_cvb = "q38_3UTR_tmp"
+    pkl_path_cvb = sample_path_passages + "/Rank0_data_mutation/q38_data_mutation.pkl"
+
+    run_collect(samples_lst_cvb, sample_path_cvb, pipeline_dir_cvb, pkl_path_cvb, experiment="CVB3")
 
 
 if __name__ == "__main__":
