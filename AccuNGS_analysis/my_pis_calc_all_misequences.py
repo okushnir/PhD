@@ -11,7 +11,7 @@ sns.set_style("ticks")
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/"
-    output_dir = input_dir + "/20201120_plots"
+    output_dir = input_dir + "/20201130_plots"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -29,6 +29,8 @@ def main():
     data_capsid = data_capsid[data_capsid["label"] != "p8 Mixed Population"]
     data_capsid["Source"] = np.where((data_capsid["Source"] == "Capsid"), "RV\nCapsid", data_capsid["Source"])
     data_capsid["Source"] = np.where((data_capsid["Source"] == "Free"), "RV\nFree", data_capsid["Source"])
+    data_capsid = data_capsid[data_capsid["Pos"] > 3631.0]
+    data_capsid = data_capsid[data_capsid["Pos"] < 7212.0]
 
 
     data_passages = pd.read_pickle(input_dir + "passages/Rank0_data_mutation/q38_data_mutation.pkl")
@@ -36,22 +38,28 @@ def main():
     data_passages = data_passages[data_passages["replica"] != 3]
     data_passages = data_passages[data_passages["label"] != "RNA Control\nPrimer ID"]
     data_passages["Source"] = "RV\nPassages"
+    data_passages = data_passages[data_passages["Pos"] > 3631.0]
+    data_passages = data_passages[data_passages["Pos"] < 7212.0]
 
     data_patients = pd.read_pickle(input_dir + "patients/Rank0_data_mutation/q30_data_mutation.pkl")
     data_patients["Source"] = "RV\nPatients"
-    data_patients["Source"] = np.where((data_patients["label"] == "RNA Control\nPrimer ID"), "Control",
-                                       data_patients["Source"])
-    data_patients["label"] = np.where((data_patients["label"] == "RNA Control\nPrimer ID"), "5`RNA Control\nPrimer ID",
-                                       data_patients["label"])
+    data_patients = data_patients[data_patients["label"] != "RNA Control\nPrimer ID"]
+    # data_patients["Source"] = np.where((data_patients["label"] == "RNA Control\nPrimer ID"), "Control",
+    #                                    data_patients["Source"])
+    # data_patients["label"] = np.where((data_patients["label"] == "RNA Control\nPrimer ID"), "5`RNA Control\nPrimer ID",
+    #                                    data_patients["label"])
     data_patients["Source"] = np.where((data_patients["label"] == "p3 Cell Culture\nControl"), "RV\nPassages",
                                        data_patients["Source"])
-
-
+    data_patients = data_patients[data_patients["Pos"] > 447.0]
+    data_patients = data_patients[data_patients["Pos"] < 3311.0]
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
               "Consensus>Mutated_codon", "Source", "method", "passage", "replica"]
     data = pd.concat([data_capsid, data_passages, data_patients], sort=False)
     data = pd.DataFrame(data, columns=columns)
+    data["Pos"] = data["Pos"].astype(int)
+    data["Read_count"] = data["Read_count"].astype(float)
+    data["Frequency"] = data["Frequency"].astype(float)
     # print(data.to_string())
 
     pis_data = pis_calac.pis_calc(data, pivot_cols=["label", "Source"])
