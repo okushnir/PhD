@@ -31,7 +31,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     flatui = ["#3498db", "#9b59b6"]
-    date = 20201112
+    date = 20201130
     input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
     prefix = "inosine_predict_context"
 
@@ -107,6 +107,41 @@ def main():
     # # plt.show()
     # g4.savefig(plots_output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
     # plt.close()
+    data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
+    # data_filter_synonymous["ADAR_like"] = (data_filter_synonymous.Prev.str.contains('UpA') | data_filter_synonymous.Prev.str.contains('ApA'))
+    data_filter_synonymous["Mutation"] = np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+                                             (data_filter_synonymous["5`_ADAR_Preference"] == "High")),
+                                             "High\nADAR-like\nA>G", np.where(((data_filter_synonymous["Mutation"] == "A>G")
+                                                      & (data_filter_synonymous["5`_ADAR_Preference"] == "Intermediate")),
+                                                      "Intermediate\nADAR-like\nA>G",
+                                                      np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+                                                                (data_filter_synonymous["5`_ADAR_Preference"] == "Low")),
+                                                               "Low\nADAR-like\nA>G",
+                                                               data_filter_synonymous["Mutation"])))
+    data_filter_synonymous["Mutation_adar"] = np.where(((data_filter_synonymous["Mutation"] == "U>C") &
+                                             (data_filter_synonymous["3`_ADAR_Preference"] == "High")),
+                                             "High\nADAR-like\nU>C", np.where(((data_filter_synonymous["Mutation"] == "U>C")
+                                                      & (data_filter_synonymous["3`_ADAR_Preference"] == "Intermediate")),
+                                                      "Intermediate\nADAR-like\nU>C",
+                                                      np.where(((data_filter_synonymous["Mutation"] == "U>C") &
+                                                                (data_filter_synonymous["3`_ADAR_Preference"] == "Low")),
+                                                               "Low\nADAR-like\nU>C",
+                                                               data_filter_synonymous["Mutation"])))
+    mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
+                           "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
+
+    data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
+    catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
+                               order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
+                               hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
+                               legend=True)
+    catplot_adar.set_axis_labels("", "Variant Frequency")
+    catplot_adar.set(yscale='log')
+    catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
+    # catplot_adar.set_xticklabels(fontsize=8)
+    # plt.tight_layout()
+    plt.savefig(plots_output_dir + "/adar_pref_mutation_point_plot_OPV2.png", dpi=300)
+    plt.close()
 
     data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # data_filter_pass5 = data_filter_pass5[data_filter_pass5["pval"] < 0.01]
@@ -159,7 +194,7 @@ def main():
     plt.xticks(fontsize=7)
     sns.despine()
     plt.tight_layout()
-    plt.savefig(plots_output_dir + "/mutation_p5_box_plot_RVB14.png", dpi=300)
+    plt.savefig(plots_output_dir + "/mutation_p5_box_plot_OPV2.png", dpi=300)
     plt.close()
 
     linear_reg(data_filter, plots_output_dir, transition_order, type_order, virus="OPV2", replica=1, cu=None)
