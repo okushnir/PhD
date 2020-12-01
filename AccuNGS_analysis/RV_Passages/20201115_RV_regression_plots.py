@@ -36,7 +36,7 @@ def main():
     replica_lst = [1, 2, 3]
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201124_10000coverage_%s" % prefix
+    output_dir = input_dir + "20201201_10000coverage_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -350,7 +350,7 @@ def main():
     mutation_rate_df3 = pd.read_pickle(output_dir + "/mutation_rate3.pkl")
     mutation_rate_df_all = pd.concat([mutation_rate_df1, mutation_rate_df2, mutation_rate_df3], sort=False)
     mutation_rate_df_all.to_csv(output_dir + "/mutation_rate_all.csv", sep=',', encoding='utf-8')
-    mutation_rate_df_all_grouped = mutation_rate_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept"].agg(np.median)
+    mutation_rate_df_all_grouped = mutation_rate_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept", "p-val"].agg(np.median)
     mutation_rate_df_all_grouped = mutation_rate_df_all_grouped.reset_index()
     mutation_rate_df_all_grouped.to_csv(output_dir + "/mutation_rate_median.csv", sep=',', encoding='utf-8')
 
@@ -362,7 +362,7 @@ def main():
     mutation_rate_ag_df_all.to_pickle(output_dir + "/mutation_rate_ag_all.pkl")
 
     # mutation_rate_ag_df = pd.read_csv(output_dir + "/mutation_rate_ag_all.csv", sep=',', encoding='utf-8')
-    mutation_rate_ag_df_all_grouped = mutation_rate_ag_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept"].agg(np.median)
+    mutation_rate_ag_df_all_grouped = mutation_rate_ag_df_all.groupby(["Mutation", "Type"])["Slope", "Intercept", "p-val"].agg(np.median)
     mutation_rate_ag_df_all_grouped = mutation_rate_ag_df_all_grouped.reset_index()
     mutation_rate_ag_df_all_grouped.to_csv(output_dir + "/mutation_rate_ag_median.csv", sep=',', encoding='utf-8')
 
