@@ -160,7 +160,7 @@ def run_collect(samples_lst, sample_path, pipeline_dir, pkl_path, experiment=Non
         label = label.replace('_', '-')
         freqs_df = freqs_df.loc[freqs_df.label == label]
 
-        merged_df = collect_cooccurs(freqs_df, df, distance=5)
+        merged_df = collect_cooccurs(freqs_df, df, distance=2)
         merged_df = merged_df.loc[merged_df.Stretch != "-"]
         merged_df = merged_df.loc[(merged_df.Mutation == "U>C") | (merged_df.Mutation == "A>G") |
                                     (merged_df.Mutation == "G>A")| (merged_df.Mutation == "C>U")]
@@ -183,6 +183,7 @@ def main():
     sample_path_passages = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
     pipeline_dir_passages = "20201012_q38"
     pkl_path_passages = sample_path_passages + "/Rank0_data_mutation/q38_data_mutation.pkl"
+    run_collect(samples_lst_passages, sample_path_passages, pipeline_dir_passages, pkl_path_passages)
 
     """Capsid"""
     samples_lst_capsid = ["Capsid_31_Amicon", "Capsid_32_Ultra", "Capsid_33_Ultra", "Free_31_Amicon", "Free_32_Ultra",
@@ -207,7 +208,7 @@ def main():
     pipeline_dir_cvb = "q38_3UTR_tmp"
     pkl_path_cvb = sample_path_passages + "/Rank0_data_mutation/q38_data_mutation.pkl"
 
-    run_collect(samples_lst_cvb, sample_path_cvb, pipeline_dir_cvb, pkl_path_cvb, experiment="CVB3")
+    # run_collect(samples_lst_cvb, sample_path_cvb, pipeline_dir_cvb, pkl_path_cvb, experiment="CVB3")
 
 
 if __name__ == "__main__":

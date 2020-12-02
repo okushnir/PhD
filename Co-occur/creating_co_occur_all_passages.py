@@ -462,21 +462,41 @@ def plot_patient_plot(data, output_dir, file_name):
 
 
 def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_wrap, style_order, markers, hue_order,
-                              mutation_palette):
+                              mutation_palette, experiment=None):
+
     data_all = data_all.rename(columns={"label": "Label"})
+    kws = dict(data=data_all[data_all["meandist"] > 5 * 10 ** -4], legend=False)
     g1 = sns.relplot(x="Pos", y="Frequency", data=data_all, hue="Mutation", hue_order=hue_order,
                      kind="scatter", style="Editing_context", style_order=style_order,
                      markers=markers,
                      col="Label", col_order=label_order, col_wrap=col_wrap, palette=mutation_palette,
                      legend="brief", facet_kws={"legend_out": True})
-    g1.map_dataframe(sns.lineplot, x="Pos", y="meandist", data=data_all,
-                     units="New_Stretch", color="black", legend=False, estimator=None)
+    if experiment == "passages":
+        g1.map_dataframe(sns.lineplot, x="Pos", y="meanfreq",
+                         units="New_Stretch", color="black", estimator=None, zorder=4, **kws)
+    else:
+        g1.map_dataframe(sns.lineplot, x="Pos", y="meandist",
+                         units="New_Stretch", color="black", estimator=None, zorder=4, **kws)
+    for i in range(len(data_all["Label"].unique())+1):
+        ax = g1.axes.flat[i]
+        for line in ax.lines:
+            xs, ys = line.get_data()
+            wid = xs.max() - xs.min()
+            minimal_width = 400
+            if wid < minimal_width:
+                delta = (minimal_width - wid) / 2
+                y = ys.max()
+                new_xs = np.append(xs, xs.min() - delta)
+                new_xs = np.append(new_xs, xs.max() + delta)
+                new_ys = np.append(ys, y)
+                new_ys = np.append(new_ys, y)
+                line.set_data(new_xs, new_ys)
     g1.set(yscale="log")
     g1.set(ylim=(10**-5, 7*10**-2))
     g1.set(ylabel="Variant Frequency")
 
     leg = g1._legend
-    leg.set_bbox_to_anchor([1, 0.215])
+    leg.set_bbox_to_anchor([1, 0.2])
     plt.tight_layout()
     plt.savefig(output_dir + "/" + file_name, dpi=300)
     plt.close()
@@ -484,34 +504,39 @@ def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_
 
 def main():
     """RV"""
-    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    # experiment = "passages"
-    # output_dir = input_dir + "/20201129Co_occur_all_%s" % experiment
-    # prefix = "/p*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201012"
-    # q = "q38"
-    # """1"""
-    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    # # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    # data_all_passages = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    # label_order = ["p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1",
-    #                "p12-2", "p12-3"]
-    # style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
-    # style_adar = ["ADAR (antisense)", "ADAR (sense)"]
-    # markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
-    # markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
-    # hue_order = ["A>G", "U>C", "G>A", "C>U"]
-    # hue_order_adar = ["A>G", "U>C"]
-    # file_name = "Passages_Editing_context"
-    # plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_order,
-    #                           markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
-    # data_all_passages = data_all_passages[data_all_passages["ADAR"] != "No"]
-    # file_name = "Passages_ADAR_context"
-    # plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_adar,
-    #                           markers=markers_adar, hue_order=hue_order_adar,
-    #                           mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    experiment = "passages"
+    output_dir = input_dir + "/20201202Co_occur_all_%s" % experiment
+    prefix = "/p*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201012"
+    q = "q38"
+    """1"""
+    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    data_all_passages = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+
+    data_all_passages_grouped = data_all_passages.groupby(["label", "New_Stretch"])["Frequency"].agg(np.mean)
+    data_all_passages_grouped = data_all_passages_grouped.reset_index()
+    data_all_passages_grouped = data_all_passages_grouped.rename(columns={"Frequency": "meanfreq"})
+    data_all_passages = data_all_passages.merge(data_all_passages_grouped, how="left", on=["label", "New_Stretch"])
+    label_order = ["p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1",
+                   "p12-2", "p12-3"]
+    style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    hue_order_adar = ["A>G", "U>C"]
+    file_name = "Passages_Editing_context"
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_order,
+                              markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4), experiment=experiment)
+    data_all_passages = data_all_passages[data_all_passages["ADAR"] != "No"]
+    file_name = "Passages_ADAR_context"
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_adar,
+                              markers=markers_adar, hue_order=hue_order_adar,
+                              mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True), experiment=experiment)
     # """2"""
     # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
     # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
@@ -632,7 +657,7 @@ def main():
     """RV-Patients"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
     # experiment = "patients"
-    # output_dir = input_dir + "/20201129Co_occur_%s" % experiment
+    # output_dir = input_dir + "/20201202Co_occur_%s" % experiment
     # prefix = "/Patient_*"
     # min_coverage = 5000
     # virus = "RVA"
@@ -673,31 +698,31 @@ def main():
     # plot_patient_plot(df_regression, output_dir)
 
     """CV"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3"
-    experiment = "cvb"
-    output_dir = input_dir + "/20201130Co_occur_%s" % experiment
-    prefix = "/CVB3_p*"
-    min_coverage = 5000
-    virus = "CVB3"
-    date = "20201126"
-    q = "q38_3UTR_tmp"
-    region_lst = [742, 948, 1737, 2451, 3003, 3744, 4041, 5028, 5295, 5361, 5910, 7296]
-    data_all_cvb3 = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    label_order = ["CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
-    style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
-    style_adar = ["ADAR (antisense)", "ADAR (sense)"]
-    markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
-    markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
-    hue_order = ["A>G", "U>C", "G>A", "C>U"]
-    hue_order_adar = ["A>G", "U>C"]
-    file_name = "CVB3_Editing_context"
-    plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_order
-                              , markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
-    data_all_cvb3 = data_all_cvb3[data_all_cvb3["ADAR"] != "No"]
-    file_name = "CVB3_ADAR_context"
-    plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_adar,
-                              markers=markers_adar, hue_order=hue_order_adar,
-                              mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3"
+    # experiment = "cvb"
+    # output_dir = input_dir + "/20201202Co_occur_%s" % experiment
+    # prefix = "/CVB3_p*"
+    # min_coverage = 5000
+    # virus = "CVB3"
+    # date = "20201126"
+    # q = "q38_3UTR_tmp"
+    # region_lst = [742, 948, 1737, 2451, 3003, 3744, 4041, 5028, 5295, 5361, 5910, 7296]
+    # data_all_cvb3 = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # label_order = ["CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
+    # style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    # style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    # markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    # markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    # hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    # hue_order_adar = ["A>G", "U>C"]
+    # file_name = "CVB3_Editing_context"
+    # plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_order
+    #                           , markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
+    # data_all_cvb3 = data_all_cvb3[data_all_cvb3["ADAR"] != "No"]
+    # file_name = "CVB3_ADAR_context"
+    # plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_adar,
+    #                           markers=markers_adar, hue_order=hue_order_adar,
+    #                           mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
     #
     # """PV1"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney"
