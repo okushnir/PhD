@@ -200,7 +200,7 @@ def linear_reg(data_filter, output_dir, transition_order, type_order, virus, rep
     reg_plot.savefig(output_dir + output_file + "_lmplot_%s.png" % replica, dpi=300)
     plt.close()
 
-    columns = ["Mutation", "Type", "Slope", "Intercept", "pval"]
+    columns = ["Mutation", "Type", "Slope", "Intercept", "p-val"]
     mutation_rate_df = pd.DataFrame(columns=columns)
     mutation_rate_df.loc[0] = ["A>G", "Synonymous", slope1, intercept1, p_value1]
     mutation_rate_df.loc[1] = ["U>C", "Synonymous", slope2, intercept2, p_value2]

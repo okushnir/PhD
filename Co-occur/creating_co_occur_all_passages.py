@@ -16,6 +16,12 @@ from AccuNGS_analysis import old_statannot
 from statannot import statannot
 import matplotlib.pyplot as plt
 from scipy import stats
+from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+
+sns.set(font_scale=2)
+sns.set_style("ticks")
+sns.set_context("poster")
+sns.despine()
 
 def find_haplotype(pdser):
     global result
@@ -113,7 +119,7 @@ def creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region
     return df_co_occur
 
 
-def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir):
+def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir, stretch_size=2):
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -138,15 +144,30 @@ def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region
         data_co_occur_all = pd.read_csv(sample_file, sep=",")
         data = data.append(data_co_occur_all, ignore_index=True)
     data = add_Protein_to_pd_df_func(data, region_lst)
-    grouped = data.groupby(["Pos"])
-    df_co_occur = pd.DataFrame(grouped.size().reset_index(name="Group_Count"))
-    df_co_occur = df_co_occur.merge(data, how="outer", on="Pos")
-    df_co_occur = df_co_occur.loc[df_co_occur.Group_Count >= 1]
-    df_co_occur["Patient"] = df_co_occur["label"].apply(lambda x: x.split("-")[1])
-    df_co_occur["New_Stretch"] = df_co_occur["Stretch"] + "_" + df_co_occur["Patient"]
-    df_co_occur.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
-    df_co_occur.to_pickle(output_dir + "/all_co_occur_protein.pkl")
-    return df_co_occur
+    if experiment == "passages":
+        data["passage"] = data["label"].apply(lambda x: x.split("-")[0][1:])
+        data["replica"] = data["label"].apply(lambda x: x.split("-")[-1])
+        data["New_Stretch"] = data["Stretch"] + "_" + data["passage"] + "_" + data[
+            "replica"]
+    elif experiment == "capsid":
+        data["population"] = data["label"].apply(lambda x: x.split("-")[0])
+        data["replica"] = data["label"].apply(lambda x: x.split("-")[1][1])
+        data["New_Stretch"] = data["Stretch"] + "_" + data["population"] + "_" + data["replica"]
+    elif experiment == "patients":
+        data["Patient"] = data["label"].apply(lambda x: x.split("-")[1])
+        data["New_Stretch"] = data["Stretch"] + "_" + data["Patient"]
+    elif experiment == "cvb":
+        data["passage"] = data["label"].apply(lambda x: x.split("-")[1][1:])
+        data["replica"] = "1"
+        data["New_Stretch"] = data["Stretch"] + "_" + data["passage"] + "_" + data[
+            "replica"]
+    grouped2 = data.groupby(["New_Stretch"])
+    df_co_occur_stretch = pd.DataFrame(grouped2.size().reset_index(name="Group_Count"))
+    df_co_occur_stretch = df_co_occur_stretch.merge(data, how="left", on="New_Stretch")
+    df_co_occur_stretch = df_co_occur_stretch.loc[df_co_occur_stretch.Group_Count > stretch_size]
+    df_co_occur_stretch.to_csv(output_dir + "/all_co_occur_protein.csv", sep=",", encoding='utf-8')
+    df_co_occur_stretch.to_pickle(output_dir + "/all_co_occur_protein.pkl")
+    return df_co_occur_stretch
 
 
 def grouped_co_occur(df, input_dir, experiment, output_dir, q):
@@ -165,8 +186,8 @@ def grouped_co_occur(df, input_dir, experiment, output_dir, q):
     df["Freq"] = df["Freq"].astype(str)
     df_co_occur_new = (df.groupby(["label", "Stretch"]).agg(lambda x: x.mean() if np.issubdtype(x.dtype, np.number)
     else ', '.join(x))).reset_index()
-    df_co_occur_new = df_co_occur_new[["label", "Stretch", "Pos", "Freq", "meandist", "Type", "Mutation_x"]]
-    df_co_occur_new = df_co_occur_new.rename(columns={"Freq": "Frequency", "Mutation_x": "Mutation"})
+    df_co_occur_new = df_co_occur_new[["label", "Stretch", "Pos", "Frequency_y", "meandist", "Type", "Mutation_x"]]
+    df_co_occur_new = df_co_occur_new.rename(columns={"Frequency_y": "Frequency", "Mutation_x": "Mutation"})
     if experiment == "capsid":
         # df_co_occur_new = df_co_occur_new.loc[df_co_occur_new.label != "Capsid-32-Ultra"]
         # df_co_occur_new = df_co_occur_new.loc[df_co_occur_new.label != "Free-32-Ultra"]
@@ -417,27 +438,105 @@ def plot_capsid_free_plot(df_regression, output_dir):
     g1.savefig(output_dir + "/capsid_adar_pref.png", dpi=300)
     plt.close()
 
-def plot_patient_plot(df_regression, output_dir):
-    g1 = sns.catplot(x="label", y="Stretch_Freq", data=df_regression, hue="5`_ADAR_Preference", kind="strip")
-    g1.set(yscale='log')
-    g1.savefig(output_dir + "/patient_adar_pref.png", dpi=300)
+
+def plot_patient_plot(data, output_dir, file_name):
+    sns.set(font_scale=1.2)
+    sns.set_style("ticks")
+    sns.set_context("paper")
+    sns.despine()
+    stretch_g1 = sns.catplot(x="label", y="Stretch_Freq", data=data,
+                             hue_order=[False, True], hue="Stretch_Type_Non-Synonymous", kind="strip",
+                                            palette=[sns.color_palette()[2], sns.color_palette()[6]])
+    # title
+    new_title = ''
+    stretch_g1._legend.set_title(new_title)
+    # replace labels
+    new_labels = ["Synonymous\nStretches", "Stretches\nWith Non-Synonymous"]
+    for t, l in zip(stretch_g1._legend.texts, new_labels): t.set_text(l)
+    stretch_g1.set(xlabel="")
+    stretch_g1.set(ylabel="Stretch Frequency")
+    stretch_g1.set(yscale="log")
+    stretch_g1.set(ylim=(10**-5, 2*10**-2))
+    plt.savefig(output_dir + "/" + file_name, dpi=300)
+    plt.close()
+
+
+def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_wrap, style_order, markers, hue_order,
+                              mutation_palette, experiment=None):
+
+    data_all = data_all.rename(columns={"label": "Label"})
+    kws = dict(data=data_all[data_all["meandist"] > 5 * 10 ** -4], legend=False)
+    g1 = sns.relplot(x="Pos", y="Frequency", data=data_all, hue="Mutation", hue_order=hue_order,
+                     kind="scatter", style="Editing_context", style_order=style_order,
+                     markers=markers,
+                     col="Label", col_order=label_order, col_wrap=col_wrap, palette=mutation_palette,
+                     legend="brief", facet_kws={"legend_out": True})
+    if experiment == "passages":
+        g1.map_dataframe(sns.lineplot, x="Pos", y="meanfreq",
+                         units="New_Stretch", color="black", estimator=None, zorder=4, **kws)
+    else:
+        g1.map_dataframe(sns.lineplot, x="Pos", y="meandist",
+                         units="New_Stretch", color="black", estimator=None, zorder=4, **kws)
+    for i in range(len(data_all["Label"].unique())+1):
+        ax = g1.axes.flat[i]
+        for line in ax.lines:
+            xs, ys = line.get_data()
+            wid = xs.max() - xs.min()
+            minimal_width = 400
+            if wid < minimal_width:
+                delta = (minimal_width - wid) / 2
+                y = ys.max()
+                new_xs = np.append(xs, xs.min() - delta)
+                new_xs = np.append(new_xs, xs.max() + delta)
+                new_ys = np.append(ys, y)
+                new_ys = np.append(new_ys, y)
+                line.set_data(new_xs, new_ys)
+    g1.set(yscale="log")
+    g1.set(ylim=(10**-5, 7*10**-2))
+    g1.set(ylabel="Variant Frequency")
+
+    leg = g1._legend
+    leg.set_bbox_to_anchor([1, 0.2])
+    plt.tight_layout()
+    plt.savefig(output_dir + "/" + file_name, dpi=300)
     plt.close()
 
 
 def main():
     """RV"""
-    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    # experiment = "passages"
-    # output_dir = input_dir + "/20201125Co_occur_all_%s" % experiment
-    # prefix = "/p*"
-    # min_coverage = 5000
-    # virus = "RVB14"
-    # date = "20201012"
-    # q = "q38"
-    # """1"""
-    # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
+    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    experiment = "passages"
+    output_dir = input_dir + "/20201202Co_occur_all_%s" % experiment
+    prefix = "/p*"
+    min_coverage = 5000
+    virus = "RVB14"
+    date = "20201012"
+    q = "q38"
+    """1"""
+    region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
     # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    #
+    data_all_passages = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+
+    data_all_passages_grouped = data_all_passages.groupby(["label", "New_Stretch"])["Frequency"].agg(np.mean)
+    data_all_passages_grouped = data_all_passages_grouped.reset_index()
+    data_all_passages_grouped = data_all_passages_grouped.rename(columns={"Frequency": "meanfreq"})
+    data_all_passages = data_all_passages.merge(data_all_passages_grouped, how="left", on=["label", "New_Stretch"])
+    label_order = ["p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1",
+                   "p12-2", "p12-3"]
+    style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    hue_order_adar = ["A>G", "U>C"]
+    file_name = "Passages_Editing_context"
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_order,
+                              markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4), experiment=experiment)
+    data_all_passages = data_all_passages[data_all_passages["ADAR"] != "No"]
+    file_name = "Passages_ADAR_context"
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_adar,
+                              markers=markers_adar, hue_order=hue_order_adar,
+                              mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True), experiment=experiment)
     # """2"""
     # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
     # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
@@ -471,7 +570,7 @@ def main():
     """RV-Capsid_Free"""
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid"
     # experiment = "capsid"
-    # output_dir = input_dir + "/20201126Co_occur_all_%s" % experiment
+    # output_dir = input_dir + "/20201129Co_occur_all_%s" % experiment
     # prefix = "/*_3*"
     # min_coverage = 5000
     # virus = "RVB14"
@@ -479,11 +578,37 @@ def main():
     # q = "q38"
     # """1"""
     # region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
-    # # data_all_passages = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    #
+    # # data_all_capsid = creating_co_occur_passages_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # data_all_capsid = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # data_all_capsid["label"] = np.where(data_all_capsid["label"] == "Free-31-Amicon", "Free #1",
+    #                                     data_all_capsid["label"])
+    # data_all_capsid["label"] = np.where(data_all_capsid["label"] == "Free-32-Ultra", "Free #2",
+    #                                     data_all_capsid["label"])
+    # data_all_capsid["label"] = np.where(data_all_capsid["label"] == "Free-33-Ultra", "Free #3",
+    #                                     data_all_capsid["label"])
+    # data_all_capsid["label"] = np.where(data_all_capsid["label"] == "Capsid-31-Amicon", "Capsid #1",
+    #                                     data_all_capsid["label"])
+    # data_all_capsid["label"] = np.where(data_all_capsid["label"] == "Capsid-33-Ultra", "Capsid #3",
+    #                                     data_all_capsid["label"])
+    # label_order = ["Free #1", "Free #2", "Free #3", "Capsid #1", "Capsid #3"]
+    # style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    # style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    # markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    # markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    # hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    # hue_order_adar = ["A>G", "U>C"]
+    # file_name = "Capsid_Editing_context"
+    # plot_editing_context_plot(data_all_capsid, output_dir, file_name, label_order, col_wrap=3, style_order=style_order,
+    #                           markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
+    # data_all_capsid = data_all_capsid[data_all_capsid["ADAR"] != "No"]
+    # file_name = "Capsid_ADAR_context"
+    # plot_editing_context_plot(data_all_capsid, output_dir, file_name, label_order, col_wrap=3, style_order=style_adar,
+    #                           markers=markers_adar, hue_order=hue_order_adar,
+    #                           mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
+
     # """2"""
-    # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-    # # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
+    # # data_all_capsid = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    # # df_co_occur_new = grouped_co_occur(data_all_capsid, input_dir, experiment, output_dir, q)
     # #
     # # Plots
     # df_co_occur_new = pd.read_pickle(output_dir + "/all_co_occur_grouped.pkl")
@@ -530,28 +655,39 @@ def main():
     # plot_capsid_free_plot(df_regression, output_dir)
 
     """RV-Patients"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
-    experiment = "patients"
-    output_dir = input_dir + "/20201126Co_occur_%s" % experiment
-    prefix = "/Patient_*"
-    min_coverage = 5000
-    virus = "RVA"
-    date = "20201124"
-    q = "q30_consensusX7"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients"
+    # experiment = "patients"
+    # output_dir = input_dir + "/20201202Co_occur_%s" % experiment
+    # prefix = "/Patient_*"
+    # min_coverage = 5000
+    # virus = "RVA"
+    # date = "20201124"
+    # q = "q30_consensusX7"
+    #
+    #
+    # region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
+    # data_all_patients = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # label_order = ["Patient-1", "Patient-4", "Patient-5", "Patient-9", "Patient-16", "Patient-17", "Patient-20"]
+    # style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    # style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    # markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    # markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    # hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    # hue_order_adar = ["A>G", "U>C"]
+    # file_name = "Patient_Editing_context"
+    # plot_editing_context_plot(data_all_patients, output_dir, file_name, label_order, col_wrap=3, style_order=style_order
+    #                           , markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
+    # data_all_patients = data_all_patients[data_all_patients["ADAR"] != "No"]
+    # file_name = "Patient_ADAR_context"
+    # plot_editing_context_plot(data_all_patients, output_dir, file_name, label_order, col_wrap=3, style_order=style_adar,
+    #                           markers=markers_adar, hue_order=hue_order_adar,
+    #                           mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
+    #
+    # # data_all_patients = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
+    #
+    # df_co_occur_new = grouped_co_occur(data_all_patients, input_dir,experiment, output_dir, q=q.split("_")[0])
 
-
-    region_lst = [503, 709, 1495, 2197, 3094, 3523, 3808, 4771, 5005, 5068, 5617, 6728]
-    data_all_patients = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
-    # data_all_patients = data_all_patients[data_all_patients["ADAR"] != "NO"]
-    g1 = sns.relplot(x="Pos", y="meandist", data=data_all_patients,
-                             hue="Mutation", hue_order=["A>G", "U>C", "G>A", "C>U"], kind="scatter",
-                             style="Editing_context", col="label", col_wrap=3)
-    plt.savefig(output_dir + "/Patient_Editing_context", dpi=300)
-
-    # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
-
-    # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir,experiment, output_dir, q=q.split("_")[0])
-
+    # plot_patient_plot(df_co_occur_new, output_dir, "Frequencies_of_label_Stertch_Type_Non-Synonymous")
 
     # df_adar_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/" \
     #                "inosine_predict_context/data_filter.csv"
@@ -561,19 +697,32 @@ def main():
     # df_regression = pd.read_pickle(output_dir + "/all_co_occur_grouped_adar_preferences.pkl")
     # plot_patient_plot(df_regression, output_dir)
 
-    # """CV"""
-    # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
+    """CV"""
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV/merged/CVB3"
+    # experiment = "cvb"
+    # output_dir = input_dir + "/20201202Co_occur_%s" % experiment
     # prefix = "/CVB3_p*"
     # min_coverage = 5000
     # virus = "CVB3"
-    # date = "q38"
-    # q ="3UTR"
-    #
-    # control_file = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3/CVB3_RNA_Control/q38_3UTR/" \
-    #                "CVB3-RNA-Control.merged.with.mutation.type.freqs"
-    # label_control = "CVB3-RNA Control"
-    # control_dict = {label_control: control_file}
-    # creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, control_dict)
+    # date = "20201126"
+    # q = "q38_3UTR_tmp"
+    # region_lst = [742, 948, 1737, 2451, 3003, 3744, 4041, 5028, 5295, 5361, 5910, 7296]
+    # data_all_cvb3 = creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region_lst, output_dir)
+    # label_order = ["CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
+    # style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
+    # style_adar = ["ADAR (antisense)", "ADAR (sense)"]
+    # markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
+    # markers_adar = {"ADAR (antisense)": "<", "ADAR (sense)": ">"}
+    # hue_order = ["A>G", "U>C", "G>A", "C>U"]
+    # hue_order_adar = ["A>G", "U>C"]
+    # file_name = "CVB3_Editing_context"
+    # plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_order
+    #                           , markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4))
+    # data_all_cvb3 = data_all_cvb3[data_all_cvb3["ADAR"] != "No"]
+    # file_name = "CVB3_ADAR_context"
+    # plot_editing_context_plot(data_all_cvb3, output_dir, file_name, label_order, col_wrap=3, style_order=style_adar,
+    #                           markers=markers_adar, hue_order=hue_order_adar,
+    #                           mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True))
     #
     # """PV1"""
     # input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/Mahoney"
@@ -596,124 +745,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    # df_co_occur_new["Next_1line_Pos"] = df_co_occur_new["Pos"].shift(periods=-1)
-    # df_co_occur_new["Next_2line_Pos"] = df_co_occur_new["Pos"].shift(periods=-2)
-    # df_co_occur_new["Next_3line_Pos"] = df_co_occur_new["Pos"].shift(periods=-3)
-    # df_co_occur_new["Next_4line_Pos"] = df_co_occur_new["Pos"].shift(periods=-4)
-    # df_co_occur_new["Next_5line_Pos"] = df_co_occur_new["Pos"].shift(periods=-5)
-    # df_co_occur_new["Next_6line_Pos"] = df_co_occur_new["Pos"].shift(periods=-6)
-    # df_co_occur_new["Next_7line_Pos"] = df_co_occur_new["Pos"].shift(periods=-7)
-    # df_co_occur_new["Next_8line_Pos"] = df_co_occur_new["Pos"].shift(periods=-8)
-    # df_co_occur_new["Next_9line_Pos"] = df_co_occur_new["Pos"].shift(periods=-9)
-    # df_co_occur_new["Next_10line_Pos"] = df_co_occur_new["Pos"].shift(periods=-10)
-    # df_co_occur_new["Next_11line_Pos"] = df_co_occur_new["Pos"].shift(periods=-11)
-    # df_co_occur_new["Next_12line_Pos"] = df_co_occur_new["Pos"].shift(periods=-12)
-    # df_co_occur_new["Next_13line_Pos"] = df_co_occur_new["Pos"].shift(periods=-13)
-    # df_co_occur_new["Next_14line_Pos"] = df_co_occur_new["Pos"].shift(periods=-14)
-    # df_co_occur_new["Next_15line_Pos"] = df_co_occur_new["Pos"].shift(periods=-15)
-    # df_co_occur_new = df_co_occur_new.fillna("0, ")
-    #
-    # # finds the intersection group
-    # df_co_occur_new["Next_1line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_1line_Pos"]), axis=1)
-    # df_co_occur_new["Next_2line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_2line_Pos"]), axis=1)
-    # df_co_occur_new["Next_3line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_3line_Pos"]), axis=1)
-    # df_co_occur_new["Next_4line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_4line_Pos"]), axis=1)
-    # df_co_occur_new["Next_5line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_5line_Pos"]), axis=1)
-    #
-    # df_co_occur_new["Next_6line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_6line_Pos"]), axis=1)
-    # df_co_occur_new["Next_7line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_7line_Pos"]), axis=1)
-    # df_co_occur_new["Next_8line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_8line_Pos"]), axis=1)
-    # df_co_occur_new["Next_9line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_9line_Pos"]), axis=1)
-    # df_co_occur_new["Next_10line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_10line_Pos"]), axis=1)
-    #
-    # df_co_occur_new["Next_11line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_11line_Pos"]), axis=1)
-    # df_co_occur_new["Next_12line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_12line_Pos"]), axis=1)
-    # df_co_occur_new["Next_13line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_13line_Pos"]), axis=1)
-    # df_co_occur_new["Next_14line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_14line_Pos"]), axis=1)
-    # df_co_occur_new["Next_15line_Pos_filter"] = df_co_occur_new.apply(
-    #     lambda x: compare_2_strings(x["Pos"], x["Next_15line_Pos"]), axis=1)
-    #
-    #                 # df_co_occur_new["Next_line_Pos_filter"] = np.where((df_co_occur_new["Pos"] >= df_co_occur_new["Next_line_Pos"]), 1, 0)
-    # df_co_occur_new.to_csv(output_dir + "/all_co_occur_grouped_with_lines.csv", sep=",", encoding='utf-8')
-    #
-    # df_co_occur_hap = df_co_occur_new[(df_co_occur_new["Next_1line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_2line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_3line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_4line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_5line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_6line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_7line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_8line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_9line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_10line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_11line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_12line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_13line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_14line_Pos_filter"].map(len) >= 2) |
-    #                                   (df_co_occur_new["Next_15line_Pos_filter"].map(len) >= 2)]
-    #                 # df_co_occur_hap["Next_1line_Pos_filter"] = np.where(
-    #                 #     df_co_occur_hap.Next_1line_Pos_filter.map(lambda x: len(x)) >= 2, df_co_occur_hap["Next_1line_Pos_filter"], "[]")
-    #                 # df_co_occur_hap["Next_2line_Pos_filter"] = np.where(
-    #                 #     df_co_occur_hap.Next_2line_Pos_filter.map(lambda x: len(x)) >= 2, df_co_occur_hap["Next_2line_Pos_filter"], "[]")
-    #                 # df_co_occur_hap["Next_3line_Pos_filter"] = np.where(
-    #                 #     df_co_occur_hap.Next_3line_Pos_filter.map(lambda x: len(x)) >= 2, df_co_occur_hap["Next_3line_Pos_filter"], "[]")
-    #                 # df_co_occur_hap["Next_4line_Pos_filter"] = np.where(
-    #                 #     df_co_occur_hap.Next_4line_Pos_filter.map(lambda x: len(x)) >= 2, df_co_occur_hap["Next_4line_Pos_filter"], "[]")
-    # df_co_occur_hap["No_of_lines_to_jump"] = np.where(
-    #     df_co_occur_hap.Next_15line_Pos_filter.map(lambda x: len(x)) >= 2, 15, np.where(
-    #         df_co_occur_hap.Next_14line_Pos_filter.map(lambda x: len(x)) >= 2, 14, np.where(
-    #             df_co_occur_hap.Next_13line_Pos_filter.map(lambda x: len(x)) >= 2, 13, np.where(
-    #                 df_co_occur_hap.Next_12line_Pos_filter.map(lambda x: len(x)) >= 2, 12, np.where(
-    #                     df_co_occur_hap.Next_11line_Pos_filter.map(lambda x: len(x)) >= 2, 11, np.where(
-    #                         df_co_occur_hap.Next_10line_Pos_filter.map(lambda x: len(x)) >= 2, 10, np.where(
-    #                             df_co_occur_hap.Next_9line_Pos_filter.map(lambda x: len(x)) >= 2, 9, np.where(
-    #                                 df_co_occur_hap.Next_8line_Pos_filter.map(lambda x: len(x)) >= 2, 8, np.where(
-    #                                     df_co_occur_hap.Next_7line_Pos_filter.map(lambda x: len(x)) >= 2, 7, np.where(
-    #                                         df_co_occur_hap.Next_6line_Pos_filter.map(lambda x: len(x)) >= 2, 6, np.where(
-    #                                             df_co_occur_hap.Next_5line_Pos_filter.map(lambda x: len(x)) >= 2, 5, np.where(
-    #                                              df_co_occur_hap.Next_4line_Pos_filter.map(lambda x: len(x)) >= 2, 4, np.where(
-    #                                                 df_co_occur_hap.Next_3line_Pos_filter.map(lambda x: len(x)) >= 2, 3, np.where(
-    #                                                      df_co_occur_hap.Next_2line_Pos_filter.map(lambda x: len(x)) >= 2, 2, np.where(
-    #                                                         df_co_occur_hap.Next_1line_Pos_filter.map(lambda x: len(x)) >= 1, 1, 0)))))))))))))))
-    # df_jump = df_co_occur_hap[["Pos", "No_of_lines_to_jump", "label"]]
-    #
-    # # Concate df_co_occur_hap and df_co_occur_new base on Pos
-    #
-    #
-    # df_co_occur_hap["Max"] = df_co_occur_hap.apply(
-    #     lambda x: find_max_per_column(x["Next_2line_Pos_filter"], x["Next_1line_Pos_filter"]), axis=1)
-    # # df_co_occur_hap["Max"] = np.where(
-    # #     df_co_occur_hap.Max.map(lambda x: len(x)) > df_co_occur_hap.Next_3line_Pos_filter.map(
-    # #         lambda x: len(x)), df_co_occur_hap["Max"], df_co_occur_hap["Next_3line_Pos_filter"])
-    # # df_co_occur_hap["Max"] = np.where(
-    # #     df_co_occur_hap.Max.map(lambda x: len(x)) > df_co_occur_hap.Next_4line_Pos_filter.map(
-    # #         lambda x: len(x)), df_co_occur_hap["Max"], df_co_occur_hap["Next_4line_Pos_filter"])
-    # # df_co_occur_hap["Max"] = np.where(
-    # #     df_co_occur_hap.Max.map(lambda x: len(x)) > df_co_occur_hap.Next_5line_Pos_filter.map(
-    # #         lambda x: len(x)), df_co_occur_hap["Max"], df_co_occur_hap["Next_5line_Pos_filter"])
-    # # df_co_occur_hap["Max"] = df_co_occur_hap.apply(
-    # #     lambda x: find_max_per_column(x["Next_3line_Pos_filter"], x["Next_2line_Pos_filter"]), axis=1)
-    # # df_co_occur_hap["Max"] = df_co_occur_hap.apply(
-    # #     lambda x: find_max_per_column(x["Next_4line_Pos_filter"], x["Next_3line_Pos_filter"]), axis=1)
-    # # df_co_occur_hap["Max"] = df_co_occur_hap.Next_3line_Pos_filter.map(lambda x: len(x))#.max()
-    #  # TODO:find the bug for the last line in the group and group the groups
-    #
-    # df_co_occur_merge = df_co_occur_new.merge(df_jump, "left", on=["Pos", "label"])
-    #
-    # df_co_occur_merge.to_csv(output_dir + "/all_co_occur_merge.csv", sep=",", encoding='utf-8')
-    # print(df_co_occur_hap.to_string())

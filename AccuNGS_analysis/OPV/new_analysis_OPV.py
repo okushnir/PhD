@@ -53,7 +53,7 @@ def main():
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
     # filter based on pval<0.01 and Prob>0.95
     # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])

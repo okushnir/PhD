@@ -32,7 +32,7 @@ def weighted_varaint(x, **kws):
 
 def main():
     flatui = ["#3498db", "#9b59b6"]
-    date = "20201111"
+    date = "20201130"
     input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
     output_dir = input_dir + "/plots_q38_filtered/%s" % date
     try:
@@ -53,6 +53,7 @@ def main():
     """filter based on pval<0.01 and Prob>0.95"""
     # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
     # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    # data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
     data_filter["label"] = np.where(data_filter["label"] == "CVB3-RNA Control", "CVB3\nRNA Control", data_filter["label"])
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
@@ -93,7 +94,7 @@ def main():
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["passage"].astype(int)
-
+    data_filter["replica"] = 1
     linear_reg(data_filter, output_dir, transition_order, type_order, virus="CVB3", replica=1)
 
     # data_filter_grouped = data_filter.groupby(["label", "passage", "Type", "Mutation"])[

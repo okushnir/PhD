@@ -7,7 +7,7 @@ from AccuNGS_analysis import old_statannot
 import numpy as np
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 
-sns.set(font_scale=1.2)
+sns.set(font_scale=1.7)
 sns.set_style("ticks")
 sns.despine()
 
@@ -136,6 +136,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
     plt.tight_layout()
     plt.savefig(output_dir + "Boxenplot_Stat_synonymous_variant_frequency_in_%s.png" % virus, dpi=300)
     plt.close()
+
     if virus == "EnteroA":
         context_stat_plot = sns.catplot(x="ADAR_like", y="freq_and_weight", data=data_adar, palette=mutation_palette(2),
                                         col="Organism", kind="point", dodge=True, col_wrap=int(len(no_organism)/2),
@@ -189,7 +190,7 @@ def plots_for_srr(input_dir, output_dir, virus_path, virus):
 def main():
     input_dir = "/Users/odedkushnir/Projects/signatures/ADAR/SRA/"
     virus_path_dict = {"RV": "SRP006391_RV/", "PV": "SRP064468_PV/", "EnteroA": "ERP014415_Entero_A/"}
-    output_dir = input_dir + "20201118_plots/"
+    output_dir = input_dir + "20201201_plots/"
     try:
         os.mkdir(output_dir)
     except OSError:
