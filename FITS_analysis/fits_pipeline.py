@@ -44,10 +44,7 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage, qual
     all = pd.read_csv(input_dir + "%s_data_mutation.csv" % (quality))
     all["Pos"] = all["Pos"].astype(int)
     all = all[all["Pos"] >= start_position]
-    all["quantile"] = np.where(all["Frequency"] < all["Frequency"].quantile(0.25), 0, np.where(all["Frequency"] >
-                                                                                               all["Frequency"].
-                                                                                               quantile(0.75), 0, 1))
-    all = all[all["quantile"] == 1]
+
 
     """For NextSeq sequences"""
     # all = all[all["label"] != "RVB14-Next-RNA Control"]
@@ -66,6 +63,10 @@ def fits_data_construction(input_dir, output_dir, from_passage, to_passage, qual
     all["Type"] = all["Type"].fillna("NonCodingRegion")
     all["replica"] = all["replica"].astype(int)
     all = all[all["replica"] == replica_no]
+    all["quantile"] = np.where(all["Frequency"] < all["Frequency"].quantile(0.25), 0, np.where(all["Frequency"] >
+                                                                                               all["Frequency"].
+                                                                                               quantile(0.75), 0, 1))
+    all = all[all["quantile"] == 1]
 
     """Filtering - DONT USE"""
     # all["pval"] = all["pval"].fillna(1)
