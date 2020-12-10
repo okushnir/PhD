@@ -11,7 +11,7 @@ def sampling(fastq_file, out_file, choice_size):
     # record_df = pd.DataFrame(record_lst)
     # record_df = record_df.rename(columns={0: "record.id"})
     print(len(record_lst))
-    choice = np.random.choice(record_lst size=choice_size, replace=False)
+    choice = np.random.choice(record_lst, size=choice_size, replace=False)
     with open(out_file, "w") as out_handle:
         for record in SeqIO.parse(fastq_file, "fastq"):
             if record.id in choice:
@@ -25,15 +25,18 @@ def main():
     # fastq_file = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p10_1/test.fastq"
     # out_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p10_1/out.fastq"
     # print(choice)
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
+    input_dir = "/sternadi/home/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     fastq_lst = ["p2_1", "p2-2", "p2_3", "p5_1", "p5_2", "p5_3", "p8_1", "p8_2", "p8_3", "p10_2", "p10_3", "p12_1",
                  "p12_2", "p12_3"]
     for fastq in fastq_lst:
         sample = fastq.replace("_", "-")
+        # "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/p2_1/p2-1_merged.fastq"
+        fastq_path = input_dir + fastq + "/" + sample + "_merged.fastq"
         out_file = sample + "_fits.fastq"
-        out_path = input_dir + out_file
+        out_path = input_dir + fastq + "/" + out_file
         choice_size = 572,872
-        choice = sampling(fastq_file, out_path, choice_size)
+        choice = sampling(fastq_path, out_path, choice_size=choice_size)
+        print("Done: %s" % sample)
 
 if __name__ == "__main__":
     main()
