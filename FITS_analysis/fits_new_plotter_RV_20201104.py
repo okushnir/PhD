@@ -151,7 +151,7 @@ def qqplot(x, y, **kwargs):
     plt.scatter(xr, yr, **kwargs)
 
 def main():
-    date = "20201206"
+    date = "20201208"
     passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"
@@ -244,7 +244,7 @@ def main():
     # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
     g1.set_title("Mutation rate distribution")
     # g1.set_yticks(ticks=[10**-5, 10**-6, 0], minor=True)
-    g1.set_ylim(10 ** -9, 10 ** -1)
+    g1.set_ylim(10 ** -10, 10 ** -1)
     g1.legend(bbox_to_anchor=(1.05, 0.5), loc="center left", borderaxespad=0.)
     # sns.set(font_scale=0.6)
     plt.tight_layout()
