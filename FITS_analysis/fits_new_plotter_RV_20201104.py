@@ -151,7 +151,7 @@ def qqplot(x, y, **kwargs):
     plt.scatter(xr, yr, **kwargs)
 
 def main():
-    date = "20201214"
+    date = "20201215"
     passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"

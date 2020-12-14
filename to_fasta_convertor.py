@@ -12,8 +12,8 @@ def fasta_convert(file_path, output_path):
 
 
 def main():
-    file_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/ref/RVB14/HRVB14_from_pWR3.26_1-7254.fasta"
-    output_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/ref/RVB14/new_pWR3.26_1-7254.fasta"
+    file_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/ref/CVB3/CVB3_from_pT7CVB3_1-7399.fasta"
+    output_path = "/Volumes/STERNADILABHOME$/volume3/okushnir/ref/CVB3/new_CVB3_from_pT7CVB3_1-7399.fasta"
     fasta_convert(file_path, output_path)
 
 if __name__ == "__main__":

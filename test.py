@@ -1,8 +1,12 @@
 import os
 import numpy as np
 import pandas as pd
+from bio import SeqIO
 
-
+with open(fasta, "rU") as handle:
+    for record in SeqIO.parse(handle, "fasta"):
+        reference = record.seq
+        input_record = record
 # input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
 # mutation_lst = ["AG", "AG_adar", "AG_nonadar", "GA", "UC", "CU"]
 # fits_input_dir = input_dir + "fits/input/p1-p7/"
