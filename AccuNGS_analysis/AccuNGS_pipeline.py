@@ -163,12 +163,13 @@ def main():
     "Passages"
     passages_lst = ["p2_1", "p2_2", "p2_3", "p5_1", "p5_2", "p5_3", "p8_1", "p8_2", "p8_3", "p10_1", "p10_2", "p10_3",
                     "p12_1", "p12_2", "p12_3"]
+    q = "30"
     for passage in passages_lst:
         folders = glob.glob(input_dir_RV + "/%s/fits_pipeline" % passage)
         # print(folders)
 
         for d in folders:
-            output_dir = (d + "/20201213_q38")
+            output_dir = (d + "/20201214_q%s" % q)
             # print(output_dir)
             try:
                 os.mkdir(output_dir)
@@ -178,7 +179,7 @@ def main():
                 print("Successfully created the directory %s " % output_dir)
 
             cmd = "python /sternadi/home/volume1/shared/SternLab/pipeline_runner.py -i %s -o %s -r %s -NGS_or_Cirseq 2 " \
-                  "-rep 2  -q 38" % (d, output_dir, ref_rv)
+                  "-rep 2  -q %s" % (d, output_dir, ref_rv, q)
             pbs_runners.script_runner(cmd, alias="pipeline_d")
 
     """Clinical samples"""
