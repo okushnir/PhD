@@ -155,7 +155,7 @@ def main():
     input_dir_ATCG1 = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/ATCG1"
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
-    ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/HRVB14_from_pWR3.26_1-7212.fasta"
+    ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/pWR3.26_1-7254.fasta"
     ref_cv = "/sternadi/home/volume3/okushnir/ref/CVB3/CVB3_from_pT7CVB3_1-7399.fasta"
     ref_atcg1 = "/sternadi/home//volume3/okushnir/ref/human/NM_001614.5_ACTG1.fa"
     ref_flna1 = "/sternadi/home/volume3/okushnir/ref/human/FLNA.fasta"
@@ -163,7 +163,7 @@ def main():
     "Passages"
     passages_lst = ["p2_1", "p2_2", "p2_3", "p5_1", "p5_2", "p5_3", "p8_1", "p8_2", "p8_3", "p10_1", "p10_2", "p10_3",
                     "p12_1", "p12_2", "p12_3"]
-    q = "30"
+    q = "38"
     for passage in passages_lst:
         folders = glob.glob(input_dir_RV + "/%s/fits_pipeline" % passage)
         # print(folders)
