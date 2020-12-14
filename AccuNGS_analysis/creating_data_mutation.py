@@ -27,7 +27,7 @@ def creating_data_mutation_df(input_dir, prefix, min_coverage, virus, date, q, c
 
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14"
 
-    output_dir = input_dir + "/Rank0_data_mutation"
+    output_dir = input_dir + "/Fits_Rank0_data_mutation"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -193,10 +193,10 @@ def main():
     # for Local
     """RV"""
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
-    prefix = "/p*"
+    prefix = "/p*/fits_pipeline"
     min_coverage = 1000
     virus = "RVB14"
-    date = "20201012"
+    date = "20201214"
     q = "q38"
     control_file_rnd = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/RVB14_RNA-Control/q38_3UTR/" \
                        "RVB14-RNA-Control.merged.with.mutation.type.freqs"

@@ -151,21 +151,21 @@ def qqplot(x, y, **kwargs):
     plt.scatter(xr, yr, **kwargs)
 
 def main():
-    date = "20201208"
+    date = "20201214"
     passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"
     input_dir = "/Users/odedkushnir/Projects/fitness"
     rv_replica1_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
                                                    "replica1_syn/output/mutation/%s" % passages)
     rv_replica1_mutation_data["Virus"] = "RVB14 #1"
     rv_replica2_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
                                                    "replica2_syn/output/mutation/%s" % passages)
     rv_replica2_mutation_data["Virus"] = "RVB14 #2"
     rv_replica3_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once/"
+                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
                                                    "replica3_syn/output/mutation/%s" % passages)
     rv_replica3_mutation_data["Virus"] = "RVB14 #3"
     cv_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV"
