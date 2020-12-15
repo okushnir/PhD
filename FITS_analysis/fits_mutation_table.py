@@ -17,7 +17,7 @@ def mutation_table(mutation_rate):
 
 def main():
     input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
-                    "fits_all_pos_at_once_sampling/replica2_syn/output/mutation/p2-p12/"
+                    "fits_all_pos_at_once_sampling/replica3_syn/output/mutation/p2-p12/"
     file_lst = glob.glob(input_dir + "summary_mutation_syn_*.txt")
     columns = ["median", "MAD", "min", "max", "pval", "Mutation"]
     all_data = pd.DataFrame(columns=columns)
