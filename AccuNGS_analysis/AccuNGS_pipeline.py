@@ -155,7 +155,7 @@ def main():
     input_dir_ATCG1 = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/ATCG1"
     input_dir_FLNA = "/sternadi/home/volume3/okushnir/AccuNGS/190627_RV_CV/merged/FLNA"
 
-    ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/pWR3.26_1-7254.fasta"
+    ref_rv = "/sternadi/home/volume3/okushnir/ref/RVB14/pWR3.26_1-7212.fasta"
     ref_cv = "/sternadi/home/volume3/okushnir/ref/CVB3/CVB3_from_pT7CVB3_1-7417.fasta"
     ref_atcg1 = "/sternadi/home//volume3/okushnir/ref/human/NM_001614.5_ACTG1.fa"
     ref_flna1 = "/sternadi/home/volume3/okushnir/ref/human/FLNA.fasta"
