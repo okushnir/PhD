@@ -11,7 +11,9 @@ import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis.add_Protein_to_pd_df import *
 
+sns.set(font_scale=1.2)
 sns.set_style("ticks")
+sns.despine()
 
 
 class MinorSymLogLocator(Locator):
@@ -151,7 +153,7 @@ def qqplot(x, y, **kwargs):
     plt.scatter(xr, yr, **kwargs)
 
 def main():
-    date = "20201215"
+    date = "20201216"
     passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"
@@ -201,13 +203,13 @@ def main():
     all_data["Mutation"] = np.where(all_data["Mutation"] == "CU", "C>U", all_data["Mutation"])
     # all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
 
-    mutation_order = ["C>U", "G>A", "U>C", "A>G", "A>G\nADAR-like", "A>G\nNon-ADAR-like"]
+    mutation_order = ["C>U", "G>A", "U>C", "A>G"]#, "A>G\nADAR-like", "A>G\nNon-ADAR-like"]
     virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3"]
 
-    # q1 = all_data["Mutation rate"].quantile(0.25)
-    # q3 = all_data["Mutation rate"].quantile(0.75)
-    # all_data = all_data[all_data["Mutation rate"] > q1]
-    # all_data = all_data[all_data["Mutation rate"] < q3]
+    # q1 = all_data["Transition rate"].quantile(0.25)
+    # q3 = all_data["Transition rate"].quantile(0.75)
+    # all_data = all_data[all_data["Transition rate"] > q1]
+    # all_data = all_data[all_data["Transition rate"] < q3]
 
 
 
@@ -219,7 +221,7 @@ def main():
     g1 = sns.boxenplot(x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
                        hue_order=virus_order)
     g1.set_yscale("log")
-    g1.set_xticklabels(labels=mutation_order, fontsize=9)
+    # g1.set_xticklabels(labels=mutation_order, fontsize=8)
     # add_stat_annotation(g1, data=all_data, x="Mutation", y="Mutation rate", hue="Virus", order=mutation_order,
     #                     boxPairList=[(("A>G\nall", "RVB14"), ("A>G\nall", "CVB3")), (("A>G\nall", "RVB14"), ("A>G\nall",
     #                                                                                                          "OPV")),
@@ -237,19 +239,19 @@ def main():
     #                                  (("A>G\nall", "RVB14"),("G>A", "RVB14")), (("A>G\nall", "RVB14"), ("C>U", "RVB14"))],
     #                     test='Mann-Whitney', textFormat='star', loc='inside', verbose=2)
 
-    # g1.set(ylabel="Muataion rate (log10)")
+    # g1.set(ylabel="Muataion rate")
 
     # g1.set_yscale('symlog', linthreshy=1*10**-6)
     # yaxis = plt.gca().yaxis
     # yaxis.set_minor_locator(MinorSymLogLocator(1e-1))
-    g1.set_title("Mutation rate distribution")
+    # g1.set_title("Mutation rate distribution")
     # g1.set_yticks(ticks=[10**-5, 10**-6, 0], minor=True)
     g1.set_ylim(10 ** -10, 10 ** -1)
-    g1.legend(bbox_to_anchor=(1.05, 0.5), loc="center left", borderaxespad=0.)
+    g1.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), borderaxespad=0., fontsize=7)
     # sns.set(font_scale=0.6)
     plt.tight_layout()
     # plt.show()
-    plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=300)
+    plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=600)
     # plt.savefig(
     #     "/Users/odedkushnir/Google Drive/Studies/PhD/MyArticle-Signatures/plots/20191006_Mutation_rate.png",
     #     dpi=300)
