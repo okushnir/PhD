@@ -13,9 +13,10 @@ import pathlib
 from CirSeq.repeats_num_pandas import *
 from CirSeq.syn_nonsyn_mutations_func_mode import *
 from CirSeq.coverage import *
+from Utilities import sequnce_utilities
 
 from optparse import OptionParser
-# sns.set_context("talk")
+sns.set_context("paper")
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
 # sns.set_context("poster")
@@ -52,13 +53,12 @@ def distribution_graph(val, ax, virus):
 
     ind = np.arange(column_number)  # the x locations for the groups
     width = 0.35  # the width of the bars
-    rects1 = ax.bar(ind, val, width, color='DarkOrchid')
+    rects1 = ax.bar(ind, val, width, color=sns.color_palette("muted")[3])
     ax.set_ylabel('% of Reads')
     ax.set_xticks(ind)
     ax.set_xticklabels((virus, 'mRNA', 'rRNA'))
     labelsy = np.arange(0, 50, 10)
     ax.set_yticklabels(labelsy)
-    sns.set_style("darkgrid")
     ax.set_xlim(-0.5, 3)
     return ax
 
@@ -71,23 +71,23 @@ def repeat_len_graphs(dataframe, ax):
     :param ax:
     :return:
     """
-    sns.boxplot(x="count_nonzero", y="amax", data=dataframe, ax=ax, color='DarkOrchid')
+    sns.boxplot(x="count_nonzero", y="amax", data=dataframe, ax=ax, color=sns.color_palette("muted")[3])
     ax.set_xlabel("Number of Repeats")
     ax.set_ylabel("Repeat Length [bp]")
     labelsy = np.arange(0, 350, 50)
     labelsx = np.arange(1, 11, 1)
     ax.set_yticklabels(labelsy)
     ax.set_xticklabels(labelsx)
-    sns.set_style("darkgrid")
+    # sns.set_style("darkgrid")
     return ax
 
 #3. Reads length
 def read_len_graphs(dataframe, ax):
 
-    graph = sns.boxplot(x="count_nonzero", y="sum", data=dataframe, ax=ax, color='DarkOrchid')
+    graph = sns.boxplot(x="count_nonzero", y="sum", data=dataframe, ax=ax, color=sns.color_palette("muted")[3])
     ax.set_xlabel("Number of Repeats")
     ax.set_ylabel("Read Length [bp]")
-    sns.set_style("darkgrid")
+    # sns.set_style("darkgrid")
 
 
 #4. Amount of reads per repeat (Reads VS. Repeats Graph)
@@ -103,12 +103,11 @@ def read_repeat_graph(repeat_summery, ax):
     for key, val in repeat_summery.items():
         keys.append(key)
         values.append(val)
-    graph = ax.bar(keys, values, color='DarkOrchid')
+    graph = ax.bar(keys, values, color=sns.color_palette("muted")[3])
     ax.set_xlabel("Number of Repeats")
     ax.set_ylabel("Number of Reads")
     ax.set_xlim(min(keys)-0.5, max(keys)+0.5)
     ax.yaxis.get_major_formatter().set_powerlimits((0, 1))
-    sns.set_style("darkgrid")
     return ax
 
 
@@ -117,7 +116,7 @@ def coverage_graph(freqs, ax):
     data = parse_reads(freqs)
     pos = data[0]
     reads = data[1]
-    ax.plot(pos, reads, color='DarkOrchid')
+    ax.plot(pos, reads, color=sns.color_palette("muted")[3])
     ax.set_xlabel("Position In The Genome [bp]")
     ax.set_ylabel("Number Of Reads")
     sns.set_style("darkgrid")
@@ -147,7 +146,7 @@ def make_boxplot_mutation(data, ax):
     data['Frequency'] = data['abs_counts'].apply(lambda x: 1 if x == 0 else x) / data["Read_count"]
     data["Mutation"] = data["Ref"] + "->" + data["Base"]
     sns.set_palette(sns.color_palette("Paired", 12))
-    g1 = sns.boxplot(x="Mutation Type", y="Frequency", hue="Mutation", data=data,
+    g1 = sns.boxplot(x="Type", y="Frequency", hue="Mutation", data=data,
                      hue_order=["C->U", "U->C", "G->A", "A->G", "C->A", "G->U", "U->G", "U->A", "G->C", "A->C",
                                 "A->U", "C->G"], order=["Synonymous", "Non-Synonymous", "Premature Stop Codon"], ax=ax)
     g1.set(yscale="log")
@@ -198,7 +197,7 @@ def main():
     repeats length and the amount of reads per repeat"""
 
     if os.path.isfile(out_dir + '/repeat_summery.npy'):
-            repeats_dict = np.load(out_dir + '/repeat_summery.npy').item() #dict for read vs. repeat  , encoding='latin1'
+            repeats_dict = np.load(out_dir + '/repeat_summery.npy', allow_pickle=True).item() #dict for read vs. repeat  , encoding='latin1'
     else:
             print("Counting the repeats number")
             repeats_dict = get_repeats_num(tmp_cirseq_dir, out_dir) #dict for read vs. repeat
@@ -211,10 +210,10 @@ def main():
 
 
     """ 3. Adding mutation types to the freqs file"""
-    if not os.path.isfile(freqs_file + ".with.mutation.type.func2.freqs"):
-         append_mutation = find_mutation_type(freqs_file, ncbi_id)
+    if not os.path.isfile(freqs_file + ".with.mutation.type.freqs"):
+         append_mutation = sequnce_utilities.find_mutation_type(freqs_file, ncbi_id)
 
-    mutation_file = freqs_file + ".with.mutation.type.func2.freqs"
+    mutation_file = freqs_file.split(".")[0] + ".with.mutation.type.freqs"
     mutation_rates = freqs_to_dataframe(mutation_file)
 
 
@@ -222,9 +221,9 @@ def main():
 
 
     # RV
-    # values = (19.32, 40.52, 45.17)
+    values = (19.32, 40.52, 45.17)
     # CV
-    values = (96.09, 1.66, 1.18)
+    # values = (96.09, 1.66, 1.18)
 
     #   5. Subplots all relevant graph in subplots
     #      5.1. Distribution graph (=bowtie2 results)
@@ -269,6 +268,31 @@ def main():
     plt.savefig(out_plots_dir + 'all.png', dpi=300)
     plt.close("all")
     print("The Plot is ready in the folder")
+
+    sns.set(font_scale=1.2)
+    sns.set_style("ticks")
+    sns.despine()
+
+    fig, ax6 = plt.subplots()
+    re_re_g = read_repeat_graph(repeats_dict, ax6)
+    plt.tight_layout()
+    plt.savefig(out_plots_dir + "read_repeat_graph.png", dpu=300)
+    plt.close()
+
+    fig, ax7 = plt.subplots()
+    cg = coverage_graph(freqs_file, ax7)
+    plt.tight_layout()
+    plt.savefig(out_plots_dir + "coverage.png", dpu=300)
+    plt.close()
+
+    sns.set(font_scale=1.2)
+    sns.set_style("ticks")
+    sns.despine()
+
+    fig, ax8 = plt.subplots()
+    dis_g = distribution_graph(values, ax8, virus)
+    plt.tight_layout()
+    plt.savefig(out_plots_dir + "distribution_graph.png", dpu=300)
 
 if __name__ == "__main__":
     main()
