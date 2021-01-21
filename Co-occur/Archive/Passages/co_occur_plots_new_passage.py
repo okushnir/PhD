@@ -66,20 +66,13 @@ def main():
     data = data[data["numric_ref"] == 1]
     data["replica"] = data["replica"].astype(int)
     data = data.rename(columns={"replica":"Replica", "Pos":"Position"})
-    kde_plot_stretch = sns.kdeplot(data=data, x="Position", hue="Replica", bw_adjust=0.2, palette="Dark2")
+    kde_plot_stretch = sns.kdeplot(data=data, x="Position", y="Frequency", hue="Replica", bw_adjust=0.2, palette="Dark2")
     # kde_plot_stretch.set_title("ADAR-like stretches density across 12 passages of RV\nin 3 biological replicates")
+    kde_plot_stretch.set_yscale("log")
+    kde_plot_stretch.set_ylim(10**-5, 10**-1)
     plt.savefig(output_dir + "/kde_plot_withot_title.png", dpi=300)
     plt.close()
 
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument("virus", type=str, help="name of the virus, RVB14")
-    # parser.add_argument("passages", type=str, help="from which passages, p0-p12")
-    # parser.add_argument("without", type=int, help="Exclude passage no.")
-    # parser.add_argument("input_dir", type=str, help="the path to the directory that contains data_mutation.csv")
-    # parser.add_argument("quality", type=str, help="what is the prefix for the data_mutation.csv file; quality of the pipline ; for example: q38")
-    # parser.add_argument("mutation_type", type=str, help="all/syn")
-    # args = parser.parse_args(sys.argv[1:])
-    # main(args)
     main()
