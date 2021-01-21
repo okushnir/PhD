@@ -15,7 +15,11 @@ from CirSeq.syn_nonsyn_mutations_func_mode import *
 from CirSeq.coverage import *
 
 from optparse import OptionParser
-sns.set_context("talk")
+# sns.set_context("talk")
+sns.set(font_scale=1.2)
+sns.set_style("ticks")
+# sns.set_context("poster")
+sns.despine()
 start_time = time.time()
 
 
