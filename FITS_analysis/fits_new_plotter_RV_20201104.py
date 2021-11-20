@@ -176,7 +176,7 @@ def main():
     cv_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV"
                                                       "/merged/CVB3/Rank0_data_mutation/fits/output/mutation/%s" % passages)
     cv_mutation_data["Virus"] = "CVB3"
-    opv_mutataion_data = post_data_mutation("/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/OPV/fits/output/mutation/"
+    opv_mutataion_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/CirSeq/OPV/fits/output/mutation/"
                                             "all_positions_p1-p7")
     opv_mutataion_data["Virus"] = "OPV2"
 
