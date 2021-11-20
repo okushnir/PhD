@@ -246,12 +246,18 @@ def main():
                        hue_order=virus_order)
     g1.set_yscale("log")
     """[((cat1, hue1), (cat2, hue2)), ((cat3, hue3), (cat4, hue4))]"""
-    pairs = [(("A>G", "RVB14 #1"), ("C>U", "RVB14 #1")), (("A>G", "RVB14 #1"), ("G>A","RVB14 #1")), (("A>G", "RVB14 #1"), ("U>C","RVB14 #1")),
-             (("A>G", "RVB14 #2"), ("C>U", "RVB14 #2")), (("A>G", "RVB14 #2"), ("G>A","RVB14 #2")), (("A>G", "RVB14 #2"), ("U>C","RVB14 #2")),
-             (("C>U", "RVB14 #3"), ("A>G", "RVB14 #3")), (("A>G", "RVB14 #3"), ("G>A","RVB14 #3")), (("A>G", "RVB14 #3"), ("U>C","RVB14 #3")),
-             (("A>G", "CVB3"), ("C>U", "CVB3")), (("A>G", "CVB3"), ("G>A", "CVB3")), (("A>G", "CVB3"), ("U>C", "CVB3")),
-             (("A>G", "OPV2"), ("C>U", "OPV2")), (("A>G", "OPV2"), ("G>A", "OPV2")), (("A>G", "OPV2"), ("U>C", "OPV2")),
-             (("A>G", "PV1"), ("C>U", "PV1")), (("A>G", "PV1"), ("G>A", "PV1")), (("A>G", "PV1"), ("U>C", "PV1"))]
+    pairs = [(("A>G", "RVB14 #1"), ("C>U", "RVB14 #1")), (("A>G", "RVB14 #1"), ("G>A","RVB14 #1")),
+             (("A>G", "RVB14 #2"), ("C>U", "RVB14 #2")), (("A>G", "RVB14 #2"), ("G>A","RVB14 #2")),
+             (("A>G", "RVB14 #3"), ("C>U", "RVB14 #3")), (("A>G", "RVB14 #3"), ("G>A","RVB14 #3")),
+             (("A>G", "CVB3"), ("C>U", "CVB3")), (("A>G", "CVB3"), ("G>A", "CVB3")),
+             (("A>G", "OPV2"), ("C>U", "OPV2")), (("A>G", "OPV2"), ("G>A", "OPV2")),
+             (("A>G", "PV1"), ("C>U", "PV1")), (("A>G", "PV1"), ("G>A", "PV1")),
+             (("U>C", "RVB14 #1"), ("C>U", "RVB14 #1")), (("U>C", "RVB14 #1"), ("G>A","RVB14 #1")),
+             (("U>C", "RVB14 #2"), ("C>U", "RVB14 #2")), (("U>C", "RVB14 #2"), ("G>A","RVB14 #2")),
+             (("U>C", "RVB14 #3"), ("C>U", "RVB14 #3")), (("U>C", "RVB14 #3"), ("G>A","RVB14 #3")),
+             (("U>C", "CVB3"), ("C>U", "CVB3")), (("U>C", "CVB3"), ("G>A", "CVB3")),
+             (("U>C", "OPV2"), ("C>U", "OPV2")), (("U>C", "OPV2"), ("G>A", "OPV2")),
+             (("U>C", "PV1"), ("C>U", "PV1")), (("U>C", "PV1"), ("G>A", "PV1"))]
 
     # [(("A>G", "RVB14 #1"), ("A>G", "CVB3")), (("A>G", "RVB14"), ("A>G","OPV")),
     #  (("U>C", "RVB14"), ("U>C", "CVB3")), (("U>C", "RVB14"),("U>C", "OPV")),
@@ -260,7 +266,7 @@ def main():
 
     annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order,
                           hue="Virus", hue_order=virus_order)
-    annotator.configure(test='Mann-Whitney', text_format='star', loc='outside', comparisons_correction="Bonferroni")
+    annotator.configure(test='Mann-Whitney', text_format='star', loc='inside', comparisons_correction="Bonferroni")
     annotator.apply_and_annotate()
     # g1.set_xticklabels(labels=mutation_order, fontsize=8)
     # add_stat_annotation(g1, data=all_data, x="Mutation", y="Mutation rate", hue="Virus", order=mutation_order,
