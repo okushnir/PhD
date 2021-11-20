@@ -10,6 +10,8 @@ from scipy import stats
 import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis.add_Protein_to_pd_df import *
+from statannotations.Annotator import Annotator
+import datetime
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -152,8 +154,9 @@ def qqplot(x, y, **kwargs):
     _, yr = stats.probplot(y, fit=False)
     plt.scatter(xr, yr, **kwargs)
 
+
 def main():
-    date = "20210107"
+    date = datetime.date.today().strftime("%Y%m%d")
     passages = "p2-p12"
     opv_passages = "p1-p7"
     pv_passages = "p3-p8"
@@ -173,7 +176,7 @@ def main():
     cv_mutation_data = post_data_mutation("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/190627_RV_CV"
                                                       "/merged/CVB3/Rank0_data_mutation/fits/output/mutation/%s" % passages)
     cv_mutation_data["Virus"] = "CVB3"
-    opv_mutataion_data = post_data_mutation("/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/fits/output/mutation/"
+    opv_mutataion_data = post_data_mutation("/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/OPV/fits/output/mutation/"
                                             "all_positions_p1-p7")
     opv_mutataion_data["Virus"] = "OPV2"
 
@@ -212,16 +215,17 @@ def main():
     all_data["Mutation"] = np.where(all_data["Mutation"] == "CU", "C>U", all_data["Mutation"])
     # all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
 
-    mutation_order = ["A>G\nADAR-like", "A>G\nNon-ADAR-like"]#["C>U", "G>A", "U>C", "A>G"] #
-    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3"]#, "CVB3", "OPV2", "PV1"]
+    mutation_order = ["C>U", "G>A", "U>C", "A>G"] #["A>G\nADAR-like", "A>G\nNon-ADAR-like"]
+    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV2", "PV1"]
 
     # q1 = all_data["Transition rate"].quantile(0.25)
     # q3 = all_data["Transition rate"].quantile(0.75)
     # all_data = all_data[all_data["Transition rate"] > q1]
     # all_data = all_data[all_data["Transition rate"] < q3]
 
-
-
+    all_data = all_data[all_data["Mutation"] != "A>G\nADAR-like"]
+    all_data = all_data[all_data["Mutation"] != "A>G\nNon-ADAR-like"]
+    print(all_data.shape[0])
     #Plots
     plt.style.use('classic')
 
@@ -230,6 +234,22 @@ def main():
     g1 = sns.boxenplot(x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
                        hue_order=virus_order)
     g1.set_yscale("log")
+    pairs = [(("A>G", "RVB14 #1"), ("G>A", "RVB14 #1")), (("A>G", "RVB14 #1"), ("C>U","RVB14 #1")),
+             (("A>G", "RVB14 #2"), ("G>A", "RVB14 #2")), (("A>G", "RVB14 #2"), ("C>U","RVB14 #2")),
+             (("A>G", "RVB14 #3"), ("G>A", "RVB14 #3")), (("A>G", "RVB14 #3"), ("C>U","RVB14 #3")),
+             (("A>G", "CVB3"), ("G>A", "CVB3")), (("A>G", "CVB3"), ("C>U", "CVB3")),
+             (("A>G", "OPV2"), ("G>A", "OPV2")), (("A>G", "OPV2"), ("C>U", "OPV2")),
+             (("A>G", "PV1"), ("G>A", "PV1")), (("A>G", "PV1"), ("C>U", "PV1"))]
+
+    # [(("A>G", "RVB14 #1"), ("A>G", "CVB3")), (("A>G", "RVB14"), ("A>G","OPV")),
+    #  (("U>C", "RVB14"), ("U>C", "CVB3")), (("U>C", "RVB14"),("U>C", "OPV")),
+    #  (("G>A", "RVB14"), ("G>A", "CVB3")), (("G>A", "RVB14"),("G>A", "OPV")),
+    #  (("C>U", "RVB14"), ("C>U", "CVB3")), (("C>U", "RVB14"),("C>U", "OPV"))]
+
+    annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order,
+                          hue="Virus", hue_order=virus_order)
+    annotator.configure(test='Mann-Whitney', text_format='star', loc='outside')
+    annotator.apply_and_annotate()
     # g1.set_xticklabels(labels=mutation_order, fontsize=8)
     # add_stat_annotation(g1, data=all_data, x="Mutation", y="Mutation rate", hue="Virus", order=mutation_order,
     #                     boxPairList=[(("A>G\nall", "RVB14"), ("A>G\nall", "CVB3")), (("A>G\nall", "RVB14"), ("A>G\nall",
@@ -269,7 +289,6 @@ def main():
     #     dpi=300)
 
     plt.close()
-
 
 if __name__ == "__main__":
     main()
