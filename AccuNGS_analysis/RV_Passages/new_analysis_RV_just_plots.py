@@ -33,9 +33,11 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
+    """Local"""
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201201_%s" % prefix
+    output_dir = input_dir + "202112011_%s" % prefix
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -53,7 +55,7 @@ def main():
     #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
-    passage_order = ["0", "2", "5", "8", "10", "12"]
+    passage_order = ["p0", "p2", "p5", "p8", "p10", "p12"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
@@ -80,8 +82,7 @@ def main():
     #                  estimator=weighted_varaint,
     #                  orient="v", legend=True)
     # g2.set_axis_labels("", "Variant Frequency")
-    # g2.set(yscale='log')
-    # g2.set(ylim=(10 ** -6, 10 ** -2))
+    # g2.set(yscale='log', ylim=(10 ** -6, 10 ** -2), xlim=(0, 12, 2))
     # # g2.set_yticklabels(fontsize=12)
     # g2.set_xticklabels(fontsize=9, rotation=90)
     # plt.show()
@@ -92,15 +93,15 @@ def main():
     for replica in replica_lst:
         data_filter_replica = data_filter[data_filter["replica"] == replica]
         data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
+        data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation", order=passage_order,
                                 palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
         passage_g.set_axis_labels("Passage", "Variant Frequency")
-        passage_g.set(yscale='log')
-        passage_g.set(ylim=(10 ** -6, 10 ** -2))
+        passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2))
         passage_g.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
-    data_filter["passage"] = data_filter["passage"].astype(int)
+    # data_filter["passage"] = data_filter["passage"].astype(int)
     #
     #
     # g4 = sns.relplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", palette=mutation_palette(4),
@@ -136,11 +137,12 @@ def main():
                            "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
 
     data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
+    data_filter_synonymous["passage"] = "p" + data_filter_synonymous["passage"]
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
                                order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
-    catplot_adar.set_axis_labels("", "Variant Frequency")
+    catplot_adar.set_axis_labels("Passage", "Variant Frequency")
     catplot_adar.set(yscale='log')
     catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
     # catplot_adar.set_xticklabels(fontsize=8)

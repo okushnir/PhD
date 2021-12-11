@@ -34,7 +34,9 @@ def weighted_varaint(x, **kws):
 
 def main():
     replica_lst = [1, 2, 3]
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
+    """Local"""
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
     output_dir = input_dir + "20201201_10000coverage_%s" % prefix
     try:
@@ -207,7 +209,7 @@ def main():
                                            hue_order=adar_preference, height=4,
                                            style="5`_ADAR_Preference", style_order=["High", "Low", "Intermediate"])
 
-        position_mutation_ag.set_axis_labels("", "Variant Frequency")
+        position_mutation_ag.set_axis_labels("Genome Position", "Variant Frequency")
         position_mutation_ag.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
         position_mutation_ag.axes.flat[0].set_ylim(10 ** -5, 10 ** -2)
         plt.savefig(output_dir + "/ag_position_mutation_replica%s.png" % replica, dpi=300)

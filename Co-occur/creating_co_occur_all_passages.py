@@ -17,6 +17,7 @@ from statannot import statannot
 import matplotlib.pyplot as plt
 from scipy import stats
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+import datetime
 
 sns.set(font_scale=2)
 sns.set_style("ticks")
@@ -132,7 +133,7 @@ def creating_co_occur_patients_df(input_dir, experiment, prefix, date, q, region
     for passage in dirs:
         file_path = glob.glob(passage + "/%s_%s/co_occur_all.csv" % (date, q))
         lst_srr.append(file_path[0])
-    print(lst_srr)
+    # print(lst_srr)
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "Mutation", "Stretch", "meandist",
                "Co-occurrences_identified", "ADAR_context", "ADAR_reverse_context", "APOBEC3G_context",
@@ -461,8 +462,8 @@ def plot_patient_plot(data, output_dir, file_name):
     plt.close()
 
 
-def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_wrap, style_order, markers, hue_order,
-                              mutation_palette, experiment=None):
+def plot_editing_context_plot(data_all, output_dir, file_name, label_order, style_order, markers, hue_order,
+                              mutation_palette, experiment=None, col_wrap=None):
 
     data_all = data_all.rename(columns={"label": "Label"})
     kws = dict(data=data_all[data_all["meandist"] > 5 * 10 ** -4], legend=False)
@@ -477,7 +478,7 @@ def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_
     else:
         g1.map_dataframe(sns.lineplot, x="Pos", y="meandist",
                          units="New_Stretch", color="black", estimator=None, zorder=4, **kws)
-    for i in range(len(data_all["Label"].unique())+1):
+    for i in range(len(data_all["Label"].unique())):
         ax = g1.axes.flat[i]
         for line in ax.lines:
             xs, ys = line.get_data()
@@ -496,7 +497,7 @@ def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_
     g1.set(ylabel="Variant Frequency")
 
     leg = g1._legend
-    leg.set_bbox_to_anchor([1, 0.2])
+    leg.set_bbox_to_anchor([1, 0.25])
     plt.tight_layout()
     plt.savefig(output_dir + "/" + file_name, dpi=300)
     plt.close()
@@ -504,13 +505,17 @@ def plot_editing_context_plot(data_all, output_dir, file_name, label_order, col_
 
 def main():
     """RV"""
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages"
+    # Local
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages"
     experiment = "passages"
-    output_dir = input_dir + "/20201202Co_occur_all_%s" % experiment
+    today = datetime.date.today().strftime("%Y%m%d")
+    output_dir = input_dir + "/{0}_Co_occur_all_{1}".format(today, experiment)
     prefix = "/p*"
+    date = "20201012"
     min_coverage = 5000
     virus = "RVB14"
-    date = "20201012"
+
     q = "q38"
     """1"""
     region_lst = [629, 835, 1621, 2329, 3196, 3634, 3925, 4915, 5170, 5239, 5785, 7165]
@@ -521,8 +526,9 @@ def main():
     data_all_passages_grouped = data_all_passages_grouped.reset_index()
     data_all_passages_grouped = data_all_passages_grouped.rename(columns={"Frequency": "meanfreq"})
     data_all_passages = data_all_passages.merge(data_all_passages_grouped, how="left", on=["label", "New_Stretch"])
-    label_order = ["p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1",
-                   "p12-2", "p12-3"]
+    # label_order = ["p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1",
+    #                "p12-2", "p12-3"]
+    label_order = ["p2-3", "p5-3", "p8-3", "p10-3", "p12-3"]
     style_order = ["No editing context", "ADAR (antisense)", "ADAR (sense)", "APOBEC3F"]
     style_adar = ["ADAR (antisense)", "ADAR (sense)"]
     markers = {"No editing context": "o", "ADAR (antisense)": "<", "ADAR (sense)": ">", "APOBEC3F": "*"}
@@ -530,13 +536,15 @@ def main():
     hue_order = ["A>G", "U>C", "G>A", "C>U"]
     hue_order_adar = ["A>G", "U>C"]
     file_name = "Passages_Editing_context"
-    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_order,
-                              markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4), experiment=experiment)
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, style_order=style_order,
+                              markers=markers, hue_order=hue_order, mutation_palette=mutation_palette(4),
+                              experiment=experiment, col_wrap=3)
     data_all_passages = data_all_passages[data_all_passages["ADAR"] != "No"]
     file_name = "Passages_ADAR_context"
-    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, col_wrap=5, style_order=style_adar,
+    plot_editing_context_plot(data_all_passages, output_dir, file_name, label_order, style_order=style_adar,
                               markers=markers_adar, hue_order=hue_order_adar,
-                              mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True), experiment=experiment)
+                              mutation_palette=mutation_palette(2, adar=True, ag=True, uc=True), experiment=experiment,
+                              col_wrap=3)
     # """2"""
     # # data_all_passages = pd.read_pickle(output_dir + "/all_co_occur_protein.pkl")
     # df_co_occur_new = grouped_co_occur(data_all_passages, input_dir, experiment, output_dir, q)
