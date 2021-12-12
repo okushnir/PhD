@@ -494,7 +494,7 @@ def plot_editing_context_plot(data_all, output_dir, file_name, label_order, styl
                 line.set_data(new_xs, new_ys)
     g1.set(yscale="log")
     g1.set(ylim=(10**-5, 7*10**-2))
-    g1.set(ylabel="Variant Frequency")
+    g1.set(ylabel="Variant Frequency", xlabel="Genome position")
 
     leg = g1._legend
     leg.set_bbox_to_anchor([1, 0.25])

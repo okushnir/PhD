@@ -117,7 +117,7 @@ def coverage_graph(freqs, ax):
     pos = data[0]
     reads = data[1]
     ax.plot(pos, reads, color=sns.color_palette("muted")[3])
-    ax.set_xlabel("Position In The Genome [bp]")
+    ax.set_xlabel("Genome position")
     ax.set_ylabel("Number Of Reads")
     sns.set_style("darkgrid")
     ax.set_xlim(0, (len(pos)+10))
@@ -157,18 +157,20 @@ def make_boxplot_mutation(data, ax):
 
 def main():
     # for Cluster
-    parser = OptionParser("usage: %prog [options]")
-    parser.add_option("-f", "--freqs_file_path", dest="freqs_file_path", help="path of the freqs file")
-    parser.add_option("-v", "--virus", dest="virus", help="Virus name: CVB3 for CV; RVB14 for RV; PV for PV")
-    (options, args) = parser.parse_args()
-
-    freqs_file = options.freqs_file_path
-    virus = options.virus
+    # parser = OptionParser("usage: %prog [options]")
+    # parser.add_option("-f", "--freqs_file_path", dest="freqs_file_path", help="path of the freqs file")
+    # parser.add_option("-v", "--virus", dest="virus", help="Virus name: CVB3 for CV; RVB14 for RV; PV for PV")
+    # (options, args) = parser.parse_args()
+    #
+    # freqs_file = options.freqs_file_path
+    # virus = options.virus
 
     #for Local
 
     # freqs_file = 'C:/Users/Oded/Google Drive/Studies/PhD/test/CVB3-p2.freqs'
     # virus = "CVB3"
+    freqs_file = "/Users/odedkushnir/PhD_Projects/fitness/CirSeq/RV/20171221_q30r3_blastn/RVB14-p2.freqs"
+    virus = "RVB14"
 
 
 
@@ -178,8 +180,8 @@ def main():
     for i in path:
         out_dir += str(i + '/')
     tmp_cirseq_dir = out_dir + 'tmp/'
-    pathlib.Path(out_dir + 'plots/').mkdir(parents=True, exist_ok=True)
-    out_plots_dir = out_dir + 'plots/'
+    pathlib.Path(out_dir + '20211212plots/').mkdir(parents=True, exist_ok=True)
+    out_plots_dir = out_dir + '20211212plots/'
 
     if virus == "CVB3":
         ncbi_id ="M16572"
@@ -203,15 +205,15 @@ def main():
             repeats_dict = get_repeats_num(tmp_cirseq_dir, out_dir) #dict for read vs. repeat
 
     if os.path.isfile(out_dir + '/length_df.csv'):
-            read_and_repeat_length = pd.DataFrame.from_csv(out_dir + '/length_df.csv', sep=',', encoding='utf-8') #pandas_df for read and repeat length
+            read_and_repeat_length = pd.read_csv(out_dir + '/length_df.csv', sep=',', encoding='utf-8') #pandas_df for read and repeat length
     else:
             print("Getting the read and repeat length")
             read_and_repeat_length = get_read_and_repeat_length(tmp_cirseq_dir, out_dir) #pandas_df for read and repeat length
 
 
     """ 3. Adding mutation types to the freqs file"""
-    if not os.path.isfile(freqs_file + ".with.mutation.type.freqs"):
-         append_mutation = sequnce_utilities.find_mutation_type(freqs_file, ncbi_id)
+    # if not os.path.isfile(freqs_file + ".with.mutation.type.freqs"):
+    #      append_mutation = sequnce_utilities.find_mutation_type(freqs_file, ncbi_id)
 
     mutation_file = freqs_file.split(".")[0] + ".with.mutation.type.freqs"
     mutation_rates = freqs_to_dataframe(mutation_file)

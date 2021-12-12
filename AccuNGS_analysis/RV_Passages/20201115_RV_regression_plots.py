@@ -209,7 +209,7 @@ def main():
                                            hue_order=adar_preference, height=4,
                                            style="5`_ADAR_Preference", style_order=["High", "Low", "Intermediate"])
 
-        position_mutation_ag.set_axis_labels("Genome Position", "Variant Frequency")
+        position_mutation_ag.set_axis_labels("Genome position", "Variant Frequency")
         position_mutation_ag.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
         position_mutation_ag.axes.flat[0].set_ylim(10 ** -5, 10 ** -2)
         plt.savefig(output_dir + "/ag_position_mutation_replica%s.png" % replica, dpi=300)
