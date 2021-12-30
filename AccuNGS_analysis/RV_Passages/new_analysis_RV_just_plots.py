@@ -12,6 +12,7 @@ import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+from datetime import datetime
 
 
 sns.set(font_scale=1.2)
@@ -37,7 +38,8 @@ def main():
     """Local"""
     input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "202112011_%s" % prefix
+    date = datetime.date.today().strftime("%Y%m%d")
+    output_dir = input_dir + "{0}_{1}".format(date, prefix)
     try:
         os.mkdir(output_dir)
     except OSError:
