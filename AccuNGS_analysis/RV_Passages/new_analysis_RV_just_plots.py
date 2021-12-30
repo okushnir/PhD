@@ -63,6 +63,7 @@ def main():
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     adar_preference = ["High", "Intermediate", "Low"]
+    plus_minus = u"\u00B1"
 
     # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
     #                  palette="Set2",
@@ -97,7 +98,7 @@ def main():
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation", order=passage_order,
                                 palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
-        passage_g.set_axis_labels("Passage", "Variant Frequency")
+        passage_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2))
         passage_g.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
@@ -142,7 +143,7 @@ def main():
                                order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
-    catplot_adar.set_axis_labels("Passage", "Variant Frequency")
+    catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     catplot_adar.set(yscale='log')
     catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
     # catplot_adar.set_xticklabels(fontsize=8)
