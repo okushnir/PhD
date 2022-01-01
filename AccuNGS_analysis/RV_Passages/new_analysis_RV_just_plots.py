@@ -38,7 +38,7 @@ def main():
     """Local"""
     input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
-    date = datetime.date.today().strftime("%Y%m%d")
+    date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)
     try:
         os.mkdir(output_dir)
