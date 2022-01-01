@@ -10,6 +10,7 @@ import seaborn as sns
 from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from AccuNGS_analysis.Linear_regression import linear_reg
+from datetime import datetime
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -30,10 +31,11 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    flatui = ["#3498db", "#9b59b6"]
-    date = 20211211
-    input_dir = "/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/OPV/"
+    # flatui = ["#3498db", "#9b59b6"]
+    date = datetime.today().strftime("%Y%m%d")
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/CirSeq/PV/OPV/"
     prefix = "inosine_predict_context"
+    plus_minus = u"\u00B1"
 
     plots_output_dir = input_dir + "%s_new_%s" % (str(date), prefix)
     try:
@@ -61,7 +63,7 @@ def main():
     g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                      kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
                      orient="v")
-    g1.set_axis_labels("", "Variant Frequency")
+    g1.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g1.set_xticklabels(fontsize=9, rotation=45)
     g1.set(yscale='log')
     g1.set(ylim=(10 ** -7, 10 ** -3))
@@ -75,7 +77,7 @@ def main():
     g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
                      palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
                      estimator=weighted_varaint, orient="v")
-    g2.set_axis_labels("Passage", "Variant Frequency")
+    g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_xticklabels(fontsize=10, rotation=45)
@@ -136,7 +138,7 @@ def main():
                                order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
-    catplot_adar.set_axis_labels("Passage", "Variant Frequency")
+    catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     catplot_adar.set(yscale='log')
     catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
     # catplot_adar.set_xticklabels(fontsize=8)
@@ -223,7 +225,7 @@ def main():
     mutation_ag.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
     mutation_ag.fig.suptitle("A>G ADAR_like Mutation in OPV2", y=0.99)
     plt.subplots_adjust(top=0.85)
-    mutation_ag.set_axis_labels("Passage", "Variant Frequency")
+    mutation_ag.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     mutation_ag.savefig(plots_output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
     plt.close()
 
@@ -254,7 +256,7 @@ def main():
     mutation_uc.set(yscale="log")
     mutation_uc.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
     # mutation_uc.set(xticks=["0", "2", "5", "8", "10", "12"])
-    mutation_uc.set_axis_labels("Passage", "Variant Frequency")
+    mutation_uc.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     mutation_uc.savefig(plots_output_dir + "/uc_ADAR_like_Mutation_col.png", dpi=300)
     plt.close()
 
