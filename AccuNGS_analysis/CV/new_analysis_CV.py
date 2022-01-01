@@ -67,7 +67,7 @@ def main():
     data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
     data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
-    data_filter = data_filter.loc[data_filter.Mutation != "C>U"]
+    # data_filter = data_filter.loc[data_filter.Mutation != "C>U"]
 
     data_filter_ag = data_filter[data_filter["Mutation"] == "A>G"]
     data_filter_uc = data_filter[data_filter["Mutation"] == "U>C"]
@@ -155,7 +155,7 @@ def main():
 
     g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", hue_order=mutation_order, join=False, estimator=weighted_varaint, orient="v", dodge=True)
-    g1.set_axis_labels("", "Variant Frequency")
+    g1.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g1.set_xticklabels(fontsize=9, rotation=45)
     g1.set(yscale='log')
     g1.set(ylim=(10 ** -7, 10 ** -3))
