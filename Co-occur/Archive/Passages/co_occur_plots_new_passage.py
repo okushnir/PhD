@@ -57,20 +57,20 @@ def main():
         print("Creation of the directory %s failed" % output_dir)
     else:
         print("Successfully created the directory %s " % output_dir)
-    # replica_lst = ["1", "2", "3"]
-    # data_replica1 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica1.pkl")
-    # data_replica2 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica2.pkl")
-    # data_replica3 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica3.pkl")
-    # data_all = pd.concat([data_replica1, data_replica2, data_replica3])
-    #
-    # data = data_all[data_all["Stretch_new"] == True]
-    # # data = data[data["label"] != "RNA Control\nPrimer ID"]
-    # data = data[data["numric_ref"] == 1]
-    # data["replica"] = data["replica"].astype(int)
-    # data = data.rename(columns={"replica": "Replica", "Pos": "Position"})
-    # data.to_csv(output_dir + "/data_all.csv")
+    replica_lst = ["1", "2", "3"]
+    data_replica1 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica1.pkl")
+    data_replica2 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica2.pkl")
+    data_replica3 = pd.read_pickle(output_dir + "/all_co_occur_raw_replica3.pkl")
+    data_all = pd.concat([data_replica1, data_replica2, data_replica3])
 
-    # removed by hand the groups with primerID Control in the Stretches 20220101
+    data = data_all[data_all["Stretch_new"] == True]
+    # data = data[data["label"] != "RNA Control\nPrimer ID"]
+    data = data[data["numric_ref"] == 1]
+    data["replica"] = data["replica"].astype(int)
+    data = data.rename(columns={"replica": "Replica", "Pos": "Position"})
+    data.to_csv(output_dir + "/data_all.csv")
+
+    """removed by hand the groups with primerID Control in the Stretches 20220101"""
 
     data = pd.read_csv(output_dir + "/data_all.csv")
     data["Stretch"] = data["Stretch"].apply(lambda x: x.split("s")[1]).astype(int)
