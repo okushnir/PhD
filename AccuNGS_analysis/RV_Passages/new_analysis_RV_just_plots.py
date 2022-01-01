@@ -36,7 +36,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     """Local"""
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/capsid/"
     prefix = "inosine_predict_context"
     date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)

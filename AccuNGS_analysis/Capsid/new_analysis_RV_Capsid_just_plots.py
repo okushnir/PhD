@@ -11,6 +11,8 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+from datetime import datetime
+
 sns.set_style("ticks")
 
 # print(plt.style.available)
@@ -22,9 +24,11 @@ def weighted_varaint(x, **kws):
 
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/capsid/"
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/capsid/"
     prefix = "inosine_predict_context"
-    output_dir = input_dir + "20201122_new_%s" % prefix
+    date = datetime.today().strftime("%Y%m%d")
+    output_dir = input_dir + "{0}_{1}".format(date, prefix)
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -76,6 +80,7 @@ def main():
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     context_order = ["UpA", "ApA", "CpA", "GpA"]
     type_order = ["Synonymous", "Non-Synonymous"]
+    plus_minus = u"\u00B1"
 
 
     # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
@@ -91,7 +96,7 @@ def main():
     g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
                      palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
                      estimator=weighted_varaint, orient="v", legend=True)
-    g2.set_axis_labels("", "Variant Frequency")
+    g2.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
@@ -104,7 +109,7 @@ def main():
     g_rna = sns.catplot(x="RNA", y="frac_and_weight", data=data_filter_replica1, hue="Mutation", order=rna_order_replica1,
                      palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
                         estimator=weighted_varaint, orient="v", legend=True)
-    g_rna.set_axis_labels("", "Variant Frequency")
+    g_rna.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g_rna.set(yscale='log')
     g_rna.set(ylim=(10 ** -6, 10 ** -2))
     g_rna.savefig(output_dir + "/Transition_Mutations_RNA_point_plot", dpi=300)
@@ -115,7 +120,7 @@ def main():
                      palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True,
                      hue_order=adar_preference, estimator=weighted_varaint,
                      orient="v", col="Type", join=False, col_order=type_order_ag)
-    g4.set_axis_labels("", "Variant Frequency")
+    g4.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g4.set(yscale='log')
     g4.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
     g4.set_xticklabels(rotation=90)
@@ -129,7 +134,7 @@ def main():
                               orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
     mutation_g8.set(yscale="log")
     # mutation_g8.fig.suptitle("A>G Mutation trajectories in RV", y=0.99)
-    mutation_g8.set_axis_labels("", "Variant Frequency")
+    mutation_g8.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     mutation_g8.set(ylim=(1 * 10 ** -5, 1 * 10 ** -2))
     # plt.show()
     mutation_g8.savefig(output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)

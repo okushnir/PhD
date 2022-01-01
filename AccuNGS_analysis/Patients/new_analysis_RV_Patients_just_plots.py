@@ -11,6 +11,7 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+from datetime import datetime
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -25,9 +26,11 @@ def weighted_varaint(x, **kws):
 
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
-    input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+    # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/patients/"
     prefix = "inosine_predict_context_freq0.01"
-    output_dir = input_dir + "20201124_%s" % prefix
+    date = datetime.today().strftime("%Y%m%d")
+    output_dir = input_dir + "{0}_{1}".format(date, prefix)
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -50,11 +53,12 @@ def main():
     context_order_uc = ["UpA", "UpU", "UpG",  "UpC"]
     type_order_ag = ["Synonymous", "Non-Synonymous", "NonCodingRegion"]
     adar_preference = ["High", "Intermediate", "Low"]
+    plus_minus = u"\u00B1"
 
     g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
                         kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
                      orient="v")
-    g1.set_axis_labels("", "Variant Frequency")
+    g1.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g1.set_xticklabels(fontsize=9, rotation=90)
     g1.set(yscale='log')
     # g1.set(ylim=(10**-7, 10**-3))
@@ -65,7 +69,7 @@ def main():
     g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette=mutation_palette(4)
                         ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v", legend=True)
-    g2.set_axis_labels("", "Variant Frequency")
+    g2.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -5, 10 ** -3))
     # g2.set_yticklabels(fontsize=12)
@@ -95,7 +99,7 @@ def main():
     g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
                      palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
                      estimator=weighted_varaint, orient="v", col="Type", join=False, col_order=type_order2)
-    g5.set_axis_labels("", "Variant Frequency")
+    g5.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g5.set(yscale='log')
     g5.set(ylim=(7*10**-7, 4*10**-3))
     g5.set_xticklabels(rotation=90)
@@ -114,14 +118,14 @@ def main():
     mutation_ag.set_xticklabels(rotation=90)
     mutation_ag.fig.suptitle("A>G ADAR_like Mutation in RV patients", y=0.99)
     plt.subplots_adjust(top=0.85)
-    mutation_ag.set_axis_labels("", "Variant Frequency")
+    mutation_ag.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     mutation_ag.savefig(output_dir + "/ag_ADAR_like_Mutation_col_patients.png", dpi=300)
     plt.close()
 
     g6 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
                      palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False],
                      estimator=weighted_varaint, orient="v", join=False)
-    g6.set_axis_labels("", "Variant Frequency")
+    g6.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g6.set(yscale='log')
     g6.set(ylim=(7*10**-7, 4*10**-3))
     g6.set_xticklabels(rotation=90)
@@ -132,7 +136,7 @@ def main():
     g9 = sns.catplot("label", "frac_and_weight", data=data_filter_uc, hue="Next", order=label_order, palette="tab20",
                      hue_order=context_order_uc, estimator=weighted_varaint, orient="v", dodge=True, kind="point",
                      col="Type", join=False, col_order=type_order2)
-    g9.set_axis_labels("", "Variant Frequency")
+    g9.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g9.set(yscale='log')
     g9.set(ylim=(10 ** -5, 10 ** -2))
     g9.set_xticklabels(rotation=90)
