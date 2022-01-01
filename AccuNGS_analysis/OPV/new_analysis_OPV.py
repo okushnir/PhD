@@ -29,9 +29,7 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    flatui = ["#3498db", "#9b59b6"]
-    date = 20201111
-    input_dir = "/Users/odedkushnir/Projects/fitness/CirSeq/PV/OPV/"
+    input_dir = "/Users/odedkushnir/Projects/After_review/CirSeq/PV/OPV/"
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
     try:
