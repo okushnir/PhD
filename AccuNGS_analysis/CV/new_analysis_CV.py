@@ -11,7 +11,7 @@ from FITS_analysis import fits_new_plotter
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from AccuNGS_analysis.Linear_regression import linear_reg
 from scipy import stats
-import datetime
+from datetime import datetime
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -32,11 +32,11 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    flatui = ["#3498db", "#9b59b6"]
-    date = "20211211"
+    # flatui = ["#3498db", "#9b59b6"]
+    # date = "20211211"
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"
     input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/CVB3/"
-    date = datetime.date.today().strftime("%Y%m%d")
+    date = datetime.today().strftime("%Y%m%d")
     print(date)
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
@@ -140,6 +140,7 @@ def main():
 
     """Plots"""
     output_dir = input_dir + date + "_plots"
+    plus_minus = u"\u00B1"
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -166,7 +167,7 @@ def main():
     g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette=mutation_palette(4),
                         kind="point", hue_order=transition_order, join=False, estimator=weighted_varaint, orient="v",
                      dodge=True, legend=True)
-    g2.set_axis_labels("Passage", "Variant Frequency")
+    g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
     g2.set(ylim=(10 ** -6, 10 ** -2))
     # g2.set_yticklabels(fontsize=12)
@@ -205,12 +206,12 @@ def main():
                                order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
-    catplot_adar.set_axis_labels("Passage", "Variant Frequency")
+    catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     catplot_adar.set(yscale='log')
     catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
     # catplot_adar.set_xticklabels(fontsize=8)
     # plt.tight_layout()
-    plt.savefig(output_dir + "/adar_pref_mutation_point_plot_PV1.png", dpi=300)
+    plt.savefig(output_dir + "/adar_pref_mutation_point_plot_CVB3.png", dpi=300)
     plt.close()
     data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
     data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
@@ -428,7 +429,7 @@ def main():
     g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
                      palette=mutation_palette(2), kind="point", dodge=True, hue_order=[True, False], estimator=weighted_varaint,
                      orient="v", col="Type", join=False, col_order=type_order)
-    g5.set_axis_labels("", "Variant Frequency")
+    g5.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g5.set(yscale='log')
     g5.set(ylim=(7 * 10 ** -7, 4 * 10 ** -3))
     g5.set_xticklabels(fontsize=9, rotation=90)
@@ -445,7 +446,7 @@ def main():
     g6.set(ylim=(0, 10 ** -2))
     yaxis = plt.gca().yaxis
     yaxis.set_minor_locator(fits_new_plotter.MinorSymLogLocator(1e-1))
-    g6.set_axis_labels("Passage", "Variant Frequency")
+    g6.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     # plt.show()
     g6.savefig(output_dir + "/Context_miseq_sample_time_line_plot", dpi=300)
     plt.close()
