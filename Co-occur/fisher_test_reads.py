@@ -48,10 +48,11 @@ def AG_read_counter(data):
     return df1, df_grouped
 
 
-def my_crosstab(df_control_grouped, df_grouped, key):
+def my_crosstab(df_control_grouped, df_grouped, key, value):
     crosstab_df = pd.merge(df_control_grouped, df_grouped, on=df_grouped.index)
     crosstab_df = crosstab_df.set_index("key_0")
     crosstab_df = crosstab_df.rename(columns={"count_x": "Control", "count_y": key})
+    crosstab_df = crosstab_df.apply(lambda x: x/value)
     oddsratio, pval = stats.fisher_exact(crosstab_df, alternative="two-sided")
     insert_to_df(crosstab_df, [None, oddsratio])
     insert_to_df(crosstab_df, [None, pval])
@@ -62,8 +63,23 @@ def my_crosstab(df_control_grouped, df_grouped, key):
     return crosstab_df
 
 
-def create_crosstab_df(input_dir, prefix):
+def create_crosstab_df(input_dir, prefix, data_dict):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
+    df_control, df_control_grouped = AG_read_counter(data_control)
+    crosstab_lst = []
+    for key, value in data_dict.items():
+        df, df_grouped = AG_read_counter(value[0])
+        df_grouped.to_pickle(input_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
+        crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1])
+        crosstab_df.to_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
+        crosstab_df.to_csv(input_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
+        crosstab_lst.append(crosstab_df)
+    return crosstab_lst
+
+def main():
+    # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
+    input_dir = "C:/Users/odedku/Stretch_analysis"
+    prefix = "20201012_q38/all_parts.blast"
     p2_1 = pd.read_table(input_dir + "/p2_1/{0}".format(prefix), sep="\t")
     p2_2 = pd.read_table(input_dir + "/p2_2/{0}".format(prefix), sep="\t")
     p5_1 = pd.read_table(input_dir + "/p5_1/{0}".format(prefix), sep="\t")
@@ -74,28 +90,16 @@ def create_crosstab_df(input_dir, prefix):
     p10_2 = pd.read_table(input_dir + "/p10_2/{0}".format(prefix), sep="\t")
     p12_1 = pd.read_table(input_dir + "/p12_1/{0}".format(prefix), sep="\t")
     p12_2 = pd.read_table(input_dir + "/p12_2/{0}".format(prefix), sep="\t")
+    # Dictionary of passage and number of PrimerID
+    data_dict = {"p2_1": [p2_1, 10000], "p2_2": [p2_2, 10000], "p5_1": [p5_1, 10000], "p5_2": [p5_2, 10000],
+                 "p8_1": [p8_1, 10000], "p8_2": [p8_2, 10000], "p10_1": [p10_1, 10000], "p10_2": [p10_2, 10000],
+                 "p12_1": [p12_1, 10000], "p12_2": [p12_2, 10000]}
 
-    df_control, df_control_grouped = AG_read_counter(data_control)
-    data_dict = {"p2_1": p2_1, "p2_2": p2_2, "p5_1": p5_1, "p5_2": p5_2, "p8_1": p8_1,
-                "p8_2": p8_2, "p10_1": p10_1, "p10_2": p10_2, "p12_1": p12_1, "p12_2": p12_2}
-    crosstab_lst = []
-    for key, value in data_dict.items():
-        df, df_grouped = AG_read_counter(value)
-        df_grouped.to_pickle(input_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
-        crosstab_df = my_crosstab(df_control_grouped, df_grouped, key)
-        crosstab_df.to_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
-        crosstab_df.to_csv(input_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
-        crosstab_lst.append(crosstab_df)
-    return crosstab_lst
+    """NOT from memory"""
+    create_crosstab_df(input_dir, prefix, data_dict)
 
-def main():
-    # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
-    input_dir = "C:/Users/odedku/Stretch_analysis"
-    prefix = "20201012_q38/all_parts.blast"
-    create_crosstab_df(input_dir, prefix)
+    """from memory"""
     passage_lst = glob.glob(input_dir + "/p*")
-
-    """from mem"""
     crosstab_lst = []
     for passage in passage_lst:
         passage_num = passage.split("\\")[-1]
@@ -118,7 +122,7 @@ def main():
 
     slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(crosstab_df_all['passage'],
                                                                         crosstab_df_all[
-                                                                            'stretch_percentage'])
+                                                                            'Stretch_percentage'])
     fig1 = sns.lmplot(x="passage", y="Stretch_percentage", data=crosstab_df_all, fit_reg=True, line_kws={'label': "Linear Reg"},)
     fig1.set(xlabel="Passage", ylabel="Stretch Percentage [%]", xlim=(0, 12))
     ax = fig1.axes[0, 0]
