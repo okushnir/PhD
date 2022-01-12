@@ -48,12 +48,16 @@ def AG_read_counter(data):
     return df1, df_grouped
 
 
-def my_crosstab(df_control_grouped, df_grouped, key, value,control_id):
+def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_id):
     crosstab_df = pd.merge(df_control_grouped, df_grouped, on=df_grouped.index)
     crosstab_df = crosstab_df.set_index("key_0")
-    crosstab_df = crosstab_df.rename(columns={"count_x": "Control", "count_y": key})
-    crosstab_df["Control"] = crosstab_df.apply(lambda x: x / control_id)
-    crosstab_df["{0}".format(key)] = crosstab_df.apply(lambda x: x/value)
+    crosstab_df = crosstab_df.rename(columns={"count_x": "Control", "count_y": passage_no})
+    # Divide the A>G count (True/False) by the PrimerID count
+    # print(crosstab_df)
+    # crosstab_df["Control"] = round(crosstab_df["Control"].apply(lambda x: x / control_id))
+    # crosstab_df["{0}".format(passage_no)] = round(crosstab_df["{0}".format(passage_no)].apply(lambda x: x/passage_id))
+    # print(crosstab_df)
+    # print("control_id: {0}  {1}_id: {2}".format(control_id, passage_no, passage_id))
     oddsratio, pval = stats.fisher_exact(crosstab_df, alternative="two-sided")
     insert_to_df(crosstab_df, [None, oddsratio])
     insert_to_df(crosstab_df, [None, pval])
@@ -92,6 +96,7 @@ def main():
     p10_2 = pd.read_table(input_dir + "/p10_2/{0}".format(prefix), sep="\t")
     p12_1 = pd.read_table(input_dir + "/p12_1/{0}".format(prefix), sep="\t")
     p12_2 = pd.read_table(input_dir + "/p12_2/{0}".format(prefix), sep="\t")
+    barcode_data = pd.read_csv(input_dir + "/barcode/PrimerID_barcode_Results.csv")
     # Dictionary of passage and number of PrimerID
     data_dict = {"p2_1": [p2_1,  23507], "p2_2": [p2_2, 38726], "p5_1": [p5_1, 17903], "p5_2": [p5_2, 12395],
                  "p8_1": [p8_1, 8666], "p8_2": [p8_2, 9990], "p10_1": [p10_1, 6068], "p10_2": [p10_2, 40623],
@@ -99,7 +104,7 @@ def main():
     control_id = 27962
 
     """NOT from memory"""
-    create_crosstab_df(input_dir, prefix, data_dict, control_id)
+    # create_crosstab_df(input_dir, prefix, data_dict, control_id)
 
     """from memory"""
     passage_lst = glob.glob(input_dir + "/p*")
@@ -108,19 +113,27 @@ def main():
         passage_num = passage.split("\\")[-1]
         crosstab_df = pd.read_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(passage_num))
         crosstab_lst.append(crosstab_df)
+
+
     crosstab_df_all = pd.concat(crosstab_lst, axis=1)
     crosstab_df_all = crosstab_df_all[["Control", "p2_1", "p2_2", "p5_1", "p5_2", "p8_1", "p8_2", "p10_1", "p10_2", "p12_1", "p12_2"]]
     crosstab_df_all = crosstab_df_all.iloc[0:4, 9:]
     crosstab_df_all = crosstab_df_all.transpose()
     crosstab_df_all["Stretch_percentage"] = crosstab_df_all["No._of_reads_with_stretch_A>G"] / \
-                                           (crosstab_df_all["No._of_reads_with_stretch_A>G"]+crosstab_df_all["No._of_reads_without_stretch_A>G"])*100
+                                           (crosstab_df_all["No._of_reads_with_stretch_A>G"]+crosstab_df_all["No._of_reads_without_stretch_A>G"])
+    crosstab_df_all["Stretch_percentage"] = crosstab_df_all["Stretch_percentage"] * 100
     crosstab_df_all.reset_index(inplace=True, drop=False)
-    crosstab_df_all["passage"] = np.where(crosstab_df_all["index"] != "Control", crosstab_df_all.apply(lambda x: str(x["index"]).split("_")[0].split("p")[-1], axis=1), 0)
-    crosstab_df_all["replica"] = np.where(crosstab_df_all["index"] != "Control", crosstab_df_all.apply(lambda x: str(x["index"]).split("_")[-1], axis=1), 1)
+    crosstab_df_all = crosstab_df_all.rename(columns={"index": "Sample"})
+    crosstab_df_all = crosstab_df_all.merge(barcode_data, on="Sample", how="inner")
+    crosstab_df_all["Hyper mutation read frequency/sequenced genome"] = crosstab_df_all["Stretch_percentage"]/crosstab_df_all["PrimerID_barcode"]
+    crosstab_df_all["Hyper mutation read frequency/sequenced genome"] = crosstab_df_all["Hyper mutation read frequency/sequenced genome"].astype(float)
+    crosstab_df_all["passage"] = np.where(crosstab_df_all["Sample"] != "Control", crosstab_df_all.apply(lambda x: str(x["Sample"]).split("_")[0].split("p")[-1], axis=1), 0)
+    crosstab_df_all["replica"] = np.where(crosstab_df_all["Sample"] != "Control", crosstab_df_all.apply(lambda x: str(x["Sample"]).split("_")[-1], axis=1), 1)
     crosstab_df_all["passage"] = crosstab_df_all["passage"].astype(int)
     crosstab_df_all.to_csv(input_dir + "/crosstab_df_all.csv", sep=",")
     mean_crosstab_df_all = crosstab_df_all.groupby("passage", as_index=False).mean()
-    mean_crosstab_df_all["sem"] = crosstab_df_all.groupby("passage", as_index=False).sem()["Stretch_percentage"]
+    mean_crosstab_df_all["sem"] = crosstab_df_all.groupby("passage", as_index=False).sem()["Hyper mutation read frequency/sequenced genome"]
+    mean_crosstab_df_all["PrimerID_barcode"] = round(mean_crosstab_df_all["PrimerID_barcode"])
     mean_crosstab_df_all.to_csv(input_dir + "/mean_crosstab_df_all.csv", sep=",")
 
     slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(crosstab_df_all['passage'],
