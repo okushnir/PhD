@@ -48,11 +48,12 @@ def AG_read_counter(data):
     return df1, df_grouped
 
 
-def my_crosstab(df_control_grouped, df_grouped, key, value):
+def my_crosstab(df_control_grouped, df_grouped, key, value,control_id):
     crosstab_df = pd.merge(df_control_grouped, df_grouped, on=df_grouped.index)
     crosstab_df = crosstab_df.set_index("key_0")
     crosstab_df = crosstab_df.rename(columns={"count_x": "Control", "count_y": key})
-    crosstab_df = crosstab_df.apply(lambda x: x/value)
+    crosstab_df["Control"] = crosstab_df.apply(lambda x: x / control_id)
+    crosstab_df["{0}".format(key)] = crosstab_df.apply(lambda x: x/value)
     oddsratio, pval = stats.fisher_exact(crosstab_df, alternative="two-sided")
     insert_to_df(crosstab_df, [None, oddsratio])
     insert_to_df(crosstab_df, [None, pval])
@@ -63,18 +64,19 @@ def my_crosstab(df_control_grouped, df_grouped, key, value):
     return crosstab_df
 
 
-def create_crosstab_df(input_dir, prefix, data_dict):
+def create_crosstab_df(input_dir, prefix, data_dict, control_id):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
     df_control, df_control_grouped = AG_read_counter(data_control)
     crosstab_lst = []
     for key, value in data_dict.items():
         df, df_grouped = AG_read_counter(value[0])
         df_grouped.to_pickle(input_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
-        crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1])
+        crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1], control_id)
         crosstab_df.to_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
         crosstab_df.to_csv(input_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
         crosstab_lst.append(crosstab_df)
     return crosstab_lst
+
 
 def main():
     # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
@@ -91,12 +93,13 @@ def main():
     p12_1 = pd.read_table(input_dir + "/p12_1/{0}".format(prefix), sep="\t")
     p12_2 = pd.read_table(input_dir + "/p12_2/{0}".format(prefix), sep="\t")
     # Dictionary of passage and number of PrimerID
-    data_dict = {"p2_1": [p2_1, 10000], "p2_2": [p2_2, 10000], "p5_1": [p5_1, 10000], "p5_2": [p5_2, 10000],
-                 "p8_1": [p8_1, 10000], "p8_2": [p8_2, 10000], "p10_1": [p10_1, 10000], "p10_2": [p10_2, 10000],
-                 "p12_1": [p12_1, 10000], "p12_2": [p12_2, 10000]}
+    data_dict = {"p2_1": [p2_1,  23507], "p2_2": [p2_2, 38726], "p5_1": [p5_1, 17903], "p5_2": [p5_2, 12395],
+                 "p8_1": [p8_1, 8666], "p8_2": [p8_2, 9990], "p10_1": [p10_1, 6068], "p10_2": [p10_2, 40623],
+                 "p12_1": [p12_1, 9668], "p12_2": [p12_2, 11110]}
+    control_id = 27962
 
     """NOT from memory"""
-    create_crosstab_df(input_dir, prefix, data_dict)
+    create_crosstab_df(input_dir, prefix, data_dict, control_id)
 
     """from memory"""
     passage_lst = glob.glob(input_dir + "/p*")
