@@ -13,6 +13,7 @@ from statannot import add_stat_annotation
 from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from datetime import datetime
+from statannotations.Annotator import Annotator
 
 
 sns.set(font_scale=1.2)
@@ -36,7 +37,7 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     """Local"""
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/capsid/"
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/"
     prefix = "inosine_predict_context"
     date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)
@@ -66,6 +67,9 @@ def main():
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
+    pairs = [(("p0", "A>G"), ("p0", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+             (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
+             (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A"))]
 
     # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
     #                  palette="Set2",
@@ -93,6 +97,7 @@ def main():
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     # plt.close()
     replica_lst = [1, 2, 3]
+
     for replica in replica_lst:
         data_filter_replica = data_filter[data_filter["replica"] == replica]
         data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
@@ -100,6 +105,12 @@ def main():
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation", order=passage_order,
                                 palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
+        # TODO:
+        # test this:
+        # annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica)
+        # annot.configure(test='wald', text_format='star', loc='inside', verbose=2, comparisons_correction="BH") #"Wilcoxon test"
+        # annot.apply_test()#alternative="less"
+        # passage_g, test_results = annot.annotate()
         passage_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2))
         passage_g.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
