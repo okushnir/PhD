@@ -121,7 +121,7 @@ def main():
         passage_g.set_yscale('log')
         passage_g.set_ylim(10 ** -6, 10 ** -2)
         annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica)
-        annot.configure(test='Mann-Whitney', text_format='star', loc='outside', verbose=2, comparisons_correction="BH") #"Wilcoxon test"
+        annot.configure(test='Levene', text_format='star', loc='outside', verbose=2, comparisons_correction="BH") #"Wilcoxon test"
         annot.apply_test()#alternative="less"
         passage_g, test_results = annot.annotate()
         plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_RVB14_replica%s" % str(replica), dpi=300)
