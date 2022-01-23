@@ -171,6 +171,25 @@ def main():
     plt.savefig(plots_output_dir + "/adar_pref_mutation_point_plot_OPV2.png", dpi=300)
     plt.close()
 
+    adar_g = sns.boxplot(x="passage", y="Frequency", data=data_filter_synonymous, hue="Mutation_adar",
+                         order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
+                         hue_order=mutation_adar_order)
+    adar_g.set_yscale('log')
+    adar_g.set_ylim(10 ** -6, 10 ** -2)
+    annot = Annotator(adar_g, pairs, x="passage", y="Frequency", hue="Mutation_adar",
+                      data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
+    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+                    comparisons_correction="Bonferroni")
+    annot.apply_test()
+    file_path = plots_output_dir + "/sts_adar.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            adar_g, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(plots_output_dir + "/adar_pref_mutation_box_plot_OPV2.png", dpi=300)
+    plt.close()
+
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # # data_filter_pass5 = data_filter_pass5[data_filter_pass5["pval"] < 0.01]
     # data_filter_pass5 = data_filter_pass5.loc[data_filter_pass5.Type == "Synonymous"]
