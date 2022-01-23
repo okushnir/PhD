@@ -87,7 +87,7 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mut
     return data_filter
 
 
-def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, filter_reads=None):
+def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, filter_reads=None):
     output_dir = input_dir + date + "_plots"
     plus_minus = u"\u00B1"
     try:
@@ -183,8 +183,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                          order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
                          hue_order=mutation_adar_order)
     adar_g.set_yscale('log')
-    adar_g.set_ylim(10 ** -6, 10 ** -2)
-    annot = Annotator(adar_g, pairs, x="passage", y="Frequency", hue="Mutation_adar",
+    adar_g.set_ylim(10 ** -6, 10 ** -1)
+    annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
     annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")

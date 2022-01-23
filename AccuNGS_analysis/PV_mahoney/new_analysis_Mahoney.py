@@ -33,8 +33,21 @@ def main():
              (("p3", "A>G"), ("p3", "U>C")), (("p4", "A>G"), ("p4", "U>C")),
              (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
              (("p7", "A>G"), ("p7", "U>C")), (("p8", "A>G"), ("p8", "U>C"))]
+
+    pairs_adar = [(("p3", "High\nADAR-like\nA>G"), ("p3", "Low\nADAR-like\nA>G")),
+                  (("p4", "High\nADAR-like\nA>G"), ("p4", "Low\nADAR-like\nA>G")),
+                  (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
+                  (("p6", "High\nADAR-like\nA>G"), ("p6", "Low\nADAR-like\nA>G")),
+                  (("p7", "High\nADAR-like\nA>G"), ("p7", "Low\nADAR-like\nA>G")),
+                  (("p8", "High\nADAR-like\nA>G"), ("p8", "Low\nADAR-like\nA>G")),
+                  (("p3", "High\nADAR-like\nU>C"), ("p3", "Low\nADAR-like\nU>C")),
+                  (("p4", "High\nADAR-like\nU>C"), ("p4", "Low\nADAR-like\nU>C")),
+                  (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
+                  (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
+                  (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C")),
+                  (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C"))]
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
-    plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order)
+    plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar)
 
 
 if __name__ == "__main__":

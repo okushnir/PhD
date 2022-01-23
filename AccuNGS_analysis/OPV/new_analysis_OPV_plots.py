@@ -13,54 +13,58 @@ from AccuNGS_analysis.Linear_regression import linear_reg
 from datetime import datetime
 from statannotations.Annotator import Annotator
 import contextlib
+from AccuNGS_analysis.new_analysis_fuctions import *
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
 sns.despine()
 
 
-# print(plt.style.available)
-
-# tips = sns.load_dataset("tips")
-# print(tips.to_string())
-# tips["weight"] = 10 * np.random.rand(len(tips))
-#
-# tips["tip_and_weight"] = zip(tips.tip, tips.weight)
-
-def weighted_varaint(x, **kws):
-    var, count = map(np.asarray, zip(*x))
-    return var.sum() / count.sum()
-
-
 def main():
-    # flatui = ["#3498db", "#9b59b6"]
     date = datetime.today().strftime("%Y%m%d")
     input_dir = "/Users/odedkushnir/PhD_Projects/After_review/CirSeq/PV/OPV/"
     prefix = "inosine_predict_context"
-    plus_minus = u"\u00B1"
-
-    plots_output_dir = input_dir + "%s_new_%s" % (str(date), prefix)
-    try:
-        os.mkdir(plots_output_dir)
-    except OSError:
-        print("Creation of the directory %s failed" % plots_output_dir)
-    else:
-        print("Successfully created the directory %s " % plots_output_dir)
-
     data_filter = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
-    data_filter_ag = pd.read_pickle(input_dir + prefix + "/data_filter_ag.pkl")
-    data_filter_uc = pd.read_pickle(input_dir + prefix + "/data_filter_uc.pkl")
     data_filter["passage"] = data_filter["passage"].astype(int)
 
     """Plots"""
-
     label_order = ["OPV-p1", "OPV-p3", "OPV-p5", "OPV-p6", "OPV-p7"]
     passage_order = ["p1", "p3", "p5", "p6", "p7"]
-    mutation_order = ["A>G", "U>C", "G>A", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A"]
-    type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
-    type_order_ag = ["Synonymous", "Non-Synonymous"]
-    adar_preference = ["High", "Intermediate", "Low"]
+    pairs = [(("p1", "A>G"), ("p1", "G>A")), (("p3", "A>G"), ("p3", "G>A")),
+             (("p5", "A>G"), ("p5", "G>A")), (("p6", "A>G"), ("p6", "G>A")),
+             (("p7", "A>G"), ("p7", "G>A")),
+             (("p1", "A>G"), ("p1", "U>C")), (("p3", "A>G"), ("p3", "U>C")),
+             (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
+             (("p7", "A>G"), ("p7", "U>C"))]
+
+    pairs_adar = [(("p1", "High\nADAR-like\nA>G"), ("p1", "Low\nADAR-like\nA>G")),
+                  (("p3", "High\nADAR-like\nA>G"), ("p3", "Low\nADAR-like\nA>G")),
+                  (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
+                  (("p6", "High\nADAR-like\nA>G"), ("p6", "Low\nADAR-like\nA>G")),
+                  (("p7", "High\nADAR-like\nA>G"), ("p7", "Low\nADAR-like\nA>G")),
+                  (("p1", "High\nADAR-like\nU>C"), ("p1", "Low\nADAR-like\nU>C")),
+                  (("p3", "High\nADAR-like\nU>C"), ("p3", "Low\nADAR-like\nU>C")),
+                  (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
+                  (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
+                  (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C"))]
+    plots(input_dir, date, data_filter, "OPV2", passage_order, transition_order, pairs, label_order, pairs_adar)
+
+
+if __name__ == "__main__":
+    main()
+    # plots_output_dir = input_dir + "%s_new_%s" % (str(date), prefix)
+    # try:
+    #     os.mkdir(plots_output_dir)
+    # except OSError:
+    #     print("Creation of the directory %s failed" % plots_output_dir)
+    # else:
+    #     print("Successfully created the directory %s " % plots_output_dir)
+    # data_filter_ag = pd.read_pickle(input_dir + prefix + "/data_filter_ag.pkl")
+    # data_filter_uc = pd.read_pickle(input_dir + prefix + "/data_filter_uc.pkl")
+
+    # type_order_ag = ["Synonymous", "Non-Synonymous"]
+    # adar_preference = ["High", "Intermediate", "Low"]
 
     # g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
     #                  kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
@@ -73,43 +77,37 @@ def main():
     # # plt.show()
     # g1.savefig(plots_output_dir + "/All_Mutations_point_plot", dpi=300)
     # plt.close()
-
-    data_filter["passage"] = data_filter["passage"].astype(str)
-    data_filter["passage"] = "p" + data_filter["passage"]
-    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
-                     palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
-                     estimator=weighted_varaint, orient="v")
-    g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -2))
-    # g2.set_xticklabels(fontsize=10, rotation=45)
-    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-    #                   "/Transition_Mutations_point_plot_OPV", dpi=300)
-    g2.savefig(plots_output_dir + "/Transition_Mutations_point_plot_OPV", dpi=300)
-    plt.close()
-
-    pairs = [(("p1", "A>G"), ("p1", "G>A")), (("p3", "A>G"), ("p3", "G>A")),
-             (("p5", "A>G"), ("p5", "G>A")), (("p6", "A>G"), ("p6", "G>A")),
-             (("p7", "A>G"), ("p7", "G>A")),
-             (("p1", "A>G"), ("p1", "U>C")), (("p3", "A>G"), ("p3", "U>C")),
-             (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
-             (("p7", "A>G"), ("p7", "U>C"))]
-    passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
-                            palette=mutation_palette(4), dodge=True, hue_order=transition_order)
-    passage_g.set_yscale('log')
-    passage_g.set_ylim(10 ** -6, 10 ** -2)
-
-    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter, hue_order=transition_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2, comparisons_correction="Bonferroni") #"Wilcoxon test"
-    annot.apply_test()#alternative="less"
-    file_path = plots_output_dir + "/sts.csv"
-    with open(file_path, "w") as o:
-        with contextlib.redirect_stdout(o):
-            passage_g, test_results = annot.annotate()
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-    plt.tight_layout()
-    plt.savefig(plots_output_dir + "/Transition_Mutations_box_stat_plot_OPV", dpi=300)
-    plt.close()
+    #
+    # data_filter["passage"] = data_filter["passage"].astype(str)
+    # data_filter["passage"] = "p" + data_filter["passage"]
+    # g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
+    #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
+    #                  estimator=weighted_varaint, orient="v")
+    # g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+    # g2.set(yscale='log')
+    # g2.set(ylim=(10 ** -6, 10 ** -2))
+    # # g2.set_xticklabels(fontsize=10, rotation=45)
+    # # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
+    # #                   "/Transition_Mutations_point_plot_OPV", dpi=300)
+    # g2.savefig(plots_output_dir + "/Transition_Mutations_point_plot_OPV", dpi=300)
+    # plt.close()
+    #
+    # passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
+    #                         palette=mutation_palette(4), dodge=True, hue_order=transition_order)
+    # passage_g.set_yscale('log')
+    # passage_g.set_ylim(10 ** -6, 10 ** -2)
+    #
+    # annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter, hue_order=transition_order)
+    # annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2, comparisons_correction="Bonferroni") #"Wilcoxon test"
+    # annot.apply_test()#alternative="less"
+    # file_path = plots_output_dir + "/sts.csv"
+    # with open(file_path, "w") as o:
+    #     with contextlib.redirect_stdout(o):
+    #         passage_g, test_results = annot.annotate()
+    # plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    # plt.tight_layout()
+    # plt.savefig(plots_output_dir + "/Transition_Mutations_box_stat_plot_OPV", dpi=300)
+    # plt.close()
     # data_filter["passage"] = data_filter["passage"].astype(int)
     # data_pmsc = data_filter[data_filter["Type"] == "Premature Stop Codon"]
     # data_pmsc["mutation_type"] = data_pmsc.Mutation.str.contains("A>G") | data_pmsc.Mutation.str.contains("U>C") | \
@@ -135,60 +133,60 @@ def main():
     # # plt.show()
     # g4.savefig(plots_output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
     # plt.close()
-    data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
-    # data_filter_synonymous["ADAR_like"] = (data_filter_synonymous.Prev.str.contains('UpA') | data_filter_synonymous.Prev.str.contains('ApA'))
-    data_filter_synonymous["Mutation"] = np.where(((data_filter_synonymous["Mutation"] == "A>G") &
-                                             (data_filter_synonymous["5`_ADAR_Preference"] == "High")),
-                                             "High\nADAR-like\nA>G", np.where(((data_filter_synonymous["Mutation"] == "A>G")
-                                                      & (data_filter_synonymous["5`_ADAR_Preference"] == "Intermediate")),
-                                                      "Intermediate\nADAR-like\nA>G",
-                                                      np.where(((data_filter_synonymous["Mutation"] == "A>G") &
-                                                                (data_filter_synonymous["5`_ADAR_Preference"] == "Low")),
-                                                               "Low\nADAR-like\nA>G",
-                                                               data_filter_synonymous["Mutation"])))
-    data_filter_synonymous["Mutation_adar"] = np.where(((data_filter_synonymous["Mutation"] == "U>C") &
-                                             (data_filter_synonymous["3`_ADAR_Preference"] == "High")),
-                                             "High\nADAR-like\nU>C", np.where(((data_filter_synonymous["Mutation"] == "U>C")
-                                                      & (data_filter_synonymous["3`_ADAR_Preference"] == "Intermediate")),
-                                                      "Intermediate\nADAR-like\nU>C",
-                                                      np.where(((data_filter_synonymous["Mutation"] == "U>C") &
-                                                                (data_filter_synonymous["3`_ADAR_Preference"] == "Low")),
-                                                               "Low\nADAR-like\nU>C",
-                                                               data_filter_synonymous["Mutation"])))
-    mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
-                           "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
-
-    data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
-    catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
-                               order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
-                               hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
-                               legend=True)
-    catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    catplot_adar.set(yscale='log')
-    catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
-    # catplot_adar.set_xticklabels(fontsize=8)
+    # data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
+    # # data_filter_synonymous["ADAR_like"] = (data_filter_synonymous.Prev.str.contains('UpA') | data_filter_synonymous.Prev.str.contains('ApA'))
+    # data_filter_synonymous["Mutation"] = np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+    #                                          (data_filter_synonymous["5`_ADAR_Preference"] == "High")),
+    #                                          "High\nADAR-like\nA>G", np.where(((data_filter_synonymous["Mutation"] == "A>G")
+    #                                                   & (data_filter_synonymous["5`_ADAR_Preference"] == "Intermediate")),
+    #                                                   "Intermediate\nADAR-like\nA>G",
+    #                                                   np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+    #                                                             (data_filter_synonymous["5`_ADAR_Preference"] == "Low")),
+    #                                                            "Low\nADAR-like\nA>G",
+    #                                                            data_filter_synonymous["Mutation"])))
+    # data_filter_synonymous["Mutation_adar"] = np.where(((data_filter_synonymous["Mutation"] == "U>C") &
+    #                                          (data_filter_synonymous["3`_ADAR_Preference"] == "High")),
+    #                                          "High\nADAR-like\nU>C", np.where(((data_filter_synonymous["Mutation"] == "U>C")
+    #                                                   & (data_filter_synonymous["3`_ADAR_Preference"] == "Intermediate")),
+    #                                                   "Intermediate\nADAR-like\nU>C",
+    #                                                   np.where(((data_filter_synonymous["Mutation"] == "U>C") &
+    #                                                             (data_filter_synonymous["3`_ADAR_Preference"] == "Low")),
+    #                                                            "Low\nADAR-like\nU>C",
+    #                                                            data_filter_synonymous["Mutation"])))
+    # mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
+    #                        "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
+    #
+    # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
+    # catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
+    #                            order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
+    #                            hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
+    #                            legend=True)
+    # catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+    # catplot_adar.set(yscale='log')
+    # catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
+    # # catplot_adar.set_xticklabels(fontsize=8)
+    # # plt.tight_layout()
+    # plt.savefig(plots_output_dir + "/adar_pref_mutation_point_plot_OPV2.png", dpi=300)
+    # plt.close()
+    #
+    # adar_g = sns.boxplot(x="passage", y="Frequency", data=data_filter_synonymous, hue="Mutation_adar",
+    #                      order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
+    #                      hue_order=mutation_adar_order)
+    # adar_g.set_yscale('log')
+    # adar_g.set_ylim(10 ** -6, 10 ** -2)
+    # annot = Annotator(adar_g, pairs, x="passage", y="Frequency", hue="Mutation_adar",
+    #                   data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
+    # annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+    #                 comparisons_correction="Bonferroni")
+    # annot.apply_test()
+    # file_path = plots_output_dir + "/sts_adar.csv"
+    # with open(file_path, "w") as o:
+    #     with contextlib.redirect_stdout(o):
+    #         adar_g, test_results = annot.annotate()
+    # plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     # plt.tight_layout()
-    plt.savefig(plots_output_dir + "/adar_pref_mutation_point_plot_OPV2.png", dpi=300)
-    plt.close()
-
-    adar_g = sns.boxplot(x="passage", y="Frequency", data=data_filter_synonymous, hue="Mutation_adar",
-                         order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
-                         hue_order=mutation_adar_order)
-    adar_g.set_yscale('log')
-    adar_g.set_ylim(10 ** -6, 10 ** -2)
-    annot = Annotator(adar_g, pairs, x="passage", y="Frequency", hue="Mutation_adar",
-                      data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
-    annot.apply_test()
-    file_path = plots_output_dir + "/sts_adar.csv"
-    with open(file_path, "w") as o:
-        with contextlib.redirect_stdout(o):
-            adar_g, test_results = annot.annotate()
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-    plt.tight_layout()
-    plt.savefig(plots_output_dir + "/adar_pref_mutation_box_plot_OPV2.png", dpi=300)
-    plt.close()
+    # plt.savefig(plots_output_dir + "/adar_pref_mutation_box_plot_OPV2.png", dpi=300)
+    # plt.close()
 
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # # data_filter_pass5 = data_filter_pass5[data_filter_pass5["pval"] < 0.01]
@@ -247,7 +245,7 @@ def main():
     # linear_reg(data_filter, plots_output_dir, transition_order, type_order, virus="OPV2", replica=1, cu=None)
 
     # # A>G Prev Context
-    context_order = ["UpA", "ApA", "CpA", "GpA"]
+    # context_order = ["UpA", "ApA", "CpA", "GpA"]
     # type_order = ["Synonymous", "Non-Synonymous"]
     # g5 = sns.catplot("label", "frac_and_weight", data=data_filter_ag, hue="ADAR_like", order=label_order,
     #                  palette=mutation_palette(2),
@@ -261,48 +259,48 @@ def main():
     # g5.savefig(plots_output_dir + "/Context_point_plot", dpi=300)
     # plt.close()
 
-    mutation_ag = sns.catplot("passage", "frac_and_weight", data=data_filter_ag, hue="5`_ADAR_Preference",
-                              palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True,
-                              estimator=weighted_varaint,
-                              orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
-    mutation_ag.set(yscale="log")
-    mutation_ag.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
-    mutation_ag.fig.suptitle("A>G ADAR_like Mutation in OPV2", y=0.99)
-    plt.subplots_adjust(top=0.85)
-    mutation_ag.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    mutation_ag.savefig(plots_output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
-    plt.close()
-
-    data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
-    data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
-    print(data_filter_ag_pass5.to_string())
-
-    ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=mutation_palette(2),
-                     order=[True, False])
-    ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=[True, False])
-    old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
-                                      boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside',
-                                      verbose=1)
-    ax.set_yscale('log')
-    ax.set_xlabel("ADAR-like\nContext")
-    ax.set_ylabel("Variant Frequency")
-    ax.set(ylim=(10 ** -5, 10 ** -2))
-    sns.despine()
-    # plt.tight_layout()
-    plt.savefig(plots_output_dir + "/context_p5_point_plot_OPV.png", dpi=300)
-    plt.close()
+    # mutation_ag = sns.catplot("passage", "frac_and_weight", data=data_filter_ag, hue="5`_ADAR_Preference",
+    #                           palette=mutation_palette(3, adar=True, ag=True), kind="point", dodge=True,
+    #                           estimator=weighted_varaint,
+    #                           orient="v", col="Type", join=False, col_order=type_order_ag, hue_order=adar_preference)
+    # mutation_ag.set(yscale="log")
+    # mutation_ag.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
+    # mutation_ag.fig.suptitle("A>G ADAR_like Mutation in OPV2", y=0.99)
+    # plt.subplots_adjust(top=0.85)
+    # mutation_ag.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+    # mutation_ag.savefig(plots_output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
+    # plt.close()
+    #
+    # data_filter_ag_pass5 = data_filter_ag.loc[data_filter_ag.passage == 5]
+    # data_filter_ag_pass5 = data_filter_ag_pass5.loc[data_filter_ag_pass5.Type == "Synonymous"]
+    # print(data_filter_ag_pass5.to_string())
+    #
+    # ax = sns.boxplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, palette=mutation_palette(2),
+    #                  order=[True, False])
+    # ax = sns.stripplot("ADAR_like", "Frequency", data=data_filter_ag_pass5, color=".2", order=[True, False])
+    # old_statannot.add_stat_annotation(ax, data=data_filter_ag_pass5, x="ADAR_like", y="Frequency",
+    #                                   boxPairList=[(True, False)], test='Mann-Whitney', textFormat='star', loc='inside',
+    #                                   verbose=1)
+    # ax.set_yscale('log')
+    # ax.set_xlabel("ADAR-like\nContext")
+    # ax.set_ylabel("Variant Frequency")
+    # ax.set(ylim=(10 ** -5, 10 ** -2))
+    # sns.despine()
+    # # plt.tight_layout()
+    # plt.savefig(plots_output_dir + "/context_p5_point_plot_OPV.png", dpi=300)
+    # plt.close()
 
     """U>C"""
-    mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
-                              palette=mutation_palette(3, adar=True, uc=True), kind="point", dodge=True, estimator=weighted_varaint,
-                              orient="v", col="Type", join=False, hue_order=adar_preference,
-                              col_order=type_order_ag)
-    mutation_uc.set(yscale="log")
-    mutation_uc.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
-    # mutation_uc.set(xticks=["0", "2", "5", "8", "10", "12"])
-    mutation_uc.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    mutation_uc.savefig(plots_output_dir + "/uc_ADAR_like_Mutation_col.png", dpi=300)
-    plt.close()
+    # mutation_uc = sns.catplot("passage", "frac_and_weight", data=data_filter_uc, hue="3`_ADAR_Preference",
+    #                           palette=mutation_palette(3, adar=True, uc=True), kind="point", dodge=True, estimator=weighted_varaint,
+    #                           orient="v", col="Type", join=False, hue_order=adar_preference,
+    #                           col_order=type_order_ag)
+    # mutation_uc.set(yscale="log")
+    # mutation_uc.set(ylim=(1 * 10 ** -6, 2 * 10 ** -3))
+    # # mutation_uc.set(xticks=["0", "2", "5", "8", "10", "12"])
+    # mutation_uc.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+    # mutation_uc.savefig(plots_output_dir + "/uc_ADAR_like_Mutation_col.png", dpi=300)
+    # plt.close()
 
     # print(data_filter_ag.to_string())
     # data_codons = data_filter_ag[data_filter_ag["Prob"] > 0.95]
@@ -542,8 +540,4 @@ def main():
     # # g11.ax.text(0.7, 0.9, textstr, transform=g11.axes.transAxes, fontsize=14, bbox=props)
     # # plt.show()
     # g11.savefig(plots_output_dir + "/lmplot_ADAR_Context", dpi=300)
-
-
-if __name__ == "__main__":
-    main()
 
