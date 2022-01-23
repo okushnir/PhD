@@ -1,42 +1,6 @@
 
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from FITS_analysis import fits_new_plotter
-import numpy as np
-from scipy import stats
-from matplotlib.ticker import ScalarFormatter
-import matplotlib.ticker as ticker
-import seaborn as sns
-from AccuNGS_analysis import old_statannot
-from AccuNGS_analysis.adar_mutation_palette import mutation_palette
-from AccuNGS_analysis.Linear_regression import linear_reg
 from datetime import datetime
-from statannotations.Annotator import Annotator
-import contextlib
 from AccuNGS_analysis.new_analysis_fuctions import *
-
-sns.set(font_scale=1.2)
-sns.set_style("ticks")
-sns.despine()
-
-# print(plt.style.available)
-
-# tips = sns.load_dataset("tips")
-# print(tips.to_string())
-# tips["weight"] = 10 * np.random.rand(len(tips))
-#
-# tips["tip_and_weight"] = zip(tips.tip, tips.weight)
-
-def weighted_varaint(x, **kws):
-    var, count = map(np.asarray, zip(*x))
-    return var.sum() / count.sum()
-
-def checkKey(dict, key):
-    if key in dict.keys():
-        return dict[key]
-    else:
-        raise Exception()
 
 
 def main():
@@ -70,7 +34,7 @@ def main():
              (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
              (("p7", "A>G"), ("p7", "U>C")), (("p8", "A>G"), ("p8", "U>C"))]
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
-    plots(input_dir, date, data_filter, passage_order, transition_order, pairs, label_order)
+    plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order)
 
 
 if __name__ == "__main__":

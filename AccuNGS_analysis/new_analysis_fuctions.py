@@ -19,13 +19,6 @@ def weighted_varaint(x, **kws):
     return var.sum() / count.sum()
 
 
-def checkKey(dict, key):
-    if key in dict.keys():
-        return dict[key]
-    else:
-        raise Exception()
-
-
 def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None, replica=None):
     data_mutations = pd.read_csv(input_dir + q_file_name)
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
