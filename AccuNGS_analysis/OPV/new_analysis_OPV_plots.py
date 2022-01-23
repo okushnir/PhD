@@ -1,23 +1,6 @@
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from FITS_analysis import fits_new_plotter
-import numpy as np
-from scipy import stats
-from matplotlib.ticker import ScalarFormatter
-import matplotlib.ticker as ticker
-import seaborn as sns
-from AccuNGS_analysis import old_statannot
-from AccuNGS_analysis.adar_mutation_palette import mutation_palette
-from AccuNGS_analysis.Linear_regression import linear_reg
-from datetime import datetime
-from statannotations.Annotator import Annotator
-import contextlib
-from AccuNGS_analysis.new_analysis_fuctions import *
 
-sns.set(font_scale=1.2)
-sns.set_style("ticks")
-sns.despine()
+from datetime import datetime
+from AccuNGS_analysis.new_analysis_fuctions import *
 
 
 def main():
@@ -53,6 +36,24 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # from statannotations.Annotator import Annotator
+    # import contextlib
+    # import pandas as pd
+    # import os
+    # import matplotlib.pyplot as plt
+    # from FITS_analysis import fits_new_plotter
+    # import numpy as np
+    # from scipy import stats
+    # from matplotlib.ticker import ScalarFormatter
+    # import matplotlib.ticker as ticker
+    # import seaborn as sns
+    # from AccuNGS_analysis import old_statannot
+    # from AccuNGS_analysis.adar_mutation_palette import mutation_palette
+    # from AccuNGS_analysis.Linear_regression import linear_reg
+
+    # sns.set(font_scale=1.2)
+    # sns.set_style("ticks")
+    # sns.despine()
     # plots_output_dir = input_dir + "%s_new_%s" % (str(date), prefix)
     # try:
     #     os.mkdir(plots_output_dir)
