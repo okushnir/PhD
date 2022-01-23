@@ -58,7 +58,7 @@ def main():
     #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
-    passage_order = ["p0", "p2", "p5", "p8", "p10", "p12"]
+    passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
@@ -100,14 +100,29 @@ def main():
         if replica == 2:
             pairs = [(("p2", "A>G"), ("p2", "G>A")),
                      (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A"))]
+                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
+                     (("p2", "A>G"), ("p2", "U>C")),
+                     (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
+                     (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
+                     (("p2", "A>G"), ("p2", "C>U")),
+                     (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
+                     (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
+            passage_order = ["p2", "p5", "p8", "p10", "p12"]
         else:
-            pairs = [(("p0", "A>G"), ("p0", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+            pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
                      (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A"))]
+                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
+                     (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+                     (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
+                     (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
+                     (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
+                     (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
+                     (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
+            passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
         data_filter_replica = data_filter[data_filter["replica"] == replica]
         data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
         data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
+        data_filter_replica["passage"] = np.where(data_filter_replica["passage"] == "p0", "RNA\nControl", data_filter_replica["passage"])
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation", order=passage_order,
                                 palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
@@ -117,14 +132,17 @@ def main():
         plt.close()
 
         passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter_replica, hue="Mutation", order=passage_order,
-                    palette=mutation_palette(4), dodge=True, hue_order=transition_order)
+                                palette=mutation_palette(4), dodge=True, hue_order=transition_order)
         passage_g.set_yscale('log')
         passage_g.set_ylim(10 ** -6, 10 ** -2)
-        annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica)
-        annot.configure(test='Levene', text_format='star', loc='outside', verbose=2, comparisons_correction="BH") #"Wilcoxon test"
-        annot.apply_test()#alternative="less"
+
+        annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica, hue_order=transition_order)
+        annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
+        annot.apply_test()
         passage_g, test_results = annot.annotate()
-        plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_RVB14_replica%s" % str(replica), dpi=300)
+        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+        plt.tight_layout()
+        plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
     # data_filter["passage"] = data_filter["passage"].astype(int)
     #

@@ -149,7 +149,7 @@ def main():
     else:
         print("Successfully created the directory %s " % output_dir)
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
-    passage_order = ["p0", "p2", "p5", "p8", "p10", "p12"]
+    passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
@@ -165,6 +165,7 @@ def main():
     # plt.close()
     data_filter["passage"] = data_filter["passage"].astype(str)
     data_filter["passage"] = "p" + data_filter["passage"]
+    data_filter["passage"] = np.where(data_filter["passage"] == "p0", "RNA\nControl", data_filter["passage"])
     g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order, palette=mutation_palette(4),
                         kind="point", hue_order=transition_order, join=False, estimator=weighted_varaint, orient="v",
                      dodge=True, legend=True)
@@ -179,18 +180,26 @@ def main():
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     plt.close()
 
-    pairs = [(("p0", "A>G"), ("p0", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+    pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
              (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-             (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A"))]
+             (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
+             (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+             (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
+             (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
+             (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
+             (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
+             (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
     passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
     passage_g.set_ylim(10 ** -6, 10 ** -2)
 
-    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter)
-    annot.configure(test='Levene', text_format='star', loc='outside', verbose=2, comparisons_correction="BH") #"Wilcoxon test"
+    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter, hue_order=transition_order)
+    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni") #"Wilcoxon test"
     annot.apply_test()#alternative="less"
     passage_g, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
     plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_CVB3", dpi=300)
     plt.close()
 

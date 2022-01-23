@@ -1,4 +1,3 @@
-import datetime
 
 import pandas as pd
 import os
@@ -13,6 +12,7 @@ from AccuNGS_analysis import old_statannot
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from AccuNGS_analysis.Linear_regression import linear_reg
 from datetime import datetime
+from statannotations.Annotator import Annotator
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -148,17 +148,17 @@ def main():
     transition_order = ["A>G", "U>C", "G>A"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
 
-    g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
-                        kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
-                     orient="v")
-    g1.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    g1.set_xticklabels(fontsize=9, rotation=45)
-    g1.set(yscale='log')
-    g1.set(ylim=(10**-5, 10**-1))
-
-    # plt.show()
-    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
-    plt.close()
+    # g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
+    #                     kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
+    #                  orient="v")
+    # g1.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+    # g1.set_xticklabels(fontsize=9, rotation=45)
+    # g1.set(yscale='log')
+    # g1.set(ylim=(10**-5, 10**-1))
+    #
+    # # plt.show()
+    # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    # plt.close()
 
     data_filter["passage"] = data_filter["passage"].astype(str)
     data_filter["passage"] = "p" + data_filter["passage"]
@@ -172,6 +172,25 @@ def main():
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
     #                   "/Transition_Mutations_point_plot_Mahoney", dpi=300)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_Mahoney", dpi=300)
+    plt.close()
+    pairs = [(("p3", "A>G"), ("p3", "G>A")), (("p4", "A>G"), ("p4", "G>A")),
+             (("p5", "A>G"), ("p5", "G>A")), (("p6", "A>G"), ("p6", "G>A")),
+             (("p7", "A>G"), ("p7", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
+             (("p3", "A>G"), ("p3", "U>C")), (("p4", "A>G"), ("p4", "U>C")),
+             (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
+             (("p7", "A>G"), ("p7", "U>C")), (("p8", "A>G"), ("p8", "U>C"))]
+    passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
+                            palette=mutation_palette(4), dodge=True, hue_order=transition_order)
+    passage_g.set_yscale('log')
+    passage_g.set_ylim(10 ** -6, 10 ** -2)
+
+    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter, hue_order=transition_order)
+    annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2, comparisons_correction="Bonferroni")
+    annot.apply_test()
+    passage_g, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_PV", dpi=300)
     plt.close()
 
     # data_filter["passage"] = data_filter["passage"].astype(int)
