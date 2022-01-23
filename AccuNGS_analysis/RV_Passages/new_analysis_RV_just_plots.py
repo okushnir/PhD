@@ -96,7 +96,6 @@ def main():
     # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     # plt.close()
     replica_lst = [1, 2, 3]
-
     for replica in replica_lst:
         if replica == 2:
             pairs = [(("p2", "A>G"), ("p2", "G>A")),

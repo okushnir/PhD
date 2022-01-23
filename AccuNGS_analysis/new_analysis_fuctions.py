@@ -8,6 +8,7 @@ from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from statannotations.Annotator import Annotator
 import contextlib
 
+
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
 sns.despine()
@@ -25,15 +26,16 @@ def checkKey(dict, key):
         raise Exception()
 
 
-def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None):
+def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None, replica=None):
     data_mutations = pd.read_csv(input_dir + q_file_name)
+    data_mutations = data_mutations[data_mutations["Rank"] != 0]
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
     data_filter = pd.DataFrame(data_mutations, columns=columns)
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
     # filter based on pval<0.01 and Prob>0.95
     # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])
@@ -91,7 +93,8 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mut
     data_filter_uc.to_pickle(output_dir + "/data_filter_uc.pkl")
     return data_filter
 
-def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order):
+
+def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, filter_reads=None):
     output_dir = input_dir + date + "_plots"
     plus_minus = u"\u00B1"
     try:
@@ -100,6 +103,9 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
         print("Creation of the directory %s failed" % output_dir)
     else:
         print("Successfully created the directory %s " % output_dir)
+    if filter_reads is True:
+        data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+        data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
     # g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
