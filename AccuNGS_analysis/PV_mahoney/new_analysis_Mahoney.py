@@ -6,7 +6,6 @@ from AccuNGS_analysis.new_analysis_fuctions import *
 def main():
     input_dir = "/Users/odedkushnir/PhD_Projects/After_review/CirSeq/PV/Mahoney/"
     date = datetime.today().strftime("%Y%m%d")
-    print(date)
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
     try:

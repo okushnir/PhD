@@ -116,7 +116,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     data_filter["passage"] = "p" + data_filter["passage"]
     g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
                      palette=mutation_palette(4)
-                     , kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
+                     , kind="point", dodge=0.5, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v")
     g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
@@ -133,7 +133,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     passage_g.set_ylim(10 ** -6, 10 ** -2)
 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter,
-                      hue_order=transition_order)
+                      order=passage_order, hue_order=transition_order)
     annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2,
                     comparisons_correction="Bonferroni")
     annot.apply_test()
@@ -170,7 +170,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
-                               order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=True,
+                               order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
     catplot_adar.set_axis_labels("Passage", "Variant Frequency {0} CI=95%".format(plus_minus))
@@ -184,6 +184,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                          hue_order=mutation_adar_order)
     adar_g.set_yscale('log')
     adar_g.set_ylim(10 ** -6, 10 ** -1)
+    adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
     annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
@@ -193,7 +194,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     with open(file_path, "w") as o:
         with contextlib.redirect_stdout(o):
             adar_g, test_results = annot.annotate()
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     plt.tight_layout()
     plt.savefig(output_dir + "/adar_pref_mutation_box_plot_{0}.png".format(virus), dpi=300)
     plt.close()
