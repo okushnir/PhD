@@ -12,6 +12,7 @@ from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from AccuNGS_analysis.Linear_regression import linear_reg
 from datetime import datetime
 from statannotations.Annotator import Annotator
+import contextlib
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -101,7 +102,10 @@ def main():
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter, hue_order=transition_order)
     annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2, comparisons_correction="Bonferroni") #"Wilcoxon test"
     annot.apply_test()#alternative="less"
-    passage_g, test_results = annot.annotate()
+    file_path = plots_output_dir + "/sts.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            passage_g, test_results = annot.annotate()
     plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     plt.tight_layout()
     plt.savefig(plots_output_dir + "/Transition_Mutations_box_stat_plot_OPV", dpi=300)
