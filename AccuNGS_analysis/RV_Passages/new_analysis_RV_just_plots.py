@@ -96,6 +96,20 @@ def main():
     # plt.close()
     replica_lst = [1, 2, 3]
     for replica in replica_lst:
+        data_filter_replica = data_filter[data_filter["replica"] == replica]
+        data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
+        data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
+        if replica == 2:
+            data_filter_replica = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
+            data_filter_replica["passage"] = data_filter_replica["passage"].astype(int)
+            data_filter_replica["no_variants"] = np.where(data_filter_replica["Prob"] < 0.95, 0, data_filter_replica["no_variants"])
+            data_filter_replica["Read_count"] = data_filter_replica[data_filter_replica["Read_count"] > 10000]
+            data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
+            data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
+            data_filter_replica["replica"] = np.where(data_filter_replica["passage"] == "p0", 2, data_filter_replica["replica"])
+            data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
+        data_filter_replica["passage"] = np.where(data_filter_replica["passage"] == "p0", "RNA\nControl", data_filter_replica["passage"])
+
         if replica == 1:
             passage_order = ["RNA\nControl", "p2", "p5", "p8", "p12"]
             pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
@@ -127,7 +141,6 @@ def main():
                      (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
                      (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
-
             pairs_adar = [(("RNA\nControl", "High\nADAR-like\nA>G"), ("RNA\nControl", "Low\nADAR-like\nA>G")),
                           (("p2", "High\nADAR-like\nA>G"), ("p2", "Low\nADAR-like\nA>G")),
                           (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
@@ -140,20 +153,6 @@ def main():
                           (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
                           (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                           (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
-        data_filter_replica = data_filter[data_filter["replica"] == replica]
-        data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
-        data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
-        if replica == 2:
-            data_filter_replica = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
-            data_filter_replica["passage"] = data_filter_replica["passage"].astype(int)
-            data_filter_replica["no_variants"] = np.where(data_filter_replica["Prob"] < 0.95, 0, data_filter_replica["no_variants"])
-            data_filter_replica["Read_count"] = data_filter_replica[data_filter_replica["Read_count"] > 10000]
-            data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
-            data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
-            data_filter_replica["replica"] = np.where(data_filter_replica["passage"] == "p0", 2, data_filter_replica["replica"])
-            data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
-        data_filter_replica["passage"] = np.where(data_filter_replica["passage"] == "p0", "RNA\nControl", data_filter_replica["passage"])
-
 
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation", order=passage_order,
                                 palette=mutation_palette(4), kind="point", dodge=0.5, hue_order=transition_order,
@@ -167,7 +166,7 @@ def main():
                                 palette=mutation_palette(4), dodge=True, hue_order=transition_order)
         passage_g1.set_yscale('log')
         passage_g1.set_ylim(10 ** -6, 10 ** -2)
-
+        passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica,
                           order=passage_order, hue_order=transition_order)
         annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
