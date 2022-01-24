@@ -55,15 +55,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-    # sns.set(font_scale=1.2)
-    # sns.set_style("ticks")
-    # sns.despine()
-    #
-    #
-    # def weighted_varaint(x, **kws):
-    #     var, count = map(np.asarray, zip(*x))
-    #     return var.sum() / count.sum()
-
     # import pandas as pd
     # import os
     # import matplotlib.pyplot as plt
@@ -79,6 +70,14 @@ if __name__ == "__main__":
     # from statannotations.Annotator import Annotator
     # import contextlib
 
+    # sns.set(font_scale=1.2)
+    # sns.set_style("ticks")
+    # sns.despine()
+    #
+    #
+    # def weighted_varaint(x, **kws):
+    #     var, count = map(np.asarray, zip(*x))
+    #     return var.sum() / count.sum()
 
     # # flatui = ["#3498db", "#9b59b6"]
     # # date = "20211211"
