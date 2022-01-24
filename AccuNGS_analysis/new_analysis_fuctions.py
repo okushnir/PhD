@@ -19,16 +19,18 @@ def weighted_varaint(x, **kws):
     return var.sum() / count.sum()
 
 
-def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None, replica=None):
+def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None, replica=None, filter_reads=None):
     data_mutations = pd.read_csv(input_dir + q_file_name)
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
     data_filter = pd.DataFrame(data_mutations, columns=columns)
     data_filter["pval"] = data_filter["pval"].fillna(1)
     data_filter["no_variants"] = data_filter["Frequency"] * data_filter["Read_count"]
-    # filter based on pval<0.01 and Prob>0.95
-    # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
-    # data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    if filter_reads is True:
+        # filter based on pval<0.01 and Prob>0.95
+        # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
+        data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+        data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])

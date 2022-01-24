@@ -21,7 +21,7 @@ def main():
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
                "Consensus>Mutated_codon", "fiveGrade", "threeGrade"]
     removed_mutation = None
-    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation)
+    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation, filter_reads=True)
 
     """Plots"""
     passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
