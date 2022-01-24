@@ -21,7 +21,8 @@ def main():
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
                "Consensus>Mutated_codon", "fiveGrade", "threeGrade"]
     removed_mutation = None
-    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation, filter_reads=True)
+    virus = "CVB3"
+    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, removed_mutation, filter_reads=True)
 
     """Plots"""
     passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
@@ -49,7 +50,8 @@ def main():
                   (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                   (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
-    plots(input_dir, date, data_filter, "CVB3", passage_order, transition_order, pairs, label_order, pairs_adar)
+    plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar
+          , filter_reads=True)
 
 
 if __name__ == "__main__":
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     # from scipy import stats
     # from statannotations.Annotator import Annotator
     # import contextlib
-
+    #
     # sns.set(font_scale=1.2)
     # sns.set_style("ticks")
     # sns.despine()
@@ -78,7 +80,7 @@ if __name__ == "__main__":
     # def weighted_varaint(x, **kws):
     #     var, count = map(np.asarray, zip(*x))
     #     return var.sum() / count.sum()
-
+    #
     # # flatui = ["#3498db", "#9b59b6"]
     # # date = "20211211"
     # # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/CVB3"

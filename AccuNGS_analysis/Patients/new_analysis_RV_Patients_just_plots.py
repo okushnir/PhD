@@ -12,6 +12,8 @@ import seaborn as sns
 from statannot import add_stat_annotation
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from datetime import datetime
+from AccuNGS_analysis.new_analysis_fuctions import *
+from statannotations.Annotator import Annotator
 
 sns.set(font_scale=1.2)
 sns.set_style("ticks")
@@ -41,9 +43,10 @@ def main():
     data_filter = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
     data_filter_ag = pd.read_pickle(input_dir + prefix + "/data_filter_ag.pkl")
     data_filter_uc = pd.read_pickle(input_dir + prefix +"/data_filter_uc.pkl")
+    data_filter["label"] = np.where(data_filter["label"] == "RNA Control\nPrimer ID", "RNA\nControl", data_filter["label"])
 
     #Plots
-    label_order = ["RNA Control\nPrimer ID", "p3 Cell Culture\nControl", "Patient-1", "Patient-4", "Patient-5",
+    label_order = ["RNA\nControl", "p3 Cell Culture\nControl", "Patient-1", "Patient-4", "Patient-5",
                    "Patient-9", "Patient-16", "Patient-17", "Patient-20"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
@@ -54,20 +57,38 @@ def main():
     type_order_ag = ["Synonymous", "Non-Synonymous", "NonCodingRegion"]
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
+    pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), 
+             (("p3 Cell Culture\nControl", "A>G"), ("p3 Cell Culture\nControl", "G>A")),
+             (("Patient-1", "A>G"), ("Patient-1", "G>A")), (("Patient-4", "A>G"), ("Patient-4", "G>A")),
+             (("Patient-5", "A>G"), ("Patient-5", "G>A")), (("Patient-9", "A>G"), ("Patient-9", "G>A")),
+             (("Patient-16", "A>G"), ("Patient-16", "G>A")), (("Patient-17", "A>G"), ("Patient-17", "G>A")),
+             (("Patient-20", "A>G"), ("Patient-20", "G>A")),
+             (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")),
+             (("p3 Cell Culture\nControl", "A>G"), ("p3 Cell Culture\nControl", "U>C")),
+             (("Patient-1", "A>G"), ("Patient-1", "U>C")), (("Patient-4", "A>G"), ("Patient-4", "U>C")),
+             (("Patient-5", "A>G"), ("Patient-5", "U>C")), (("Patient-9", "A>G"), ("Patient-9", "U>C")),
+             (("Patient-16", "A>G"), ("Patient-16", "U>C")), (("Patient-17", "A>G"), ("Patient-17", "U>C")),
+             (("Patient-20", "A>G"), ("Patient-20", "U>C")),
+             (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")),
+             (("p3 Cell Culture\nControl", "A>G"), ("p3 Cell Culture\nControl", "C>U")),
+             (("Patient-1", "A>G"), ("Patient-1", "C>U")), (("Patient-4", "A>G"), ("Patient-4", "C>U")),
+             (("Patient-5", "A>G"), ("Patient-5", "C>U")), (("Patient-9", "A>G"), ("Patient-9", "C>U")),
+             (("Patient-16", "A>G"), ("Patient-16", "C>U")), (("Patient-17", "A>G"), ("Patient-17", "C>U")),
+             (("Patient-20", "A>G"), ("Patient-20", "C>U"))]
 
-    g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
-                        kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
-                     orient="v")
-    g1.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
-    g1.set_xticklabels(fontsize=9, rotation=90)
-    g1.set(yscale='log')
-    # g1.set(ylim=(10**-7, 10**-3))
-
-    # plt.show()
-    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
-    plt.close()
+    # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
+    #                     kind="point", dodge=True, hue_order=mutation_order, join=False, estimator=weighted_varaint,
+    #                  orient="v")
+    # g1.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
+    # g1.set_xticklabels(fontsize=9, rotation=90)
+    # g1.set(yscale='log')
+    # # g1.set(ylim=(10**-7, 10**-3))
+    #
+    # # plt.show()
+    # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    # plt.close()
     g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette=mutation_palette(4)
-                        ,kind="point", dodge=True, hue_order=transition_order, join=False, estimator=weighted_varaint,
+                        ,kind="point", dodge=0.5, hue_order=transition_order, join=False, estimator=weighted_varaint,
                      orient="v", legend=True)
     g2.set_axis_labels("", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log')
@@ -79,6 +100,28 @@ def main():
     g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
     # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
     #                   "/Fig9a_Transition_Mutations_point_plot_Patients", dpi=300)
+    plt.close()
+    data_filter["label"] = data_filter["label"].astype(str)
+    data_filter["Frequency"] = data_filter["Frequency"].astype(float)
+    passage_g = sns.boxplot(x="label", y="Frequency", data=data_filter, hue="Mutation", order=label_order,
+                            palette=mutation_palette(4), dodge=True, hue_order=transition_order)
+    passage_g.set_yscale('log')
+    passage_g.set_ylim(10 ** -6, 10 ** -1)
+    passage_g.set(xlabel="", ylabel="Variant Frequency")
+    passage_g.set_xticklabels(labels=label_order, fontsize=10, rotation=90)
+
+    annot = Annotator(passage_g, pairs, x="label", y="Frequency", hue="Mutation", data=data_filter,
+                      order=label_order, hue_order=transition_order)
+    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+                    comparisons_correction="Bonferroni")
+    annot.apply_test()
+    file_path = output_dir + "/sts.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            passage_g, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_patients", dpi=300)
     plt.close()
 
     # g_rna = sns.catplot(x="RNA", y="frac_and_weight", data=data_filter, hue="Mutation", order=rna_order,

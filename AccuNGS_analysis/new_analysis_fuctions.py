@@ -19,7 +19,7 @@ def weighted_varaint(x, **kws):
     return var.sum() / count.sum()
 
 
-def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation=None, replica=None, filter_reads=None):
+def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, removed_mutation=None, replica=None, filter_reads=None):
     data_mutations = pd.read_csv(input_dir + q_file_name)
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
@@ -30,11 +30,16 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mut
         # filter based on pval<0.01 and Prob>0.95
         # data_filter["no_variants"] = np.where(data_filter["pval"] > 0.01, 0, data_filter["no_variants"])
         data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
+    if virus == "RVB14":
         data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
 
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
-    data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])
-    data_filter["passage"] = data_filter["passage"].astype(int)
+    if virus == "CVB3":
+        data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
+        data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", "RNA\nControl", data_filter["passage"])
+    else:
+        data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])
+    # data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["Type"] = data_filter["Type"].fillna("NonCodingRegion")
     if removed_mutation is not None:
         data_filter = data_filter.loc[data_filter.Mutation != removed_mutation]
@@ -114,8 +119,9 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     # # plt.show()
     # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     # plt.close()
+
     data_filter["passage"] = data_filter["passage"].astype(str)
-    data_filter["passage"] = "p" + data_filter["passage"]
+    data_filter["passage"] = np.where(data_filter["passage"] != "RNA\nControl", "p" + data_filter["passage"], data_filter["passage"])
     g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
                      palette=mutation_palette(4)
                      , kind="point", dodge=0.5, hue_order=transition_order, join=False, estimator=weighted_varaint,
@@ -132,11 +138,12 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
-    passage_g.set_ylim(10 ** -6, 10 ** -2)
+    passage_g.set_ylim(10 ** -6, 10 ** -1)
+    passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter,
                       order=passage_order, hue_order=transition_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='inside', verbose=2,
+    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
