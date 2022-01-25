@@ -93,7 +93,7 @@ def main():
     mutation_lst = ["A>G", "T>C", "G>A", "C>T"]
     for mutation in mutation_lst:
         # mutation = "A>G"
-        mutation_in_stretch = 3
+        mutation_in_stretch = 13
         input_dir = "C:/Users/odedku/Stretch_analysis_{0}".format(mutation.replace(">", ""))
         prefix = "20201012_q38/all_parts.blast"
         p2_1 = pd.read_table(input_dir + "/p2_1/{0}".format(prefix), sep="\t")
@@ -165,7 +165,7 @@ def main():
         L_labels = leg.get_texts()
         label_line_1 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope1, intercept1, std_err1, r_value1 ** 2)
         L_labels[0].set_text(label_line_1)
-        plt.show()
+        plt.savefig(input_dir + "/figs/points.png", dpi=300)
 
 
         slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(mean_crosstab_df_all['passage'],
@@ -181,7 +181,7 @@ def main():
         L_labels = leg.get_texts()
         label_line_2 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope2, intercept2, std_err2, r_value2 ** 2)
         L_labels[0].set_text(label_line_2)
-        plt.show()
+        plt.savefig(input_dir + "/figs/mean.png", dpi=300)
 
 
 if __name__ == "__main__":
