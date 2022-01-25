@@ -4,6 +4,7 @@
 @Author: odedkushnir
 
 """
+import os
 import glob
 import sys, argparse
 import pandas as pd
@@ -74,27 +75,35 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
     return crosstab_df
 
 
-def create_crosstab_df(input_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch):
+def create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
     df_control, df_control_grouped = AG_read_counter(data_control, mutation, mutation_in_stretch)
     crosstab_lst = []
     for key, value in data_dict.items():
         df, df_grouped = AG_read_counter(value[0], mutation, mutation_in_stretch)
-        df_grouped.to_pickle(input_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
+        df_grouped.to_pickle(output_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
         crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1], control_id, mutation)
-        crosstab_df.to_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
-        crosstab_df.to_csv(input_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
+        crosstab_df.to_pickle(output_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
+        crosstab_df.to_csv(output_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
         crosstab_lst.append(crosstab_df)
     return crosstab_lst
 
 
 def main():
     # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
-    mutation_lst = ["A>G", "T>C", "G>A", "C>T"]
+    mutation_lst = ["A>G", "T>C", "G>A", "C>T"] # ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
+    input_dir = "C:/Users/odedku/Stretch_analysis"#.format(mutation.replace(">", ""))
     for mutation in mutation_lst:
         # mutation = "A>G"
         mutation_in_stretch = 13
-        input_dir = "C:/Users/odedku/Stretch_analysis_{0}".format(mutation.replace(">", ""))
+        output_dir = input_dir + "_{0}".format(mutation.replace(">", ""))
+        try:
+            os.mkdir(output_dir)
+        except OSError:
+            print("Creation of the directory {0} failed".format(output_dir))
+        else:
+            print("Successfully created the directory {0}".format(output_dir))
+
         prefix = "20201012_q38/all_parts.blast"
         p2_1 = pd.read_table(input_dir + "/p2_1/{0}".format(prefix), sep="\t")
         p2_2 = pd.read_table(input_dir + "/p2_2/{0}".format(prefix), sep="\t")
@@ -113,16 +122,26 @@ def main():
                      "p12_1": [p12_1, 9668], "p12_2": [p12_2, 11110]}
         control_id = 27962
         """NOT from memory"""
-        create_crosstab_df(input_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch)
+        passage_lst = glob.glob(input_dir + "/p*")
+        for passage in passage_lst:
+            passage_num = passage.split("\\")[-1]
+            try:
+                os.mkdir(output_dir + "/{0}".format(passage_num))
+                os.mkdir(output_dir + "/{0}/20201012_q38".format(passage_num))
+            except OSError:
+                print("Creation of the directory {0}/{1}/20201012_q38 failed".format(output_dir, passage_num))
+            else:
+                print("Successfully created the directory {0}/{1}/20201012_q38".format(output_dir, passage_num))
+        create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch)
 
         """from memory"""
         passage_lst = glob.glob(input_dir + "/p*")
         crosstab_lst = []
         for passage in passage_lst:
             passage_num = passage.split("\\")[-1]
-            crosstab_df = pd.read_pickle(input_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(passage_num))
+            crosstab_df = pd.read_pickle(output_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(passage_num))
             crosstab_lst.append(crosstab_df)
-
+        """Creation of the final tables and figs"""
         crosstab_df_all = pd.concat(crosstab_lst, axis=1)
         crosstab_df_all = crosstab_df_all[
             ["Control", "p2_1", "p2_2", "p5_1", "p5_2", "p8_1", "p8_2", "p10_1", "p10_2", "p12_1", "p12_2"]]
@@ -145,13 +164,21 @@ def main():
         crosstab_df_all["replica"] = np.where(crosstab_df_all["Sample"] != "Control",
                                               crosstab_df_all.apply(lambda x: str(x["Sample"]).split("_")[-1], axis=1), 1)
         crosstab_df_all["passage"] = crosstab_df_all["passage"].astype(int)
-        crosstab_df_all.to_csv(input_dir + "/crosstab_df_all.csv", sep=",")
+        crosstab_df_all.to_csv(output_dir + "/crosstab_df_all.csv", sep=",")
         mean_crosstab_df_all = crosstab_df_all.groupby("passage", as_index=False).mean()
         mean_crosstab_df_all["sem"] = crosstab_df_all.groupby("passage", as_index=False).sem()[
             "Hyper mutation read frequency/sequenced genome"]
         mean_crosstab_df_all["PrimerID_barcode"] = round(mean_crosstab_df_all["PrimerID_barcode"])
-        mean_crosstab_df_all.to_csv(input_dir + "/mean_crosstab_df_all.csv", sep=",")
+        mean_crosstab_df_all.to_csv(output_dir + "/mean_crosstab_df_all.csv", sep=",")
 
+        try:
+            os.mkdir(output_dir + "/figs")
+        except OSError:
+            print("Creation of the directory {0}/figs failed".format(output_dir))
+        else:
+            print("Successfully created the directory {0}/figs".format(output_dir))
+        crosstab_df = pd.read_pickle(output_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(passage_num))
+        crosstab_lst.append(crosstab_df)
         slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(crosstab_df_all['passage'],
                                                                             crosstab_df_all[
                                                                                 'Stretch_percentage'])
@@ -165,7 +192,7 @@ def main():
         L_labels = leg.get_texts()
         label_line_1 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope1, intercept1, std_err1, r_value1 ** 2)
         L_labels[0].set_text(label_line_1)
-        plt.savefig(input_dir + "/figs/points.png", dpi=300)
+        plt.savefig(output_dir + "/figs/points.png", dpi=300)
 
 
         slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(mean_crosstab_df_all['passage'],
@@ -181,7 +208,7 @@ def main():
         L_labels = leg.get_texts()
         label_line_2 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope2, intercept2, std_err2, r_value2 ** 2)
         L_labels[0].set_text(label_line_2)
-        plt.savefig(input_dir + "/figs/mean.png", dpi=300)
+        plt.savefig(output_dir + "/figs/mean.png", dpi=300)
 
 
 if __name__ == "__main__":
