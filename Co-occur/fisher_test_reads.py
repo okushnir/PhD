@@ -78,9 +78,11 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
 def create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
     df_control, df_control_grouped = AG_read_counter(data_control, mutation, mutation_in_stretch)
+    df_control.to_csv(input_dir + "/IVT_3_Control/df_control_{0}.csv".format(mutation), sep=",")
     crosstab_lst = []
     for key, value in data_dict.items():
         df, df_grouped = AG_read_counter(value[0], mutation, mutation_in_stretch)
+        df.to_csv(output_dir + "/{0}/20201012_q38/df.csv".format(key), sep=",")
         df_grouped.to_pickle(output_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
         crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1], control_id, mutation)
         crosstab_df.to_pickle(output_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(key))
@@ -91,11 +93,11 @@ def create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mut
 
 def main():
     # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
-    mutation_lst = ["A>G", "T>C", "G>A", "C>T"] # ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
+    mutation_lst = ["A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"] #"A>G", "T>C", "G>A", "C>T",
     input_dir = "C:/Users/odedku/Stretch_analysis"#.format(mutation.replace(">", ""))
     for mutation in mutation_lst:
         # mutation = "A>G"
-        mutation_in_stretch = 13
+        mutation_in_stretch = 3
         output_dir = input_dir + "_{0}".format(mutation.replace(">", ""))
         try:
             os.mkdir(output_dir)
