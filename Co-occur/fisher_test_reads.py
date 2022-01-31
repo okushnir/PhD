@@ -67,8 +67,8 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
     insert_to_df(crosstab_df, [None, oddsratio])
     insert_to_df(crosstab_df, [None, pval])
     crosstab_df = crosstab_df.rename(index={2: "odssratio", 3: "pval",
-                                            True: "No._of_reads_with_stretch_{0}".format(mutation),
-                                            False: "No._of_reads_without_stretch_{0}".format(mutation)})
+                                            True: "No. of reads with hyper mutation",
+                                            False: "No. of reads without hyper mutation"})
     # print("data of:{0}".format(key))
     # print(crosstab_df.to_string())
     # print("oddsratio={0}    pval={1}".format(oddsratio, pval))
@@ -78,7 +78,7 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
 def create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mutation, mutation_in_stretch):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
     df_control, df_control_grouped = AG_read_counter(data_control, mutation, mutation_in_stretch)
-    df_control.to_csv(input_dir + "/IVT_3_Control/df_control_{0}.csv".format(mutation), sep=",")
+    df_control.to_csv(input_dir + "/IVT_3_Control/df_control_{0}.csv".format(mutation.replace(">", "")), sep=",")
     crosstab_lst = []
     for key, value in data_dict.items():
         df, df_grouped = AG_read_counter(value[0], mutation, mutation_in_stretch)
@@ -93,8 +93,9 @@ def create_crosstab_df(input_dir, output_dir, prefix, data_dict, control_id, mut
 
 def main():
     # input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
-    mutation_lst = ["A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"] #"A>G", "T>C", "G>A", "C>T",
+    mutation_lst = ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
     input_dir = "C:/Users/odedku/Stretch_analysis"#.format(mutation.replace(">", ""))
+    mean_crosstab_df_all_lst = []
     for mutation in mutation_lst:
         # mutation = "A>G"
         mutation_in_stretch = 3
@@ -149,9 +150,9 @@ def main():
             ["Control", "p2_1", "p2_2", "p5_1", "p5_2", "p8_1", "p8_2", "p10_1", "p10_2", "p12_1", "p12_2"]]
         crosstab_df_all = crosstab_df_all.iloc[0:4, 9:]
         crosstab_df_all = crosstab_df_all.transpose()
-        crosstab_df_all["Stretch_percentage"] = crosstab_df_all["No._of_reads_with_stretch_{0}".format(mutation)] / \
-                                                (crosstab_df_all["No._of_reads_with_stretch_{0}".format(mutation)] +
-                                                 crosstab_df_all["No._of_reads_without_stretch_{0}".format(mutation)])
+        crosstab_df_all["Stretch_percentage"] = crosstab_df_all["No. of reads with hyper mutation"] / \
+                                                (crosstab_df_all["No. of reads with hyper mutation"] +
+                                                 crosstab_df_all["No. of reads without hyper mutation"])
         crosstab_df_all["Stretch_percentage"] = crosstab_df_all["Stretch_percentage"] * 100
         crosstab_df_all.reset_index(inplace=True, drop=False)
         crosstab_df_all = crosstab_df_all.rename(columns={"index": "Sample"})
@@ -166,11 +167,16 @@ def main():
         crosstab_df_all["replica"] = np.where(crosstab_df_all["Sample"] != "Control",
                                               crosstab_df_all.apply(lambda x: str(x["Sample"]).split("_")[-1], axis=1), 1)
         crosstab_df_all["passage"] = crosstab_df_all["passage"].astype(int)
+        crosstab_df_all["mutation"] = mutation
+        crosstab_df_all = crosstab_df_all.set_index(["mutation"])
         crosstab_df_all.to_csv(output_dir + "/crosstab_df_all.csv", sep=",")
         mean_crosstab_df_all = crosstab_df_all.groupby("passage", as_index=False).mean()
         mean_crosstab_df_all["sem"] = crosstab_df_all.groupby("passage", as_index=False).sem()[
             "Hyper mutation read frequency/sequenced genome"]
         mean_crosstab_df_all["PrimerID_barcode"] = round(mean_crosstab_df_all["PrimerID_barcode"])
+        mean_crosstab_df_all["mutation"] = mutation
+        mean_crosstab_df_all = mean_crosstab_df_all.set_index(["mutation"])
+        mean_crosstab_df_all_lst.append(mean_crosstab_df_all)
         mean_crosstab_df_all.to_csv(output_dir + "/mean_crosstab_df_all.csv", sep=",")
 
         try:
@@ -211,6 +217,8 @@ def main():
         label_line_2 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope2, intercept2, std_err2, r_value2 ** 2)
         L_labels[0].set_text(label_line_2)
         plt.savefig(output_dir + "/figs/mean.png", dpi=300)
+    mean_crosstab_df_all_final = pd.concat(mean_crosstab_df_all_lst, axis=0)
+    mean_crosstab_df_all_final.to_csv(input_dir + "/mean_crosstab_df_all_final.csv", sep=",")
 
 
 if __name__ == "__main__":
