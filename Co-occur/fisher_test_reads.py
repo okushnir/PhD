@@ -96,6 +96,7 @@ def main():
     mutation_lst = ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
     input_dir = "C:/Users/odedku/Stretch_analysis"#.format(mutation.replace(">", ""))
     mean_crosstab_df_all_lst = []
+    crosstab_df_all_lst = []
     for mutation in mutation_lst:
         # mutation = "A>G"
         mutation_in_stretch = 3
@@ -169,6 +170,7 @@ def main():
         crosstab_df_all["passage"] = crosstab_df_all["passage"].astype(int)
         crosstab_df_all["mutation"] = mutation
         crosstab_df_all = crosstab_df_all.set_index(["mutation"])
+        crosstab_df_all_lst.append(crosstab_df_all)
         crosstab_df_all.to_csv(output_dir + "/crosstab_df_all.csv", sep=",")
         mean_crosstab_df_all = crosstab_df_all.groupby("passage", as_index=False).mean()
         mean_crosstab_df_all["sem"] = crosstab_df_all.groupby("passage", as_index=False).sem()[
@@ -217,6 +219,8 @@ def main():
         label_line_2 = "y={0:.3g}x+{1:.3g}\nstderr={2:.3g} Rsq={3:.3g}".format(slope2, intercept2, std_err2, r_value2 ** 2)
         L_labels[0].set_text(label_line_2)
         plt.savefig(output_dir + "/figs/mean.png", dpi=300)
+    crosstab_df_all_final = pd.concat(crosstab_df_all_lst, axis=0)
+    crosstab_df_all_final.to_csv(input_dir + "/crosstab_df_all_final.csv", sep=",")
     mean_crosstab_df_all_final = pd.concat(mean_crosstab_df_all_lst, axis=0)
     mean_crosstab_df_all_final.to_csv(input_dir + "/mean_crosstab_df_all_final.csv", sep=",")
 
