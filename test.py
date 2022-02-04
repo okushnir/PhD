@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+from Co-occur import fisher_test_reads
+
 
 
 # from bio import SeqIO
