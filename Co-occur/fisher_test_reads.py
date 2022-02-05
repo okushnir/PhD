@@ -38,18 +38,18 @@ def arrange_data(data):
     return data
 
 
-def only_good_reads_data(data, good_reads_data):
+def only_good_reads_data(data, blast_out_len):
     data = arrange_data(data)
-    good_reads_data = arrange_data(good_reads_data)
-    good_reads_data[0] = good_reads_data[0].apply(lambda x: x.replace("@", ""))
-    data = data.merge(good_reads_data, on=0, how="right")
+    data["len"] = data.apply(lambda x: len(str(x[7])), axis=1)
+    data["filter"] = np.where(data["len"] > blast_out_len, True, False)
+    removed = data[data["filter"] == True]
+    cond = data[0].isin(removed[0])
+    data.drop(data[cond].index, inplace=True)
+    data = data.drop(columns=["len", "filter"], axis=0)
     return data
 
-def mutation_read_counter(data, data_good_reds, mutation, mutation_in_stretch):
+def mutation_read_counter(data, mutation, mutation_in_stretch):
     mutation = mutation.replace(">", "")
-    data = only_good_reads_data(data, data_good_reds)
-    # data = pd.DataFrame(data.columns.values[None, :], columns=data.columns).append(data).reset_index(drop=True)
-    # data.columns = range(data.shape[1])
     columns = ["read", "start_pos", "end_pos", "start_read", "end_read", "direction", "read_len", "blast_out"]
     df = pd.DataFrame(data.values, columns=columns)
     df1 = df[["read", "blast_out"]]
@@ -88,23 +88,19 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
     return crosstab_df
 
 
-def create_crosstab_df(input_dir, output_dir, prefix, good_reds, data_dict, control_id, mutation, mutation_in_stretch):
+def create_crosstab_df(input_dir, output_dir, prefix, blast_out_len, data_dict, control_id, mutation, mutation_in_stretch):
     data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
-    good_reds_data = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(good_reds), sep="\t")
-    print("data_len before merge:{0}".format(len(data_control)))
-    print("good_reds_len:{0}".format(len(good_reds_data)))
-    # data_control = only_good_reads_data(data_control, good_reds_data)
-    df_control, df_control_grouped = mutation_read_counter(data_control, good_reds_data, mutation, mutation_in_stretch)
-    print("data_len after merge:{0}".format(len(df_control)))
+    print("data_len before filtration:{0}".format(len(data_control)))
+    data_control = only_good_reads_data(data_control, blast_out_len)
+    df_control, df_control_grouped = mutation_read_counter(data_control, mutation, mutation_in_stretch)
+    print("data_len after filtration:{0}".format(len(df_control)))
     df_control.to_csv(input_dir + "/IVT_3_Control/df_control_{0}.csv".format(mutation.replace(">", "")), sep=",")
     crosstab_lst = []
     for key, value in data_dict.items():
-        # df = only_good_reads_data(value[0], )
-        data_good_reads = pd.read_table(input_dir + "/{0}/{1}".format(key, good_reds))
-        print("data_len before merge:{0}".format(len(value[0])))
-        print("good_reds_len:{0}".format(len(data_good_reads)))
-        df, df_grouped = mutation_read_counter(value[0], data_good_reads, mutation, mutation_in_stretch)
-        print("data_len after merge:{0}".format(len(df)))
+        print("data_len before filtration:{0}".format(len(value[0])))
+        data = only_good_reads_data(value[0], blast_out_len)
+        df, df_grouped = mutation_read_counter(data, mutation, mutation_in_stretch)
+        print("data_len after filtration:{0}".format(len(df)))
         df.to_csv(output_dir + "/{0}/20201012_q38/df.csv".format(key), sep=",")
         df_grouped.to_pickle(output_dir + "/{0}/20201012_q38/grouped.pkl".format(key))
         crosstab_df = my_crosstab(df_control_grouped, df_grouped, key, value[1], control_id, mutation)
@@ -115,13 +111,12 @@ def create_crosstab_df(input_dir, output_dir, prefix, good_reds, data_dict, cont
 
 
 def main():
-    input_dir = "/Users/odedkushnir/Google Drive/Studies/PhD/Stretch_analysis"
+    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
     mutation_lst = ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
-    # input_dir = "C:/Users/odedku/Stretch_analysis"#.format(mutation.replace(">", ""))
+    # input_dir = "C:/Users/odedku/Stretch_analysis"
     mean_crosstab_df_all_lst = []
     crosstab_df_all_lst = []
     for mutation in mutation_lst:
-        # mutation = "A>G"
         mutation_in_stretch = 3
         output_dir = input_dir + "_{0}".format(mutation.replace(">", ""))
         try:
@@ -149,6 +144,7 @@ def main():
                      "p8_1": [p8_1, 8666], "p8_2": [p8_2, 9990], "p10_1": [p10_1, 6068], "p10_2": [p10_2, 40623],
                      "p12_1": [p12_1, 9668], "p12_2": [p12_2, 11110]}
         control_id = 27962
+        blast_out_len = 30
         """NOT from memory"""
         passage_lst = glob.glob(input_dir + "/p*")
         for passage in passage_lst:
@@ -160,9 +156,9 @@ def main():
                 print("Creation of the directory {0}/{1}/20201012_q38 failed".format(output_dir, passage_num))
             else:
                 print("Successfully created the directory {0}/{1}/20201012_q38".format(output_dir, passage_num))
-        create_crosstab_df(input_dir, output_dir, prefix, good_reads, data_dict, control_id, mutation, mutation_in_stretch)
+        create_crosstab_df(input_dir, output_dir, prefix, blast_out_len, data_dict, control_id, mutation, mutation_in_stretch)
 
-        """from memory"""
+        """FROM memory"""
         passage_lst = glob.glob(input_dir + "/p*")
         crosstab_lst = []
         for passage in passage_lst:
