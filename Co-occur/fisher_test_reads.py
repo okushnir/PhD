@@ -32,6 +32,7 @@ def string_delimiter(string):
     string_lst = wrap(string, 2)
     return string_lst
 
+
 def arrange_data(data):
     data = pd.DataFrame(data.columns.values[None, :], columns=data.columns).append(data).reset_index(drop=True)
     data.columns = range(data.shape[1])
@@ -39,7 +40,7 @@ def arrange_data(data):
 
 
 def only_good_reads_data(data, blast_out_len):
-    data = arrange_data(data)
+    # data = arrange_data(data)
     data["len"] = data.apply(lambda x: len(str(x[7])), axis=1)
     data["filter"] = np.where(data["len"] > blast_out_len, True, False)
     removed = data[data["filter"] == True]
@@ -89,7 +90,7 @@ def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_
 
 
 def create_crosstab_df(input_dir, output_dir, prefix, blast_out_len, data_dict, control_id, mutation, mutation_in_stretch):
-    data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
+    data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t", header=None)
     print("data_len before filtration:{0}".format(len(data_control)))
     data_control = only_good_reads_data(data_control, blast_out_len)
     df_control, df_control_grouped = mutation_read_counter(data_control, mutation, mutation_in_stretch)
@@ -111,9 +112,9 @@ def create_crosstab_df(input_dir, output_dir, prefix, blast_out_len, data_dict, 
 
 
 def main():
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
     mutation_lst = ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
-    # input_dir = "C:/Users/odedku/Stretch_analysis"
+    input_dir = "C:/Users/odedku/Stretch_analysis"
     mean_crosstab_df_all_lst = []
     crosstab_df_all_lst = []
     for mutation in mutation_lst:
@@ -128,16 +129,16 @@ def main():
 
         prefix = "20201012_q38/all_parts.blast"
         good_reads = "20201012_q38/all_parts.good_reads.list"
-        p2_1 = pd.read_table(input_dir + "/p2_1/{0}".format(prefix), sep="\t")
-        p2_2 = pd.read_table(input_dir + "/p2_2/{0}".format(prefix), sep="\t")
-        p5_1 = pd.read_table(input_dir + "/p5_1/{0}".format(prefix), sep="\t")
-        p5_2 = pd.read_table(input_dir + "/p5_2/{0}".format(prefix), sep="\t")
-        p8_1 = pd.read_table(input_dir + "/p8_1/{0}".format(prefix), sep="\t")
-        p8_2 = pd.read_table(input_dir + "/p8_2/{0}".format(prefix), sep="\t")
-        p10_1 = pd.read_table(input_dir + "/p10_1/{0}".format(prefix), sep="\t")
-        p10_2 = pd.read_table(input_dir + "/p10_2/{0}".format(prefix), sep="\t")
-        p12_1 = pd.read_table(input_dir + "/p12_1/{0}".format(prefix), sep="\t")
-        p12_2 = pd.read_table(input_dir + "/p12_2/{0}".format(prefix), sep="\t")
+        p2_1 = pd.read_table(input_dir + "/p2_1/{0}".format(prefix), sep="\t", header=None)
+        p2_2 = pd.read_table(input_dir + "/p2_2/{0}".format(prefix), sep="\t", header=None)
+        p5_1 = pd.read_table(input_dir + "/p5_1/{0}".format(prefix), sep="\t", header=None)
+        p5_2 = pd.read_table(input_dir + "/p5_2/{0}".format(prefix), sep="\t", header=None)
+        p8_1 = pd.read_table(input_dir + "/p8_1/{0}".format(prefix), sep="\t", header=None)
+        p8_2 = pd.read_table(input_dir + "/p8_2/{0}".format(prefix), sep="\t", header=None)
+        p10_1 = pd.read_table(input_dir + "/p10_1/{0}".format(prefix), sep="\t", header=None)
+        p10_2 = pd.read_table(input_dir + "/p10_2/{0}".format(prefix), sep="\t", header=None)
+        p12_1 = pd.read_table(input_dir + "/p12_1/{0}".format(prefix), sep="\t", header=None)
+        p12_2 = pd.read_table(input_dir + "/p12_2/{0}".format(prefix), sep="\t", header=None)
         barcode_data = pd.read_csv(input_dir + "/barcode/PrimerID_barcode_Results.csv")
         # Dictionary of passage and number of PrimerID
         data_dict = {"p2_1": [p2_1, 23507], "p2_2": [p2_2, 38726], "p5_1": [p5_1, 17903], "p5_2": [p5_2, 12395],
