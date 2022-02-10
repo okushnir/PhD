@@ -33,17 +33,20 @@ def mutation_all(data, ref, mutation, mutation_in_stretch):
     data_all["Mutation"] = data_all["Ref"] + data_all["Base"]
     data_all["Mutation"] = data_all["Mutation"].astype(str)
     data_all["Mutation"] = data_all["Mutation"].apply(lambda x: string_delimiter(x))
-
     data_all["Pos"] = data_all["Pos"].astype(str)
     data_all["Mutation"] = data_all["Mutation"].astype(str)
     data_all["Stretch"] = 0
-    df_grouped = data_all.groupby(["Read"]).agg(lambda x: x.count() if np.issubdtype(x.dtype, np.number) else ', '.join(x)).reset_index()
-    df_grouped["Mutation_count"] = df_grouped["Mutation"].apply(lambda x: x.count(mutation))
-    df_grouped["in_stretch"] = np.where(df_grouped["Mutation_count"] >= mutation_in_stretch, True, False)
-
-    print(df_grouped.to_string())
-
-    return data_all
+    data_all = data_all.groupby(["Read"]).agg(lambda x: x.count() if np.issubdtype(x.dtype, np.number) else ', '.join(x)).reset_index()
+    data_all["Mutation_count"] = data_all["Mutation"].apply(lambda x: x.count(mutation))
+    data_all["in_stretch"] = np.where(data_all["Mutation_count"] >= mutation_in_stretch, True, False)
+    df_grouped = data_all.groupby("in_stretch", as_index=False).count()
+    if df_grouped["Read"].iloc[0] == len(data_all):
+        insert_to_df(df_grouped, [True, 0, 0, 0, 0, 0, 0, 0])
+    df_grouped = df_grouped[["in_stretch", "Read"]]
+    df_grouped = df_grouped.rename(columns={"Read": "count"})
+    df_grouped = df_grouped.set_index("in_stretch")
+    print(data_all.to_string())
+    return data_all, df_grouped
 
 
 def main():
