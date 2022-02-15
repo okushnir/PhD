@@ -49,6 +49,7 @@ def only_good_reads_data(data, blast_out_len):
     data = data.drop(columns=["len", "filter"], axis=0)
     return data
 
+
 def mutation_read_counter(data, mutation, mutation_in_stretch):
     mutation = mutation.replace(">", "")
     columns = ["read", "start_pos", "end_pos", "start_read", "end_read", "direction", "read_len", "blast_out"]
