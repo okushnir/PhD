@@ -120,14 +120,14 @@ def main():
             ["Control", "p2_1", "p2_2", "p5_1", "p5_2", "p8_1", "p8_2", "p10_1", "p10_2", "p12_1", "p12_2"]]
         crosstab_df_all = crosstab_df_all.iloc[0:4, 9:]
         crosstab_df_all = crosstab_df_all.transpose()
-        crosstab_df_all["Stretch Frequency"] = crosstab_df_all["No. of reads with hyper mutation"] / \
+        crosstab_df_all["Stretch Precentage [%]"] = crosstab_df_all["No. of reads with hyper mutation"] / \
                                                 (crosstab_df_all["No. of reads with hyper mutation"] +
                                                  crosstab_df_all["No. of reads without hyper mutation"])
-        crosstab_df_all["Stretch Frequency"] = crosstab_df_all["Stretch Frequency"] * 100
+        crosstab_df_all["Stretch Precentage [%]"] = crosstab_df_all["Stretch Precentage [%]"] * 100
         crosstab_df_all.reset_index(inplace=True, drop=False)
         crosstab_df_all = crosstab_df_all.rename(columns={"index": "Sample"})
         crosstab_df_all = crosstab_df_all.merge(barcode_data, on="Sample", how="inner")
-        crosstab_df_all["Hyper mutation read frequency/sequenced genome"] = crosstab_df_all["Stretch Frequency"] / \
+        crosstab_df_all["Hyper mutation read frequency/sequenced genome"] = crosstab_df_all["Stretch Precentage [%]"] / \
                                                                             crosstab_df_all["PrimerID_barcode"]
         crosstab_df_all["Hyper mutation read frequency/sequenced genome"] = crosstab_df_all[
             "Hyper mutation read frequency/sequenced genome"].astype(float)
@@ -160,8 +160,8 @@ def main():
         crosstab_lst.append(crosstab_df)
         slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(crosstab_df_all['passage'],
                                                                             crosstab_df_all[
-                                                                                'Stretch Frequency'])
-        fig1 = sns.lmplot(x="passage", y="Stretch Frequency", data=crosstab_df_all, fit_reg=True,
+                                                                                'Stretch Precentage [%]'])
+        fig1 = sns.lmplot(x="passage", y="Stretch Precentage [%]", data=crosstab_df_all, fit_reg=True,
                           line_kws={'label': "Linear Reg"}, )
         fig1.set(xlabel="Passage", ylabel="Stretch Percentage [%]", xlim=(0, 12))
         ax = fig1.axes[0, 0]
@@ -176,8 +176,8 @@ def main():
 
         slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(mean_crosstab_df_all['passage'],
                                                                             mean_crosstab_df_all[
-                                                                                'Stretch Frequency'])
-        fig2 = sns.lmplot(x="passage", y="Stretch Frequency", data=mean_crosstab_df_all, fit_reg=True,
+                                                                                'Stretch Precentage [%]'])
+        fig2 = sns.lmplot(x="passage", y="Stretch Precentage [%]", data=mean_crosstab_df_all, fit_reg=True,
                           line_kws={'label': "Linear Reg"}, )
         fig2.set(xlabel="Passage", ylabel="Stretch Percentage [%]", xlim=(0, 12))
         ax = fig2.axes[0, 0]
