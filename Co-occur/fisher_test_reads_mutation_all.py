@@ -123,7 +123,7 @@ def main():
         crosstab_df_all["Stretch Frequency"] = crosstab_df_all["No. of reads with hyper mutation"] / \
                                                 (crosstab_df_all["No. of reads with hyper mutation"] +
                                                  crosstab_df_all["No. of reads without hyper mutation"])
-        crosstab_df_all["Stretch Frequency"] = crosstab_df_all["Stretch Frequency"]
+        crosstab_df_all["Stretch Frequency"] = crosstab_df_all["Stretch Frequency"] * 100
         crosstab_df_all.reset_index(inplace=True, drop=False)
         crosstab_df_all = crosstab_df_all.rename(columns={"index": "Sample"})
         crosstab_df_all = crosstab_df_all.merge(barcode_data, on="Sample", how="inner")
