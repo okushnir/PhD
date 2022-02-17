@@ -1,3 +1,5 @@
+import numpy as np
+
 from fisher_test_reads import *
 import pandas as pd
 
@@ -47,16 +49,46 @@ def mutation_all(data, ref, mutation, mutation_in_stretch):
 
 
 def main():
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
-    prefix = "20201012_q38/mutations_all.txt"
-    passage = "IVT-3-Control"
-    ref = "20201012_q38/{0}.merged.with.mutation.type.freqs".format(passage)
-    data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
-    ref_data = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(ref), sep="\t")
-    mutation_lst = ["A>G"]#, "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
-    mutation_in_stretch = 3
-    for mutation in mutation_lst:
-        mutation_all(data_control, ref_data, mutation, mutation_in_stretch)
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
+    # prefix = "20201012_q38/mutations_all.txt"
+    # passage = "IVT-3-Control"
+    # ref = "20201012_q38/{0}.merged.with.mutation.type.freqs".format(passage)
+    # data_control = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(prefix), sep="\t")
+    # ref_data = pd.read_table(input_dir + "/IVT_3_Control/{0}".format(ref), sep="\t")
+    # mutation_lst = ["A>G"]#, "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
+    # mutation_in_stretch = 3
+    # for mutation in mutation_lst:
+    #     mutation_all(data_control, ref_data, mutation, mutation_in_stretch)
+
+    data = pd.read_csv("C:/Users/odedku/Downloads/crosstab_df_all_final.csv")
+    zeros = np.zeros(32291)
+    ones = np.ones(86)
+    conc = np.concatenate((zeros, ones))
+    conc_ser = pd.Series(conc)
+    data["No. of reads without hyper mutation"] = data["No. of reads without hyper mutation"].astype(int)
+    data["No. of reads with hyper mutation"] = data["No. of reads with hyper mutation"].astype(int)
+    data["zero"] = data.apply(lambda x: np.zeros(x["No. of reads without hyper mutation"]), axis=1)
+    data["ones"] = data.apply(lambda x: np.ones(x["No. of reads with hyper mutation"]), axis=1)
+    # data["vector"] = np.where(data["ones"] != [],  data["zero"] + data["ones"], data["zero"])
+    data["vector"] = data.apply(lambda x: np.concatenate((x["zero"], x["ones"])), axis=1)
+    df_lst = []
+
+    for i in data.iterrows():
+        df = pd.DataFrame(columns=["vector", "passage", "mutation", "replica"])
+        df["vector"] = pd.Series(i[-1].vector)
+        df["mutation"] = i[-1].mutation
+        df["passage"] = i[-1].passage
+        df["replica"] = i[-1].replica
+        df_lst.append(df)
+    df_final = pd.concat(df_lst).reset_index()
+
+
+    # data["vector_sample"] = data.apply(lambda x: list(x["mutation"])+list(x["Sample"]), axis=1)
+    # data["vector_ser"] = data["vector"].apply(lambda x: pd.Series(x))
+
+    plot = sns.catplot(x="passage", y="vector", data=df_final, kind="point", hue="mutation", col="replica", palete="tab10")
+    plt.show()
+    print(data.to_string())
 
 
 if __name__ == "__main__":
