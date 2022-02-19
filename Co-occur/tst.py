@@ -1,6 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
 from fisher_test_reads import *
+import matplotlib.ticker as ticker
 import pandas as pd
 
 def only_good_reads_data(data, good_reads_data, blast_out_len):
@@ -60,11 +62,11 @@ def main():
     # for mutation in mutation_lst:
     #     mutation_all(data_control, ref_data, mutation, mutation_in_stretch)
 
-    data = pd.read_csv("C:/Users/odedku/Downloads/crosstab_df_all_final.csv")
-    zeros = np.zeros(32291)
-    ones = np.ones(86)
-    conc = np.concatenate((zeros, ones))
-    conc_ser = pd.Series(conc)
+    data = pd.read_csv("/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/crosstab_df_all_final.csv")#"C:/Users/odedku/Downloads/crosstab_df_all_final.csv"
+    # zeros = np.zeros(32291)
+    # ones = np.ones(86)
+    # conc = np.concatenate((zeros, ones))
+    # conc_ser = pd.Series(conc)
     data["No. of reads without hyper mutation"] = data["No. of reads without hyper mutation"].astype(int)
     data["No. of reads with hyper mutation"] = data["No. of reads with hyper mutation"].astype(int)
     data["zero"] = data.apply(lambda x: np.zeros(x["No. of reads without hyper mutation"]), axis=1)
@@ -74,21 +76,34 @@ def main():
     df_lst = []
 
     for i in data.iterrows():
-        df = pd.DataFrame(columns=["vector", "passage", "mutation", "replica"])
-        df["vector"] = pd.Series(i[-1].vector)
-        df["mutation"] = i[-1].mutation
-        df["passage"] = i[-1].passage
-        df["replica"] = i[-1].replica
+        df = pd.DataFrame(columns=["Vector", "Passage", "Mutation", "Replica"])
+        if i[-1].Sample == "Control":
+            df["Vector"] = pd.Series(i[-1].vector)
+            df["Mutation"] = i[-1].mutation
+            df["Passage"] = i[-1].passage
+            df["Replica"] = 2
+            df_lst.append(df)
+            df = pd.DataFrame()
+        df["Vector"] = pd.Series(i[-1].vector)
+        df["Mutation"] = i[-1].mutation
+        df["Passage"] = i[-1].passage
+        df["Replica"] = i[-1].replica
         df_lst.append(df)
     df_final = pd.concat(df_lst).reset_index()
-
-
-    # data["vector_sample"] = data.apply(lambda x: list(x["mutation"])+list(x["Sample"]), axis=1)
-    # data["vector_ser"] = data["vector"].apply(lambda x: pd.Series(x))
-
-    plot = sns.catplot(x="passage", y="vector", data=df_final, kind="point", hue="mutation", col="replica", palete="tab10")
-    plt.show()
-    print(data.to_string())
+    df_final["Mutation"] = df_final["Mutation"].apply(lambda x: x.replace("T", "U"))
+    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
+    plot = sns.catplot(x="Passage", y="Vector", data=df_final, kind="point", hue="Replica", col="Mutation",
+                       palete="tab10", col_wrap=4, join=False, order=range(0, 13, 1), dodge=0.25, orient="v",
+                       col_order=mutation_order)
+    plot.set(ylabel="Hyper mutation frequency", xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+    output_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs"
+    try:
+        os.mkdir(output_dir)
+    except OSError:
+        print("Creation of the directory {0} failed".format(output_dir))
+    else:
+        print("Successfully created the directory {0}".format(output_dir))
+    plt.savefig(output_dir + "/hyper_mutation_freq.png", dpi=300)
 
 
 if __name__ == "__main__":

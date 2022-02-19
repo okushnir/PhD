@@ -37,7 +37,7 @@ def mutation_all(data, ref, mutation, mutation_in_stretch):
         insert_to_df(df_grouped, [True, 0, 0, 0, 0, 0, 0, 0])
     df_grouped = df_grouped[["in_stretch", "Read"]]
     df_grouped = df_grouped.rename(columns={"Read": "count"})
-    df_grouped = df_grouped.set_index("in_stretch")
+    # df_grouped = df_grouped.set_index("in_stretch")
     return data_all, df_grouped
 
 
@@ -58,6 +58,38 @@ def create_crosstab_df(input_dir, output_dir, prefix, ref, blast_out_len, data_d
         crosstab_df.to_csv(output_dir + "/{0}/20201012_q38/corsstab_df.csv".format(key), sep=",")
         crosstab_lst.append(crosstab_df)
     return crosstab_lst
+
+
+def plot_hyper_mutation_freq(data, output_dir):
+    data["No. of reads without hyper mutation"] = data["No. of reads without hyper mutation"].astype(int)
+    data["No. of reads with hyper mutation"] = data["No. of reads with hyper mutation"].astype(int)
+    data["zero"] = data.apply(lambda x: np.zeros(x["No. of reads without hyper mutation"]), axis=1)
+    data["ones"] = data.apply(lambda x: np.ones(x["No. of reads with hyper mutation"]), axis=1)
+    data["vector"] = data.apply(lambda x: np.concatenate((x["zero"], x["ones"])), axis=1)
+    df_lst = []
+
+    for i in data.iterrows():
+        df = pd.DataFrame(columns=["Vector", "Passage", "Mutation", "Replica"])
+        if i[-1].Sample == "Control":
+            df["Vector"] = pd.Series(i[-1].vector)
+            df["Mutation"] = i[-1].mutation
+            df["Passage"] = i[-1].passage
+            df["Replica"] = 2
+            df_lst.append(df)
+            df = pd.DataFrame()
+        df["Vector"] = pd.Series(i[-1].vector)
+        df["Mutation"] = i[-1].mutation
+        df["Passage"] = i[-1].passage
+        df["Replica"] = i[-1].replica
+        df_lst.append(df)
+    df_final = pd.concat(df_lst).reset_index()
+    df_final["Mutation"] = df_final["Mutation"].apply(lambda x: x.replace("T", "U"))
+    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
+    plot = sns.catplot(x="Passage", y="Vector", data=df_final, kind="point", hue="Replica", col="Mutation",
+                       palete="tab10", col_wrap=4, join=False, order=range(0, 13, 1), dodge=0.25, orient="v",
+                       col_order=mutation_order)
+    plot.set(ylabel="Hyper mutation frequency", xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+    plt.savefig(output_dir + "/hyper_mutation_freq.png", dpi=300)
 
 
 def main():
@@ -192,6 +224,17 @@ def main():
     crosstab_df_all_final.to_csv(input_dir + "/crosstab_df_all_final.csv", sep=",")
     mean_crosstab_df_all_final = pd.concat(mean_crosstab_df_all_lst, axis=0)
     mean_crosstab_df_all_final.to_csv(input_dir + "/mean_crosstab_df_all_final.csv", sep=",")
+
+    output_dir3 = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs"
+    try:
+        os.mkdir(output_dir3)
+    except OSError:
+        print("Creation of the directory {0} failed".format(output_dir3))
+    else:
+        print("Successfully created the directory {0}".format(output_dir3))
+    plot_hyper_mutation_freq(crosstab_df_all_final, output_dir3)
+
+
 
 
 if __name__ == "__main__":
