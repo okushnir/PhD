@@ -92,10 +92,12 @@ def main():
     df_final = pd.concat(df_lst).reset_index()
     df_final["Mutation"] = df_final["Mutation"].apply(lambda x: x.replace("T", "U"))
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
+    plus_minus = u"\u00B1"
     plot = sns.catplot(x="Passage", y="Vector", data=df_final, kind="point", hue="Replica", col="Mutation",
                        palete="tab10", col_wrap=4, join=False, order=range(0, 13, 1), dodge=0.25, orient="v",
                        col_order=mutation_order)
-    plot.set(ylabel="Hyper mutation frequency", xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+    plot.set(ylabel="Hyper mutation frequency {} CI=95%".format(plus_minus),
+             xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
     output_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs"
     try:
         os.mkdir(output_dir)
