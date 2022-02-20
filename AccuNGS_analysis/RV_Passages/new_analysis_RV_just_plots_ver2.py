@@ -59,7 +59,7 @@ def main():
     #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
-    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
+    mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"] #["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
     type_order_ag = ["Synonymous", "Non-Synonymous"]
