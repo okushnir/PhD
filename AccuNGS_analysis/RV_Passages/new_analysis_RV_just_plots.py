@@ -57,7 +57,7 @@ def main():
     data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
 
     #Plots
-    label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
+    label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
                    "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
@@ -68,19 +68,19 @@ def main():
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
 
+    data_filter["passage"] = data_filter["passage"].astype(str)
+    data_filter["passage"] = "p" + data_filter["passage"]
+    g1 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
+                     palette=mutation_palette(12), kind="point", dodge=False, hue_order=mutation_order, join=False,
+                     estimator=weighted_varaint, orient="v")
+    g1.set_axis_labels("", "Variant Frequency")
+    g1.set_xticklabels(fontsize=9, rotation=45)
+    g1.set(yscale='log')
+    g1.set(ylim=(10 ** -7, 10 ** -3))
 
-    # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-    #                  palette="Set2",
-    #                  kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
-    #                  orient="v")
-    # g1.set_axis_labels("", "Variant Frequency")
-    # g1.set_xticklabels(fontsize=9, rotation=45)
-    # g1.set(yscale='log')
-    # g1.set(ylim=(10 ** -7, 10 ** -3))
-    #
-    # # plt.show()
-    # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
-    # plt.close()
+    # plt.show()
+    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    plt.close()
     #
     # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
     #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
