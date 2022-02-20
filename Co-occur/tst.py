@@ -97,7 +97,7 @@ def main():
                        palete="tab10", col_wrap=4, join=False, order=range(0, 13, 1), dodge=0.25, orient="v",
                        col_order=mutation_order)
     plot.set(ylabel="Hyper mutation frequency {} CI=95%".format(plus_minus),
-             xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+             xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     output_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs"
     try:
         os.mkdir(output_dir)
