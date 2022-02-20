@@ -24,7 +24,7 @@ def mutation_palette(color_num, adar=None, ag=None, uc=None, gray=None):
                         sns.color_palette("muted")[5], "A>U": sns.color_palette("muted")[6],
                     "U>A": sns.color_palette("muted")[7], "G>C": sns.color_palette("muted")[8],
                     "C>G": sns.color_palette("muted")[9], "C>A": sns.color_palette("colorblind")[2],
-                    "G>U": sns.color_palette("colorblind")[4]}
+                    "G>U": sns.color_palette("colorblind")[5]}
     palette = None
     if ((color_num == 2) & (adar == None) & (ag == None) & (uc == None)):
         true_false_palette = [checkKey(palette_dict, "Intermediate\nADAR-like\nA>G"), checkKey(palette_dict, "C>U")]
@@ -78,8 +78,8 @@ def mutation_palette(color_num, adar=None, ag=None, uc=None, gray=None):
         adar_ag_uc_palette = [checkKey(palette_dict, "Intermediate\nADAR-like\nA>G"),
                              checkKey(palette_dict, "Intermediate\nADAR-like\nU>C")]
         palette = adar_ag_uc_palette
-    elif (color_num == 12):
-        twelve_mutation_gray_palette = [checkKey(palette_dict, "High\nADAR-like\nA>G"),
+    elif ((color_num == 12) & (adar == None) & (ag == None) & (uc == None)):
+        twelve_mutation_palette = [checkKey(palette_dict, "High\nADAR-like\nA>G"),
                                   checkKey(palette_dict, "High\nADAR-like\nU>C"),
                                   checkKey(palette_dict, "G>A"),
                                   checkKey(palette_dict, "C>U"),
@@ -91,5 +91,5 @@ def mutation_palette(color_num, adar=None, ag=None, uc=None, gray=None):
                                   checkKey(palette_dict, "C>G"),
                                   checkKey(palette_dict, "C>A"),
                                   checkKey(palette_dict, "G>U")]
-        palette = twelve_mutation_gray_palette
+        palette = twelve_mutation_palette
     return palette

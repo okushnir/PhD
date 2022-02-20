@@ -68,18 +68,19 @@ def main():
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
 
-    data_filter["passage"] = data_filter["passage"].astype(str)
-    data_filter["passage"] = "p" + data_filter["passage"]
-    g1 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-                     palette=mutation_palette(12), kind="point", dodge=False, hue_order=mutation_order, join=False,
-                     estimator=weighted_varaint, orient="v")
-    g1.set_axis_labels("", "Variant Frequency")
-    g1.set_xticklabels(fontsize=9, rotation=45)
-    g1.set(yscale='log')
-    g1.set(ylim=(10 ** -7, 10 ** -3))
+    g1 = sns.catplot(x="passage", data=data_filter, hue="Mutation", order=range(0, 13, 1),
+                     palette=mutation_palette(12), kind="count", hue_order=mutation_order, col="Mutation", col_wrap=4,
+                     col_order=mutation_order, dodge=False, saturation=1)
+    g1.set_axis_labels("Passage", "Count")
+    g1.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"]) #yscale='log',
+    # g1.set(ylim=(10 ** -7, 10 ** -3))
+
+    # g1 = sns.histplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation", order=range(0, 13, 1),
+    #                   palette=mutation_palette(12), hue_order=mutation_order)
 
     # plt.show()
-    g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
+    plt.tight_layout()
+    g1.savefig(output_dir + "/All_Mutations_count_plot", dpi=300)
     plt.close()
     #
     # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
