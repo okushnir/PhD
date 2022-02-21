@@ -67,20 +67,28 @@ def main():
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
-
-    g1 = sns.catplot(x="passage", data=data_filter, hue="Mutation", order=range(0, 13, 1),
-                     palette=mutation_palette(12), kind="count", hue_order=mutation_order, col="Mutation", col_wrap=4,
-                     col_order=mutation_order, dodge=False, saturation=1)
+    # data_filter["sition_version"] = data_filter.apply(lambda x: x["Mutation"])
+    data_filter["Mutation Type"] = np.where(data_filter["Mutation"] == "A>G", "Transition",
+                                             np.where(data_filter["Mutation"] == "U>C", "Transition",
+                                                      np.where(data_filter["Mutation"] == "G>A", "Transition",
+                                                               np.where(data_filter["Mutation"] == "C>U", "Transition",
+                                                                        "Transversion"))))
+    g1 = sns.catplot(x="passage", data=data_filter, hue="Mutation Type", order=range(0, 13, 1),
+                     palette="Set2", kind="count", hue_order=["Transition", "Transversion"], col="Mutation Type", col_wrap=2,
+                     col_order=["Transition", "Transversion"], dodge=False, saturation=1)
     g1.set_axis_labels("Passage", "Count")
     g1.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"]) #yscale='log',
-    # g1.set(ylim=(10 ** -7, 10 ** -3))
-
-    # g1 = sns.histplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation", order=range(0, 13, 1),
-    #                   palette=mutation_palette(12), hue_order=mutation_order)
-
-    # plt.show()
     plt.tight_layout()
-    g1.savefig(output_dir + "/All_Mutations_count_plot", dpi=300)
+    g1.savefig(output_dir + "/All_Mutations_count_plot.png", dpi=300)
+    plt.close()
+
+    g1_mutation = sns.catplot(x="passage", data=data_filter, hue="Mutation", order=range(0, 13, 1),
+                     palette=mutation_palette(12), kind="count", hue_order=mutation_order, col="Mutation", col_wrap=4,
+                     col_order=mutation_order, dodge=False, saturation=1)
+    g1_mutation.set_axis_labels("Passage", "Count")
+    g1_mutation.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"]) #yscale='log',
+    plt.tight_layout()
+    g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2.png", dpi=300)
     plt.close()
     #
     # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
