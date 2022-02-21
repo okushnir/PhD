@@ -94,7 +94,8 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, remo
     return data_filter
 
 
-def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, filter_reads=None):
+def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_order,
+          filter_reads=None):
     output_dir = input_dir + date + "_plots"
     plus_minus = u"\u00B1"
     try:
@@ -119,29 +120,34 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     # # plt.show()
     # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
     # plt.close()
+    if virus == "CVB3":
+        data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
+    data_filter["passage"] = data_filter["passage"].astype(int)
 
-    data_filter["passage"] = data_filter["passage"].astype(str)
-    data_filter["passage"] = np.where(data_filter["passage"] != "RNA\nControl", "p" + data_filter["passage"], data_filter["passage"])
-    g2 = sns.catplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", order=passage_order,
-                     palette=mutation_palette(4)
-                     , kind="point", dodge=0.5, hue_order=transition_order, join=False, estimator=weighted_varaint,
-                     orient="v")
+    g2 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation",
+                            order=range(0, 13, 1), palette=mutation_palette(4), kind="point",
+                            dodge=0.5, hue_order=transition_order,
+                            join=False, estimator=weighted_varaint, orient="v", legend=True)
     g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    g2.set(yscale='log')
-    g2.set(ylim=(10 ** -6, 10 ** -2))
-    # g2.set_xticklabels(fontsize=10, rotation=45)
-    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/Prgress reports/20200913 Final report/plots" +
-    #                   "/Transition_Mutations_point_plot_Mahoney", dpi=300)
+    g2.set(yscale='log', ylim=(10 ** -6, 10 ** -2), xticklabels=x_order)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_{0}".format(virus), dpi=300)
     plt.close()
 
-    passage_g = sns.boxplot(x="passage", y="Frequency", data=data_filter, hue="Mutation", order=passage_order,
+    df_stat = data_filter.copy()
+    df_stat["passage"] = df_stat["passage"].astype(str)
+    df_stat["passage"] = np.where(df_stat["passage"] == "0", "RNA\nControl", df_stat["passage"])
+    df_stat["passage"] = np.where(df_stat["passage"] != "RNA\nControl", "p" +
+                                           df_stat["passage"], df_stat["passage"])
+    # data_filter["passage"] = data_filter.apply(lambda x: x["passage"].replace("p", "") if x["passage"] != "RNA\nControl" else x["passage"], axis=1)
+    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
+    # data_filter["passage"] = data_filter["passage"].astype(int)
+    passage_g = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
     passage_g.set_ylim(10 ** -6, 10 ** -1)
     passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
 
-    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter,
+    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
                       order=passage_order, hue_order=transition_order)
     annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")
@@ -177,25 +183,31 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
                            "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
 
-    data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
+    # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
-                               order=passage_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
+                               order=range(0, 13, 1), palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
     catplot_adar.set_axis_labels("Passage", "Variant Frequency {0} CI=95%".format(plus_minus))
-    catplot_adar.set(yscale='log')
-    catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
+    catplot_adar.set(yscale='log', ylim=(10 ** -6, 10 ** -2), xticklabels=x_order)
     plt.savefig(output_dir + "/adar_pref_mutation_point_plot_{0}.png".format(virus), dpi=300)
     plt.close()
 
-    adar_g = sns.boxplot(x="passage", y="Frequency", data=data_filter_synonymous, hue="Mutation_adar",
+    dfs_stat = data_filter_synonymous.copy()
+    dfs_stat["passage"] = dfs_stat["passage"].astype(str)
+    dfs_stat["passage"] = np.where(dfs_stat["passage"] == "0", "RNA\nControl", dfs_stat["passage"])
+    dfs_stat["passage"] = np.where(dfs_stat["passage"] != "RNA\nControl", "p" +
+                                                      dfs_stat["passage"],
+                                                      dfs_stat["passage"])
+
+    adar_g = sns.boxplot(x="passage", y="Frequency", data=dfs_stat, hue="Mutation_adar",
                          order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
                          hue_order=mutation_adar_order)
     adar_g.set_yscale('log')
     adar_g.set_ylim(10 ** -6, 10 ** -1)
     adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
-                      data=data_filter_synonymous, hue_order=mutation_adar_order, order=passage_order)
+                      data=dfs_stat, hue_order=mutation_adar_order, order=passage_order)
     annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")
     annot.apply_test()

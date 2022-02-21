@@ -160,7 +160,7 @@ def main():
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
         passage_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2),
-                      xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+                      xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
         plt.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
 
@@ -169,7 +169,7 @@ def main():
         passage_g1.set_yscale('log')
         passage_g1.set_ylim(10 ** -6, 10 ** -2)
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency",
-                       xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+                       xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
         annot = Annotator(passage_g1, pairs, x="passage", y="Frequency", hue="Mutation", data=data_filter_replica,
                           hue_order=transition_order) #order=range(0, 13, 1)
         annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
@@ -225,7 +225,7 @@ def main():
                                    legend=True)
         catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         catplot_adar.set(yscale='log', ylim=(10 ** -6, 10 ** -2),
-                         xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+                         xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
         # catplot_adar.set_xticklabels(fontsize=8)
         # plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_point_plot_RVB14_replica{0}.png".format(replica), dpi=300)
@@ -237,7 +237,7 @@ def main():
         adar_g.set_yscale('log')
         adar_g.set_ylim(10 ** -6, 10 ** -1)
         adar_g.set(xlabel="Passage", ylabel="Variant Frequency",
-                   xticklabels=["RNA\nControl", "", "2", "", "4", "", "6", "", "8", "", "10", "", "12"])
+                   xticklabels=["RNA\nControl", "", "2", "", "", "5", "6", "", "8", "", "10", "", "12"])
         annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar", data=data_filter_replica_synonymous,
                           hue_order=mutation_adar_order)
         annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
