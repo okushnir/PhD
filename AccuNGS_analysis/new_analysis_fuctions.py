@@ -95,8 +95,8 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, remo
     return data_filter
 
 
-def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_ticks,
-          x_order, filter_reads=None, ylim=(10**-5, 10**-2)):
+def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_order,
+          x_ticks, filter_reads=None, ylim=(10**-5, 10**-2)):
     output_dir = input_dir + date + "_plots"
 
     plus_minus = u"\u00B1"

@@ -33,8 +33,11 @@ def main():
                   (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
                   (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C"))]
     x_order = range(0, 8, 1)
-    plots(input_dir, date, data_filter, "OPV2", passage_order, transition_order, pairs, label_order, pairs_adar, x_order,
-          x_order=["", "1", "", "3", "", "5", "6", "7"], ylim=(10**-5, 10**-2))
+    plots(input_dir, date, data_filter, "OPV2", passage_order, transition_order, pairs, label_order, pairs_adar,
+          x_order, x_ticks=["", "1", "", "3", "", "5", "6", "7"], ylim=(10**-5, 10**-2))
+
+    #(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_ticks,
+          # x_order, filter_reads=None, ylim=(10**-5, 10**-2))
 
 
 if __name__ == "__main__":
