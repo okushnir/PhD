@@ -4,7 +4,8 @@ from AccuNGS_analysis.new_analysis_fuctions import *
 
 
 def main():
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/CVB3/"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/CVB3/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/CVB3/"
     date = datetime.today().strftime("%Y%m%d")
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
@@ -16,7 +17,8 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
     q_file_name = "/q38_data_mutation.csv"
-    data_adar = pd.read_csv("/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/CVB3/InosinePredict_reults/Output/CVB3_adar1_trans.csv")
+    # data_adar = pd.read_csv("/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/CVB3/InosinePredict_reults/Output/CVB3_adar1_trans.csv")
+    data_adar = pd.read_csv("C:/Users/odedku/PhD_Projects/After_review/Inosine_Predict/Output/CVB3_adar1_trans.csv")
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
                "Consensus>Mutated_codon", "fiveGrade", "threeGrade"]

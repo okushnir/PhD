@@ -117,7 +117,7 @@ def main():
     plt.savefig(output_dir + "/hyper_mutation_freq2.png", dpi=300)
 
     plot = sns.catplot(x="Passage", y="Hyper mutation frequency {} CI=95%".format(plus_minus), data=df_final, kind="point",
-                       hue="Mutation", col="A>G", palette=mutation_palette(12), join=False, order=range(0, 13, 1),
+                       col="A>G", palette=mutation_palette(12), join=False, order=range(0, 13, 1),
                        dodge=0.25, orient="v", sharey=True, col_order=[True, False])#, col_wrap=4, col="Replica"
     plot.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     plt.savefig(output_dir + "/hyper_mutation_freq3.png", dpi=300)

@@ -21,6 +21,7 @@ def weighted_varaint(x, **kws):
 
 def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, removed_mutation=None, replica=None, filter_reads=None):
     data_mutations = pd.read_csv(input_dir + q_file_name)
+    data_mutations["Pos"] = data_mutations["Pos"].astype(int)
     data_mutations = data_mutations[data_mutations["Rank"] != 0]
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
     data_filter = pd.DataFrame(data_mutations, columns=columns)
@@ -94,9 +95,10 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, remo
     return data_filter
 
 
-def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_order,
-          filter_reads=None):
+def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_ticks,
+          x_order, filter_reads=None, ylim=(10**-5, 10**-2)):
     output_dir = input_dir + date + "_plots"
+
     plus_minus = u"\u00B1"
     try:
         os.mkdir(output_dir)
@@ -106,7 +108,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
         print("Successfully created the directory %s " % output_dir)
     if filter_reads is True:
         data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-        data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
+        data_filter = data_filter.loc[data_filter["Read_count"] > 10000]
     mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
     type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
     # g1 = sns.catplot("label", "frac_and_weight", data=data_filter, hue="Mutation", order=label_order, palette="tab20",
@@ -125,11 +127,11 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     data_filter["passage"] = data_filter["passage"].astype(int)
 
     g2 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation",
-                            order=range(0, 13, 1), palette=mutation_palette(4), kind="point",
+                            order=x_order, palette=mutation_palette(4), kind="point",
                             dodge=0.5, hue_order=transition_order,
                             join=False, estimator=weighted_varaint, orient="v", legend=True)
     g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-    g2.set(yscale='log', ylim=(10 ** -6, 10 ** -2), xticklabels=x_order)
+    g2.set(yscale='log', ylim=ylim, xticklabels=x_ticks)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_{0}".format(virus), dpi=300)
     plt.close()
 
@@ -185,11 +187,11 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
-                               order=range(0, 13, 1), palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
+                               order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
     catplot_adar.set_axis_labels("Passage", "Variant Frequency {0} CI=95%".format(plus_minus))
-    catplot_adar.set(yscale='log', ylim=(10 ** -6, 10 ** -2), xticklabels=x_order)
+    catplot_adar.set(yscale='log', ylim=ylim, xticklabels=x_ticks)
     plt.savefig(output_dir + "/adar_pref_mutation_point_plot_{0}.png".format(virus), dpi=300)
     plt.close()
 

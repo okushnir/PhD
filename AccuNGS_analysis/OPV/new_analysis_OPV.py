@@ -29,7 +29,8 @@ def weighted_varaint(x, **kws):
 
 
 def main():
-    input_dir = "/Users/odedkushnir/Projects/After_review/CirSeq/PV/OPV/"
+    # input_dir = "/Users/odedkushnir/Projects/After_review/CirSeq/PV/OPV/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/Cirseq/PV/OPV/"
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
     try:
@@ -40,7 +41,8 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
     data_mutations = pd.read_csv(input_dir + "q23_data_mutation.csv")
-    data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/OPV2_adar1_trans.csv")
+    # data_adar = pd.read_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/Inosine_Predict/Output/OPV2_adar1_trans.csv")
+    data_adar = pd.read_csv("C:/Users/odedku/PhD_Projects/After_review/Inosine_Predict/Output/OPV2_adar1_trans.csv")
     data_mutations = data_mutations.merge(data_adar, on="Pos", how="inner")
 
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
