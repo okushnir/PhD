@@ -95,7 +95,8 @@ def plot_hyper_mutation_freq(data, output_dir):
 
 
 def main():
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
     mutation_lst = ["A>G", "T>C", "G>A", "C>T", "A>C", "T>G", "A>T", "T>A", "G>C", "C>G", "C>A", "G>T"]
     mean_crosstab_df_all_lst = []
     crosstab_df_all_lst = []
@@ -130,7 +131,7 @@ def main():
         """NOT from memory"""
         passage_lst = glob.glob(input_dir + "/p*")
         for passage in passage_lst:
-            passage_num = passage.split("/")[-1] #for windows \\
+            passage_num = passage.split("\\")[-1] #for windows \\
             try:
                 os.mkdir(output_dir + "/{0}".format(passage_num))
                 os.mkdir(output_dir + "/{0}/20201012_q38".format(passage_num))
@@ -145,7 +146,7 @@ def main():
         passage_lst = glob.glob(input_dir + "/p*")
         crosstab_lst = []
         for passage in passage_lst:
-            passage_num = passage.split("/")[-1]# \\
+            passage_num = passage.split("\\")[-1]# \\
             crosstab_df = pd.read_pickle(output_dir + "/{0}/20201012_q38/corsstab_df.pkl".format(passage_num))
             crosstab_lst.append(crosstab_df)
         """Creation of the final tables and figs"""
@@ -235,8 +236,6 @@ def main():
     else:
         print("Successfully created the directory {0}".format(output_dir3))
     plot_hyper_mutation_freq(crosstab_df_all_final, output_dir3)
-
-
 
 
 if __name__ == "__main__":

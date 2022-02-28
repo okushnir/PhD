@@ -1,10 +1,14 @@
 
 from datetime import datetime
+
+import pandas as pd
+
 from AccuNGS_analysis.new_analysis_fuctions import *
 
 
 def main():
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/CirSeq/PV/Mahoney/"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/CirSeq/PV/Mahoney/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/Cirseq/PV/Mahoney/"
     date = datetime.today().strftime("%Y%m%d")
     prefix = "inosine_predict_context"
     output_dir = input_dir + prefix
@@ -16,7 +20,8 @@ def main():
         print("Successfully created the directory %s " % output_dir)
 
     q_file_name = "q30_data_mutation.csv"
-    data_adar = pd.read_csv("/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/Mahoney/inosine_results/Output/PV1_adar1_trans.csv")
+    # data_adar = pd.read_csv("/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/Mahoney/inosine_results/Output/PV1_adar1_trans.csv")
+    data_adar = pd.read_csv("C:/Users/odedku/PhD_Projects/After_review/Inosine_Predict/Output/Mahoney_adar1_trans.csv")
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
                "Consensus>Mutated_codon", "fiveGrade", "threeGrade"]
@@ -46,8 +51,9 @@ def main():
                   (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C")),
                   (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C"))]
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
+    x_order = range(0, 9, 1)
     plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order=["", "", "", "3", "4", "5", "6", "7", "8"], ylim=(10**-5, 10**-2))
+          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8"], filter_reads=True, ylim=(10**-5, 10**-2))
 
 
 if __name__ == "__main__":

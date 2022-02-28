@@ -69,8 +69,8 @@ def mutation_read_counter(data, mutation, mutation_in_stretch):
 
 
 def my_crosstab(df_control_grouped, df_grouped, passage_no, passage_id, control_id, mutation):
-    crosstab_df = pd.merge(df_control_grouped, df_grouped, on=df_grouped.index)
-    crosstab_df = crosstab_df.set_index("key_0")
+    crosstab_df = pd.merge(df_control_grouped, df_grouped, on="in_stretch")
+    crosstab_df = crosstab_df.set_index("in_stretch")
     crosstab_df = crosstab_df.rename(columns={"count_x": "Control", "count_y": passage_no})
     # Divide the A>G count (True/False) by the PrimerID count
     # print(crosstab_df)

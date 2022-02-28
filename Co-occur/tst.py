@@ -63,14 +63,17 @@ def main():
     # mutation_in_stretch = 3
     # for mutation in mutation_lst:
     #     mutation_all(data_control, ref_data, mutation, mutation_in_stretch)
-    output_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis"
+    # output_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/figs" #for MacBook
+    output_dir = input_dir + "/figs"
     try:
         os.mkdir(output_dir)
     except OSError:
         print("Creation of the directory {0} failed".format(output_dir))
     else:
         print("Successfully created the directory {0}".format(output_dir))
-    data = pd.read_csv("/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/crosstab_df_all_final.csv")#"C:/Users/odedku/Downloads/crosstab_df_all_final.csv"
+    # data = pd.read_csv("/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/Stretch_analysis/crosstab_df_all_final.csv")#"C:/Users/odedku/Downloads/crosstab_df_all_final.csv"
+    data = pd.read_csv(input_dir + "/crosstab_df_all_final.csv")
     # zeros = np.zeros(32291)
     # ones = np.ones(86)
     # conc = np.concatenate((zeros, ones))
