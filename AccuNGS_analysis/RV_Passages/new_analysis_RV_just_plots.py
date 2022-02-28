@@ -38,7 +38,8 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     """Local"""
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
     date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)
@@ -54,7 +55,7 @@ def main():
     data_filter_uc = pd.read_pickle(input_dir + prefix +"/data_filter_uc.pkl")
     data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-    data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
+    data_filter = data_filter.loc[data_filter["Read_count"] > 10000]
 
     #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
@@ -73,7 +74,7 @@ def main():
                                                       np.where(data_filter["Mutation"] == "G>A", "Transition",
                                                                np.where(data_filter["Mutation"] == "C>U", "Transition",
                                                                         "Transversion"))))
-    g1 = sns.catplot(x="passage", data=data_filter, hue="Mutation Type", order=range(0, 13, 1),
+    g1 = sns.catplot(x="passage", data=data_filter.loc[data_filter["replica"]==2], hue="Mutation Type", order=range(0, 13, 1),
                      palette="Set2", kind="count", hue_order=["Transition", "Transversion"], col="Mutation Type", col_wrap=2,
                      col_order=["Transition", "Transversion"], dodge=False, saturation=1)
     g1.set_axis_labels("Passage", "Count")
@@ -82,7 +83,7 @@ def main():
     g1.savefig(output_dir + "/All_Mutations_count_plot.png", dpi=300)
     plt.close()
 
-    g1_mutation = sns.catplot(x="passage", data=data_filter, hue="Mutation", order=range(0, 13, 1),
+    g1_mutation = sns.catplot(x="passage", data=data_filter.loc[data_filter["replica"]==2], hue="Mutation", order=range(0, 13, 1),
                      palette=mutation_palette(12), kind="count", hue_order=mutation_order, col="Mutation", col_wrap=4,
                      col_order=mutation_order, dodge=False, saturation=1)
     g1_mutation.set_axis_labels("Passage", "Count")
@@ -167,7 +168,7 @@ def main():
                                 palette=mutation_palette(4), kind="point", dodge=0.5, hue_order=transition_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
         passage_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-        passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2))
+        passage_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2))
         plt.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
 
@@ -231,7 +232,7 @@ def main():
                                    legend=True)
         catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         catplot_adar.set(yscale='log')
-        catplot_adar.set(ylim=(10 ** -6, 10 ** -2))
+        catplot_adar.set(ylim=(10 ** -5, 10 ** -2))
         # catplot_adar.set_xticklabels(fontsize=8)
         # plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_point_plot_RVB14_replica{0}.png".format(replica), dpi=300)

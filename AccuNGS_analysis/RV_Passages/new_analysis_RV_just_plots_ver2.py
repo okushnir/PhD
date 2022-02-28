@@ -38,7 +38,8 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/"
     """Local"""
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/passages/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/RV/passages/"
     prefix = "inosine_predict_context"
     date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)
@@ -54,7 +55,7 @@ def main():
     data_filter_uc = pd.read_pickle(input_dir + prefix +"/data_filter_uc.pkl")
     data_filter["passage"] = data_filter["passage"].astype(int)
     data_filter["no_variants"] = np.where(data_filter["Prob"] < 0.95, 0, data_filter["no_variants"])
-    data_filter["Read_count"] = data_filter[data_filter["Read_count"] > 10000]
+    data_filter = data_filter.loc[data_filter["Read_count"] > 10000]
 
     #Plots
     label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID","p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3", "p8-1",
@@ -67,20 +68,31 @@ def main():
     context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
     adar_preference = ["High", "Intermediate", "Low"]
     plus_minus = u"\u00B1"
+    data_filter["Mutation Type"] = np.where(data_filter["Mutation"] == "A>G", "Transition",
+                                             np.where(data_filter["Mutation"] == "U>C", "Transition",
+                                                      np.where(data_filter["Mutation"] == "G>A", "Transition",
+                                                               np.where(data_filter["Mutation"] == "C>U", "Transition",
+                                                                        "Transversion"))))
+    data_filter_count = data_filter.copy()
+    data_filter_count = data_filter_count.loc[data_filter_count["Prob"] > 0.95]
 
+    g1 = sns.catplot(x="passage", data=data_filter_count.loc[data_filter_count["replica"]==2], hue="Mutation Type", order=range(0, 13, 1),
+                     palette="Set2", kind="count", hue_order=["Transition", "Transversion"], col="Mutation Type", col_wrap=2,
+                     col_order=["Transition", "Transversion"], dodge=False, saturation=1)
+    g1.set_axis_labels("Passage", "Count")
+    g1.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"]) #yscale='log',
+    plt.tight_layout()
+    g1.savefig(output_dir + "/All_Mutations_count_plot.png", dpi=300)
+    plt.close()
 
-    # g1 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-    #                  palette="Set2",
-    #                  kind="point", dodge=False, hue_order=mutation_order, join=True, estimator=weighted_varaint,
-    #                  orient="v")
-    # g1.set_axis_labels("", "Variant Frequency")
-    # g1.set_xticklabels(fontsize=9, rotation=45)
-    # g1.set(yscale='log')
-    # g1.set(ylim=(10 ** -7, 10 ** -3))
-    #
-    # # plt.show()
-    # g1.savefig(output_dir + "/All_Mutations_point_plot", dpi=300)
-    # plt.close()
+    g1_mutation = sns.catplot(x="passage", data=data_filter_count.loc[data_filter_count["replica"]==2], hue="Mutation", order=range(0, 13, 1),
+                     palette=mutation_palette(12), kind="count", hue_order=mutation_order, col="Mutation", col_wrap=4,
+                     col_order=mutation_order, dodge=False, saturation=1)
+    g1_mutation.set_axis_labels("Passage", "Count")
+    g1_mutation.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"]) #yscale='log',
+    plt.tight_layout()
+    g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2.png", dpi=300)
+    plt.close()
     #
     # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
     #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
@@ -103,7 +115,7 @@ def main():
             data_filter_replica = pd.read_pickle(input_dir + prefix + "/data_filter.pkl")
             data_filter_replica["passage"] = data_filter_replica["passage"].astype(int)
             data_filter_replica["no_variants"] = np.where(data_filter_replica["Prob"] < 0.95, 0, data_filter_replica["no_variants"])
-            data_filter_replica["Read_count"] = data_filter_replica[data_filter_replica["Read_count"] > 10000]
+            data_filter_replica = data_filter_replica.loc[data_filter_replica["Read_count"] > 10000]
             # data_filter_replica["passage"] = data_filter_replica["passage"].astype(str)
             # data_filter_replica["passage"] = "p" + data_filter_replica["passage"]
             data_filter_replica["replica"] = np.where(data_filter_replica["passage"] == 0, 2, data_filter_replica["replica"])
