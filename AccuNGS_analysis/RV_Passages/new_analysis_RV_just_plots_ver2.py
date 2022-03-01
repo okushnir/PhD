@@ -75,7 +75,15 @@ def main():
             data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
             data_filter_replica.to_csv(output_dir + "/data_filter_replica{0}.csv".format(str(replica)), sep=",")
         data_filter_replica["passage_p"] = np.where(data_filter_replica["passage_p"] == "p0", "RNA\nControl", data_filter_replica["passage_p"])
-
+        data_filter_replica_count = data_filter_replica.copy()
+        data_filter_replica_count = data_filter_replica_count.loc[data_filter_replica_count["Prob"] > 0.95]
+        data_filter_replica_count = data_filter_replica_count[data_filter_replica_count["replica"] == replica]
+        data_filter_replica_count["Mutation Type"] = np.where(data_filter_replica_count["Mutation"] == "A>G", "Transitions",
+                                                np.where(data_filter_replica_count["Mutation"] == "U>C", "Transitions",
+                                                         np.where(data_filter_replica_count["Mutation"] == "G>A", "Transitions",
+                                                                  np.where(data_filter_replica_count["Mutation"] == "C>U",
+                                                                           "Transitions",
+                                                                           "Transversions"))))
         if replica == 1:
             passage_order = ["RNA\nControl", "p2", "p5", "p8", "p12"]
             pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
@@ -119,15 +127,7 @@ def main():
                           (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
                           (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                           (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
-        data_filter_replica_count = data_filter_replica.copy()
-        data_filter_replica_count = data_filter_replica_count.loc[data_filter_replica_count["Prob"] > 0.95]
-        data_filter_replica_count = data_filter_replica_count[data_filter_replica_count["replica"] == replica]
-        data_filter_replica_count["Mutation Type"] = np.where(data_filter_replica_count["Mutation"] == "A>G", "Transition",
-                                                np.where(data_filter_replica_count["Mutation"] == "U>C", "Transition",
-                                                         np.where(data_filter_replica_count["Mutation"] == "G>A", "Transition",
-                                                                  np.where(data_filter_replica_count["Mutation"] == "C>U",
-                                                                           "Transition",
-                                                                           "Transversion"))))
+
         """Plots"""
         label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3",
                        "p8-1",
@@ -139,7 +139,7 @@ def main():
         adar_preference = ["High", "Intermediate", "Low"]
         mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U",
                           "C>A"]  # ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
-        transition_order = ["A>G", "U>C", "G>A", "C>U"]
+        Transitions_order = ["A>G", "U>C", "G>A", "C>U"]
         plus_minus = u"\u00B1"
         x_order = range(0, 14, 1)
         x_ticks = ["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""]
@@ -147,9 +147,9 @@ def main():
         dodge = 0.75
         g1 = sns.catplot(x="passage", data=data_filter_replica_count,
                          hue="Mutation Type", order=x_order,
-                         palette="Set2", kind="count", hue_order=["Transition", "Transversion"], col="Mutation Type",
+                         palette="Set2", kind="count", hue_order=["Transitions", "Transversions"], col="Mutation Type",
                          col_wrap=2,
-                         col_order=["Transition", "Transversion"], dodge=False, saturation=1)
+                         col_order=["Transitions", "Transversions"], dodge=False, saturation=1)
         g1.set_axis_labels("Passage", "Count")
         g1.set(xticklabels=x_ticks)  # yscale='log',
         plt.tight_layout()
@@ -167,22 +167,22 @@ def main():
 
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation",
                                 order=x_order, palette=mutation_palette(4), kind="point",
-                                dodge=dodge, hue_order=transition_order,
+                                dodge=dodge, hue_order=Transitions_order,
                                 join=False, estimator=weighted_varaint, orient="v", legend=True)
         passage_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-        passage_g.set(yscale='log', ylim=(10 ** -6, 10 ** -2),
+        passage_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2),
                       xticklabels=x_ticks)
-        plt.savefig(output_dir + "/Transition_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
+        plt.savefig(output_dir + "/Transitions_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
 
         passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation",
                                  order=passage_order, palette=mutation_palette(4), dodge=True,
-                                 hue_order=transition_order)
+                                 hue_order=Transitions_order)
         passage_g1.set_yscale('log')
         passage_g1.set_ylim(10 ** -5, 10 ** -2)
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=data_filter_replica,
-                          order=passage_order, hue_order=transition_order)
+                          order=passage_order, hue_order=Transitions_order)
         annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
@@ -192,19 +192,19 @@ def main():
                 passage_g1, test_results = annot.annotate()
         plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
         plt.tight_layout()
-        plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
+        plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
     # data_filter["passage"] = data_filter["passage"].astype(int)
     #
     #
     # g4 = sns.relplot("passage", "frac_and_weight", data=data_filter, hue="Mutation", palette=mutation_palette(4),
-    #                  hue_order=transition_order, estimator=weighted_varaint, col="Type", kind="line",
+    #                  hue_order=Transitions_order, estimator=weighted_varaint, col="Type", kind="line",
     #                  col_order=type_order)
     #
     # g4.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -5)
     # g4.set_axis_labels("Passage", "Variant Frequency")
     # # plt.show()
-    # g4.savefig(output_dir + "/Time_Transition_Mutations_line_plot", dpi=300)
+    # g4.savefig(output_dir + "/Time_Transitions_Mutations_line_plot", dpi=300)
     # plt.close()
         """ADAR preferences"""
         data_filter_replica_synonymous = data_filter_replica.loc[data_filter_replica.Type == "Synonymous"]
@@ -615,7 +615,7 @@ if __name__ == "__main__":
     # plt.close()
 
     # g2 = sns.catplot(x="label", y="frac_and_weight", data=data_filter, hue="Mutation", order=label_order,
-    #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=transition_order, join=False,
+    #                  palette=mutation_palette(4), kind="point", dodge=True, hue_order=Transitions_order, join=False,
     #                  estimator=weighted_varaint,
     #                  orient="v", legend=True)
     # g2.set_axis_labels("", "Variant Frequency")
@@ -623,6 +623,6 @@ if __name__ == "__main__":
     # # g2.set_yticklabels(fontsize=12)
     # g2.set_xticklabels(fontsize=9, rotation=90)
     # plt.show()
-    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transition_Mutations_point_plot_RV", dpi=300)
-    # g2.savefig(output_dir + "/Transition_Mutations_point_plot", dpi=300)
+    # g2.savefig("/Users/odedkushnir/Google Drive/Studies/PhD/MyPosters/20190924 GGE/plots/Transitions_Mutations_point_plot_RV", dpi=300)
+    # g2.savefig(output_dir + "/Transitions_Mutations_point_plot", dpi=300)
     # plt.close()

@@ -51,9 +51,9 @@ def main():
                   (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C")),
                   (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C"))]
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
-    x_order = range(0, 9, 1)
+    x_order = range(0, 10, 1)
     plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8"], filter_reads=True, ylim=(10**-5, 10**-2))
+          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True, ylim=(10**-5, 10**-2))
 
 
 if __name__ == "__main__":

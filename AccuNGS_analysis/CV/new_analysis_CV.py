@@ -52,8 +52,9 @@ def main():
                   (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                   (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
-    plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"], filter_reads=True)
+    x_order = range(0, 14, 1)
+    plots(input_dir, date, data_filter, "CVB3", passage_order, transition_order, pairs, label_order, pairs_adar,
+          x_order, x_ticks=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""], filter_reads=True, ylim=(10**-5, 10**-2))
 
 
 if __name__ == "__main__":
