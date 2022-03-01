@@ -158,11 +158,10 @@ def main():
 
         g1_mutation = sns.catplot(x="passage", data=data_filter_replica_count,
                                   hue="Mutation", order=x_order, palette=mutation_palette(12), kind="count",
-                                  hue_order=mutation_order, col="Mutation", col_wrap=4, col_order=mutation_order,
-                                  dodge=False, saturation=1)
+                                  hue_order=mutation_order, dodge=False, saturation=1)
         g1_mutation.set_axis_labels("Passage", "Count")
         g1_mutation.set(xticklabels=x_ticks)  # yscale='log',
-        plt.tight_layout()
+        # plt.tight_layout()
         g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2_replica{0}.png".format(str(replica)), dpi=300)
         plt.close()
 
