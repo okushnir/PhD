@@ -283,7 +283,7 @@ def main():
         catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica_synonymous, hue="Mutation_adar",
                                    order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=dodge,
                                    hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
-                                   legend=True)
+                                   legend=True) #comm
         catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         catplot_adar.set(yscale='log', ylim=(10 ** -6, 10 ** -2),
                          xticklabels=x_ticks)

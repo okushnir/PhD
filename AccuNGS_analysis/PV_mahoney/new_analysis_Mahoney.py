@@ -54,7 +54,7 @@ def main():
     x_order = range(0, 10, 1)
     plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar,
           x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True, ylim=(10**-5, 10**-2), dodge=0.65)
-#     comm
+#     com
 
 
 if __name__ == "__main__":
