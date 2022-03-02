@@ -96,7 +96,7 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, remo
 
 
 def plots(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_order,
-          x_ticks, filter_reads=None, ylim=(10**-5, 10**-2)):
+          x_ticks, filter_reads=None, ylim=(10**-5, 10**-2), dodge=0.5):
     output_dir = input_dir + date + "_plots"
 
     plus_minus = u"\u00B1"
@@ -128,7 +128,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     g2 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation",
                             order=x_order, palette=mutation_palette(4), kind="point",
-                            dodge=0.5, hue_order=transition_order,
+                            dodge=dodge, hue_order=transition_order,
                             join=False, estimator=weighted_varaint, orient="v", legend=True)
     g2.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
     g2.set(yscale='log', ylim=ylim, xticklabels=x_ticks)
@@ -164,15 +164,16 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.close()
 
     data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
-    data_filter_synonymous["Mutation"] = np.where(((data_filter_synonymous["Mutation"] == "A>G") &
-                                                   (data_filter_synonymous["5`_ADAR_Preference"] == "High")),
-                                                  "High\nADAR-like\nA>G", np.where(((data_filter_synonymous["Mutation"] == "A>G")
-                                                                                    & (data_filter_synonymous["5`_ADAR_Preference"] == "Intermediate")),
-                                                                                   "Intermediate\nADAR-like\nA>G",
-                                                                                   np.where(((data_filter_synonymous["Mutation"] == "A>G") &
-                                                                                             (data_filter_synonymous["5`_ADAR_Preference"] == "Low")),
-                                                                                            "Low\nADAR-like\nA>G",
-                                                                                            data_filter_synonymous["Mutation"])))
+    data_filter_synonymous["Mutation_adar"] = data_filter_synonymous["Mutation"]
+    data_filter_synonymous["Mutation_adar"] = np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+                                                        (data_filter_synonymous["5`_ADAR_Preference"] == "High")),
+                                                       "High\nADAR-like\nA>G", np.where(((data_filter_synonymous["Mutation"] == "A>G")
+                                                                                         & (data_filter_synonymous["5`_ADAR_Preference"] == "Intermediate")),
+                                                                                        "Intermediate\nADAR-like\nA>G",
+                                                                                        np.where(((data_filter_synonymous["Mutation"] == "A>G") &
+                                                                                                  (data_filter_synonymous["5`_ADAR_Preference"] == "Low")),
+                                                                                                 "Low\nADAR-like\nA>G",
+                                                                                                 data_filter_synonymous["Mutation_adar"])))
     data_filter_synonymous["Mutation_adar"] = np.where(((data_filter_synonymous["Mutation"] == "U>C") &
                                                         (data_filter_synonymous["3`_ADAR_Preference"] == "High")),
                                                        "High\nADAR-like\nU>C", np.where(((data_filter_synonymous["Mutation"] == "U>C")
@@ -181,13 +182,13 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                                                                                         np.where(((data_filter_synonymous["Mutation"] == "U>C") &
                                                                                                   (data_filter_synonymous["3`_ADAR_Preference"] == "Low")),
                                                                                                  "Low\nADAR-like\nU>C",
-                                                                                                 data_filter_synonymous["Mutation"])))
+                                                                                                 data_filter_synonymous["Mutation_adar"])))
     mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
                            "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
 
     # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
-                               order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.5,
+                               order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=dodge,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                legend=True)
     catplot_adar.set_axis_labels("Passage", "Variant Frequency {0} CI=95%".format(plus_minus))

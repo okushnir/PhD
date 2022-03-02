@@ -21,12 +21,12 @@ def main():
 
     q_file_name = "q30_data_mutation.csv"
     # data_adar = pd.read_csv("/Users/odedkushnir/PhD_Projects/fitness/CirSeq/PV/Mahoney/inosine_results/Output/PV1_adar1_trans.csv")
-    data_adar = pd.read_csv("C:/Users/odedku/PhD_Projects/After_review/Inosine_Predict/Output/Mahoney_adar1_trans.csv")
+    data_adar = pd.read_csv("C:/Users/odedku/PhD_Projects/After_review/Inosine_Predict/Output/PV1_adar1_trans.csv")
     columns = ["Pos", "Base", "Frequency", "Ref", "Read_count", "Rank", "Prob", "pval", "Var_perc", "SNP_Profile",
                "counts_for_position", "Type", "label", "Prev", "Next", "Mutation", "abs_counts",
                "Consensus>Mutated_codon", "fiveGrade", "threeGrade"]
     removed_mutation = "C>U"
-    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, removed_mutation)
+    data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus="PV1", removed_mutation=removed_mutation, filter_reads=True)
 
     """Plots"""
     passage_order = ["p3", "p4", "p5", "p6", "p7", "p8"]
@@ -53,7 +53,7 @@ def main():
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
     x_order = range(0, 10, 1)
     plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True, ylim=(10**-5, 10**-2))
+          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True, ylim=(10**-5, 10**-2), dodge=0.65)
 
 
 if __name__ == "__main__":

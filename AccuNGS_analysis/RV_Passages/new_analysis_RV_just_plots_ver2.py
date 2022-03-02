@@ -75,15 +75,16 @@ def main():
             data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
             data_filter_replica.to_csv(output_dir + "/data_filter_replica{0}.csv".format(str(replica)), sep=",")
         data_filter_replica["passage_p"] = np.where(data_filter_replica["passage_p"] == "p0", "RNA\nControl", data_filter_replica["passage_p"])
-        data_filter_replica_count = data_filter_replica.copy()
-        data_filter_replica_count = data_filter_replica_count.loc[data_filter_replica_count["Prob"] > 0.95]
-        data_filter_replica_count = data_filter_replica_count[data_filter_replica_count["replica"] == replica]
-        data_filter_replica_count["Mutation Type"] = np.where(data_filter_replica_count["Mutation"] == "A>G", "Transitions",
-                                                np.where(data_filter_replica_count["Mutation"] == "U>C", "Transitions",
-                                                         np.where(data_filter_replica_count["Mutation"] == "G>A", "Transitions",
-                                                                  np.where(data_filter_replica_count["Mutation"] == "C>U",
+        # data_filter_replica_count = data_filter_replica.copy()
+        data_filter_replica = data_filter_replica.loc[data_filter_replica["Prob"] > 0.95]
+        data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
+        data_filter_replica["Mutation Type"] = np.where(data_filter_replica["Mutation"] == "A>G", "Transitions",
+                                                np.where(data_filter_replica["Mutation"] == "U>C", "Transitions",
+                                                         np.where(data_filter_replica["Mutation"] == "G>A", "Transitions",
+                                                                  np.where(data_filter_replica["Mutation"] == "C>U",
                                                                            "Transitions",
                                                                            "Transversions"))))
+        
         if replica == 1:
             passage_order = ["RNA\nControl", "p2", "p5", "p8", "p12"]
             pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
@@ -104,6 +105,11 @@ def main():
                           (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
                           (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
                           (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
+            trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")),
+                           (("p2", "Transitions"), ("p2", "Transversions")),
+                           (("p5", "Transitions"), ("p5", "Transversions")),
+                           (("p8", "Transitions"), ("p8", "Transversions")),
+                           (("p12", "Transitions"), ("p12", "Transversions"))]
         else:
             passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
             pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
@@ -127,6 +133,12 @@ def main():
                           (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
                           (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                           (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
+            trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")),
+                           (("p2", "Transitions"), ("p2", "Transversions")),
+                           (("p5", "Transitions"), ("p5", "Transversions")),
+                           (("p8", "Transitions"), ("p8", "Transversions")),
+                           (("p10", "Transitions"), ("p10", "Transversions")),
+                           (("p12", "Transitions"), ("p12", "Transversions"))]
 
         """Plots"""
         label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3",
@@ -137,32 +149,58 @@ def main():
         context_order = ["UpA", "ApA", "CpA", "GpA"]
         context_order_uc = ["UpU", "UpA", "UpC", "UpG"]
         adar_preference = ["High", "Intermediate", "Low"]
-        mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U",
-                          "C>A"]  # ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "A>U", "U>A", "G>C", "C>G", "C>A", "G>U"]
+        mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
         Transitions_order = ["A>G", "U>C", "G>A", "C>U"]
         plus_minus = u"\u00B1"
         x_order = range(0, 14, 1)
         x_ticks = ["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""]
-        x_ticks_stat = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"]
-        dodge = 0.75
-        g1 = sns.catplot(x="passage", data=data_filter_replica_count,
-                         hue="Mutation Type", order=x_order,
-                         palette="Set2", kind="count", hue_order=["Transitions", "Transversions"], col="Mutation Type",
-                         col_wrap=2,
-                         col_order=["Transitions", "Transversions"], dodge=False, saturation=1)
-        g1.set_axis_labels("Passage", "Count")
-        g1.set(xticklabels=x_ticks)  # yscale='log',
-        plt.tight_layout()
-        g1.savefig(output_dir + "/All_Mutations_count_plot_replica{0}.png" .format(str(replica)), dpi=300)
-        plt.close()
-
-        g1_mutation = sns.catplot(x="passage", data=data_filter_replica_count,
-                                  hue="Mutation", order=x_order, palette=mutation_palette(12), kind="count",
-                                  hue_order=mutation_order, dodge=False, saturation=1)
-        g1_mutation.set_axis_labels("Passage", "Count")
-        g1_mutation.set(xticklabels=x_ticks)  # yscale='log',
+        dodge = 0.65
+        # g1 = sns.catplot(x="passage", data=data_filter_replica,
+        #                  hue="Mutation Type", order=x_order,
+        #                  palette="Set2", kind="count", hue_order=["Transitions", "Transversions"], col="Mutation Type",
+        #                  col_wrap=2,
+        #                  col_order=["Transitions", "Transversions"], dodge=False, saturation=1)
+        # g1.set_axis_labels("Passage", "Count")
+        # g1.set(xticklabels=x_ticks)  # yscale='log',
         # plt.tight_layout()
-        g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2_replica{0}.png".format(str(replica)), dpi=300)
+        # g1.savefig(output_dir + "/All_Mutations_count_plot_replica{0}.png" .format(str(replica)), dpi=300)
+        # plt.close()
+        #
+        # g1_mutation = sns.catplot(x="passage", data=data_filter_replica,
+        #                           hue="Mutation", order=x_order, palette=mutation_palette(12), kind="count",
+        #                           hue_order=mutation_order, dodge=False, saturation=1)
+        # g1_mutation.set_axis_labels("Passage", "Count")
+        # g1_mutation.set(xticklabels=x_ticks)  # yscale='log',
+        # # plt.tight_layout()
+        # g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2_replica{0}.png".format(str(replica)), dpi=300)
+        # plt.close()
+        
+        mutation_type_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation Type",
+                                      order=x_order, palette="Set2", kind="point", dodge=dodge,
+                                      hue_order=["Transitions", "Transversions"],
+                                      estimator=weighted_varaint, orient="v", legend=True)
+        mutation_type_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+        mutation_type_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xticklabels=x_ticks)
+        plt.savefig(output_dir + "/All_Mutations_point_plot_replica{0}.png".format(str(replica)), dpi=300)
+        plt.close()
+        mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation Type",
+                                 order=passage_order, palette="Set2", dodge=True,
+                                 hue_order=["Transitions", "Transversions"])
+        mutation_type_g1.set_yscale('log')
+        mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+        mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
+        annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
+                          data=data_filter_replica, order=passage_order, hue_order=["Transitions", "Transversions"])
+        annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")
+        annot.apply_test()
+        file_path = output_dir + "/sts_trans{0}.csv".format(replica)
+        with open(file_path, "w") as o:
+            with contextlib.redirect_stdout(o):
+                passage_g1, test_results = annot.annotate()
+        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+        plt.tight_layout()
+        plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
 
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation",
@@ -174,6 +212,7 @@ def main():
                       xticklabels=x_ticks)
         plt.savefig(output_dir + "/Transitions_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
+
 
         passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation",
                                  order=passage_order, palette=mutation_palette(4), dodge=True,
@@ -208,31 +247,41 @@ def main():
     # plt.close()
         """ADAR preferences"""
         data_filter_replica_synonymous = data_filter_replica.loc[data_filter_replica.Type == "Synonymous"]
-        # data_filter_synonymous["ADAR_like"] = (data_filter_synonymous.Prev.str.contains('UpA') | data_filter_synonymous.Prev.str.contains('ApA'))
-        data_filter_replica_synonymous["Mutation"] = np.where(((data_filter_replica_synonymous["Mutation"] == "A>G") &
-                                                 (data_filter_replica_synonymous["5`_ADAR_Preference"] == "High")),
-                                                 "High\nADAR-like\nA>G", np.where(((data_filter_replica_synonymous["Mutation"] == "A>G")
-                                                          & (data_filter_replica_synonymous["5`_ADAR_Preference"] == "Intermediate")),
-                                                          "Intermediate\nADAR-like\nA>G",
-                                                          np.where(((data_filter_replica_synonymous["Mutation"] == "A>G") &
-                                                                    (data_filter_replica_synonymous["5`_ADAR_Preference"] == "Low")),
-                                                                   "Low\nADAR-like\nA>G",
-                                                                   data_filter_replica_synonymous["Mutation"])))
+        #data_filter_replica_synonymous["ADAR_like"] = (data_filter_synonymous.Prev.str.contains('UpA') |data_filter_replica_synonymous.Prev.str.contains('ApA'))
+        data_filter_replica_synonymous["Mutation_adar"] =data_filter_replica_synonymous["Mutation"]
+
+        data_filter_replica_synonymous["Mutation_adar"] = np.where(((data_filter_replica_synonymous["Mutation"] == "A>G") &
+                                                            (data_filter_replica_synonymous["5`_ADAR_Preference"] == "High")),
+                                                           "High\nADAR-like\nA>G",
+                                                           np.where(((data_filter_replica_synonymous["Mutation"] == "A>G")
+                                                                     & (data_filter_replica_synonymous[
+                                                                            "5`_ADAR_Preference"] == "Intermediate")),
+                                                                    "Intermediate\nADAR-like\nA>G",
+                                                                    np.where(
+                                                                        ((data_filter_replica_synonymous["Mutation"] == "A>G") &
+                                                                         (data_filter_replica_synonymous[
+                                                                              "5`_ADAR_Preference"] == "Low")),
+                                                                        "Low\nADAR-like\nA>G",
+                                                                       data_filter_replica_synonymous["Mutation_adar"])))
         data_filter_replica_synonymous["Mutation_adar"] = np.where(((data_filter_replica_synonymous["Mutation"] == "U>C") &
-                                                 (data_filter_replica_synonymous["3`_ADAR_Preference"] == "High")),
-                                                 "High\nADAR-like\nU>C", np.where(((data_filter_replica_synonymous["Mutation"] == "U>C")
-                                                          & (data_filter_replica_synonymous["3`_ADAR_Preference"] == "Intermediate")),
-                                                          "Intermediate\nADAR-like\nU>C",
-                                                          np.where(((data_filter_replica_synonymous["Mutation"] == "U>C") &
-                                                                    (data_filter_replica_synonymous["3`_ADAR_Preference"] == "Low")),
-                                                                   "Low\nADAR-like\nU>C",
-                                                                   data_filter_replica_synonymous["Mutation"])))
+                                                            (data_filter_replica_synonymous["3`_ADAR_Preference"] == "High")),
+                                                           "High\nADAR-like\nU>C",
+                                                           np.where(((data_filter_replica_synonymous["Mutation"] == "U>C")
+                                                                     & (data_filter_replica_synonymous[
+                                                                            "3`_ADAR_Preference"] == "Intermediate")),
+                                                                    "Intermediate\nADAR-like\nU>C",
+                                                                    np.where(
+                                                                        ((data_filter_replica_synonymous["Mutation"] == "U>C") &
+                                                                         (data_filter_replica_synonymous[
+                                                                              "3`_ADAR_Preference"] == "Low")),
+                                                                        "Low\nADAR-like\nU>C",
+                                                                       data_filter_replica_synonymous["Mutation_adar"])))
         mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
                                "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
         # data_filter_replica_synonymous["passage"] = data_filter_replica_synonymous["passage"].astype(str)
         # data_filter_replica_synonymous["passage"] = "p" + data_filter_replica_synonymous["passage"]
         catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica_synonymous, hue="Mutation_adar",
-                                   order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=dodge,
+                                   order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.75,
                                    hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                    legend=True)
         catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
