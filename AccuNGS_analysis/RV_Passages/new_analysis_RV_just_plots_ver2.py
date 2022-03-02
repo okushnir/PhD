@@ -281,7 +281,7 @@ def main():
         # data_filter_replica_synonymous["passage"] = data_filter_replica_synonymous["passage"].astype(str)
         # data_filter_replica_synonymous["passage"] = "p" + data_filter_replica_synonymous["passage"]
         catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica_synonymous, hue="Mutation_adar",
-                                   order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=0.75,
+                                   order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=dodge,
                                    hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
                                    legend=True)
         catplot_adar.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
