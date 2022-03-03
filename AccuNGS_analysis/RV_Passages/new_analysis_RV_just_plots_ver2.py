@@ -83,7 +83,10 @@ def main():
                                                          np.where(data_filter_replica["Mutation"] == "G>A", "Transitions",
                                                                   np.where(data_filter_replica["Mutation"] == "C>U",
                                                                            "Transitions",
-                                                                           "Transversions"))))
+                                                                           np.where(data_filter_replica["Mutation"] ==
+                                                                                    "G>U", "Oxidation",
+                                                                                    np.where(data_filter_replica["Mutation"] == "A>C", "Oxidation",
+                                                                           "Transversions"))))))
         
         if replica == 1:
             passage_order = ["RNA\nControl", "p2", "p5", "p8", "p12"]
@@ -101,6 +104,7 @@ def main():
                           (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
                           (("p8", "High\nADAR-like\nA>G"), ("p8", "Low\nADAR-like\nA>G")),
                           (("p12", "High\nADAR-like\nA>G"), ("p12", "Low\nADAR-like\nA>G")),
+                          (("RNA\nControl", "High\nADAR-like\nU>C"), ("RNA\nControl", "Low\nADAR-like\nU>C")),
                           (("p2", "High\nADAR-like\nU>C"), ("p2", "Low\nADAR-like\nU>C")),
                           (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
                           (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
@@ -151,6 +155,7 @@ def main():
         adar_preference = ["High", "Intermediate", "Low"]
         mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
         Transitions_order = ["A>G", "U>C", "G>A", "C>U"]
+        mutation_type_order = ["Transitions", "Transversions", "Oxidation"]
         plus_minus = u"\u00B1"
         x_order = range(0, 14, 1)
         x_ticks = ["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""]
@@ -177,7 +182,7 @@ def main():
         
         mutation_type_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation Type",
                                       order=x_order, palette="Set2", kind="point", dodge=dodge,
-                                      hue_order=["Transitions", "Transversions"],
+                                      hue_order=mutation_type_order,
                                       estimator=weighted_varaint, orient="v", legend=True)
         mutation_type_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
         mutation_type_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xticklabels=x_ticks)
@@ -185,7 +190,7 @@ def main():
         plt.close()
         mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation Type",
                                  order=passage_order, palette="Set2", dodge=True,
-                                 hue_order=["Transitions", "Transversions"])
+                                 hue_order=mutation_type_order)
         mutation_type_g1.set_yscale('log')
         mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
         mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
@@ -299,7 +304,7 @@ def main():
         adar_g.set_ylim(10 ** -6, 10 ** -1)
         adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=data_filter_replica_synonymous,
-                          hue_order=mutation_adar_order)
+                          hue_order=mutation_adar_order, order=passage_order)
         annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
