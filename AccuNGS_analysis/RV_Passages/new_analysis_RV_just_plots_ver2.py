@@ -15,6 +15,7 @@ from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from datetime import datetime
 from statannotations.Annotator import Annotator
 import contextlib
+from scikit_posthocs import posthoc_dunn
 
 
 sns.set(font_scale=1.2)
@@ -196,7 +197,7 @@ def main():
         mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
                           data=data_filter_replica, order=passage_order, hue_order=["Transitions", "Transversions"])
-        annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
         file_path = output_dir + "/sts_trans{0}.csv".format(replica)
@@ -207,6 +208,25 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
+
+        dunn_df = posthoc_dunn(
+            data_filter_replica, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
+        )
+        print(dunn_df.to_string())
+
+        dist_g = sns.distplot(data_filter_replica["Frequency"])
+        dist_g.set_xscale('log')
+        dist_g.set_xlim(10 ** -5, 10 ** -2)
+        plt.axvline(data_filter_replica["Frequency"].median(), color='red')
+        plt.axvline(data_filter_replica["Frequency"].mean(), color='blue')
+
+        sns.despine()
+        plt.tight_layout()
+        plt.savefig(output_dir + "/histplot_frequency_replica{0}".format(replica), dpi=300)
+        plt.close()
+
+
+
 
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation",
                                 order=x_order, palette=mutation_palette(4), kind="point",
@@ -227,17 +247,22 @@ def main():
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=data_filter_replica,
                           order=passage_order, hue_order=Transitions_order)
-        annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
         file_path = output_dir + "/sts{0}.csv".format(replica)
         with open(file_path, "w") as o:
             with contextlib.redirect_stdout(o):
                 passage_g1, test_results = annot.annotate()
+
         plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
         plt.tight_layout()
         plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
+        dunn_df = posthoc_dunn(
+            data_filter_replica, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
+        )
+        print(dunn_df.to_string())
     # data_filter["passage"] = data_filter["passage"].astype(int)
     #
     #
@@ -305,7 +330,7 @@ def main():
         adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=data_filter_replica_synonymous,
                           hue_order=mutation_adar_order, order=passage_order)
-        annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
         file_path = output_dir + "/sts_adar_{0}.csv".format(replica)
@@ -316,7 +341,10 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-
+        dunn_df = posthoc_dunn(
+            data_filter_replica_synonymous, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
+        )
+        print(dunn_df.to_string())
 
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # ata_filter_pass5 = data_filter.loc[data_filter.replica == 2]

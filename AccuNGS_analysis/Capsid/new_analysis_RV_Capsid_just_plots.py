@@ -160,8 +160,7 @@ def main():
     mutation_type_g1.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
                       data=data_filter_ag_replica1, order=rna_order_replica1, hue_order=adar_preference)
-    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts_adar.csv"
     with open(file_path, "w") as o:

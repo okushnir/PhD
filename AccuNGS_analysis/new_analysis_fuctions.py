@@ -7,6 +7,7 @@ import seaborn as sns
 from AccuNGS_analysis.adar_mutation_palette import mutation_palette
 from statannotations.Annotator import Annotator
 import contextlib
+from scikit_posthocs import posthoc_dunn
 
 
 sns.set(font_scale=1.2)
@@ -151,7 +152,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
                       order=passage_order, hue_order=transition_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
@@ -211,7 +212,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=dfs_stat, hue_order=mutation_adar_order, order=passage_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                     comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts_adar.csv"
@@ -222,4 +223,9 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.tight_layout()
     plt.savefig(output_dir + "/adar_pref_mutation_box_plot_{0}.png".format(virus), dpi=300)
     plt.close()
+
+    dunn_df = posthoc_dunn(
+        dfs_stat, val_col="Frequency", group_col="passage", p_adjust="fdr_bh"
+    )
+    print(dunn_df.to_string())
     #Com

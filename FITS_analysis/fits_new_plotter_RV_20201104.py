@@ -260,7 +260,7 @@ def main():
              (("U>C", "PV1"), ("C>U", "PV1")), (("U>C", "PV1"), ("G>A", "PV1"))]
     annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order,
                           hue="Virus", hue_order=virus_order)
-    annotator.configure(test='t-test_welch', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Mann-Whitney
+    annotator.configure(test='Kruskal', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Mann-Whitney
     annotator.apply_and_annotate()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
