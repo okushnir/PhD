@@ -163,6 +163,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.tight_layout()
     plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_{0}".format(virus), dpi=300)
     plt.close()
+    dunn_df = posthoc_dunn(df_stat, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+    dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations.csv", sep=",")
 
     data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
     data_filter_synonymous["Mutation_adar"] = data_filter_synonymous["Mutation"]
@@ -224,8 +226,13 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.savefig(output_dir + "/adar_pref_mutation_box_plot_{0}.png".format(virus), dpi=300)
     plt.close()
 
-    dunn_df = posthoc_dunn(
-        dfs_stat, val_col="Frequency", group_col="passage", p_adjust="fdr_bh"
-    )
-    print(dunn_df.to_string())
+    dfs_stat["Mutation_adar"] = np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nA>G", "High ADAR-like A>G",
+                                                                        np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
+                                                                                 "Intermediate ADAR-like A>G",
+                                                                                 np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nA>G", "Low ADAR-like A>G",
+                                                                                          np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nU>C", "High ADAR-like U>C",
+                                                                                                   np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nU>C", "Intermediate ADAR-like U>C",
+                                                                                                            np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C", dfs_stat["Mutation_adar"]))))))
+    dunn_df = posthoc_dunn(dfs_stat, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
+    dunn_df.to_csv(output_dir + "/dunn_df_adar_pref.csv", sep=",")
     #Com

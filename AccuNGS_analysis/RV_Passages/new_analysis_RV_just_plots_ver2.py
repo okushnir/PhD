@@ -209,10 +209,8 @@ def main():
         plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
 
-        dunn_df = posthoc_dunn(
-            data_filter_replica, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
-        )
-        print(dunn_df.to_string())
+        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
+        dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
         dist_g = sns.distplot(data_filter_replica["Frequency"])
         dist_g.set_xscale('log')
@@ -259,10 +257,8 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-        dunn_df = posthoc_dunn(
-            data_filter_replica, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
-        )
-        print(dunn_df.to_string())
+        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+        dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
     # data_filter["passage"] = data_filter["passage"].astype(int)
     #
     #
@@ -341,10 +337,19 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-        dunn_df = posthoc_dunn(
-            data_filter_replica_synonymous, val_col="Frequency", group_col="passage_p", p_adjust="fdr_bh"
-        )
-        print(dunn_df.to_string())
+        data_filter_replica_synonymous_dunn = data_filter_replica_synonymous.copy()
+        data_filter_replica_synonymous_dunn["Mutation_adar"] = np.where(data_filter_replica_synonymous_dunn
+                                                                        ["Mutation_adar"] == "High\nADAR-like\nA>G",
+                                                                        "High ADAR-like A>G",
+                                                                        np.where(data_filter_replica_synonymous_dunn
+                                                                                 ["Mutation_adar"] == "Intermediate\nADAR-like\nA>G", "Intermediate ADAR-like A>G", np.where(data_filter_replica_synonymous_dunn
+                                                                                 ["Mutation_adar"] == "Low\nADAR-like\nA>G", "Low ADAR-like A>G", np.where(data_filter_replica_synonymous_dunn
+                                                                        ["Mutation_adar"] == "High\nADAR-like\nU>C",
+                                                                        "High ADAR-like U>C", np.where(data_filter_replica_synonymous_dunn
+                                                                                 ["Mutation_adar"] == "Intermediate\nADAR-like\nU>C", "Intermediate ADAR-like U>C", np.where(data_filter_replica_synonymous_dunn
+                                                                                 ["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C",data_filter_replica_synonymous_dunn["Mutation_adar"]))))))
+        dunn_df = posthoc_dunn(data_filter_replica_synonymous_dunn, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
+        dunn_df.to_csv(output_dir + "/dunn_df_adar_pref_replica{0}.csv".format(str(replica)), sep=",")
 
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # ata_filter_pass5 = data_filter.loc[data_filter.replica == 2]
