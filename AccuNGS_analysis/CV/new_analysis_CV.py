@@ -51,10 +51,16 @@ def main():
                   (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
                   (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
                   (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
+    trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")), (("RNA\nControl", "Transitions"), ("RNA\nControl", "Oxidations")),
+                   (("p2", "Transitions"), ("p2", "Transversions")), (("p2", "Transitions"), ("p2", "Oxidations")),
+                   (("p5", "Transitions"), ("p5", "Transversions")), (("p5", "Transitions"), ("p5", "Oxidations")),
+                   (("p8", "Transitions"), ("p8", "Transversions")), (("p8", "Transitions"), ("p8", "Oxidations")),
+                   (("p10", "Transitions"), ("p10", "Transversions")), (("p10", "Transitions"), ("p10", "Oxidations")),
+                   (("p12", "Transitions"), ("p12", "Transversions")), (("p12", "Transitions"), ("p12", "Oxidations"))]
     label_order = ["CVB3\nRNA Control", "CVB3-p2", "CVB3-p5", "CVB3-p8", "CVB3-p10", "CVB3-p12"]
     x_order = range(0, 14, 1)
     plots(input_dir, date, data_filter, "CVB3", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order, x_ticks=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""],
+          x_order, trans_pairs, x_ticks=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""],
           filter_reads=True, ylim=(10**-5, 10**-2))
 
 

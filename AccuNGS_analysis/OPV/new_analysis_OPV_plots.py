@@ -32,9 +32,14 @@ def main():
                   (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
                   (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
                   (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C"))]
+    trans_pairs = [(("p1", "Transitions"), ("p1", "Transversions")), (("p1", "Transitions"), ("p1", "Oxidations")),
+                   (("p3", "Transitions"), ("p3", "Transversions")), (("p3", "Transitions"), ("p3", "Oxidations")),
+                   (("p5", "Transitions"), ("p5", "Transversions")), (("p5", "Transitions"), ("p5", "Oxidations")),
+                   (("p6", "Transitions"), ("p6", "Transversions")), (("p6", "Transitions"), ("p6", "Oxidations")),
+                   (("p7", "Transitions"), ("p7", "Transversions")), (("p7", "Transitions"), ("p7", "Oxidations"))]
     x_order = range(0, 9, 1)
     plots(input_dir, date, data_filter, "OPV2", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order, x_ticks=["", "1", "", "3", "", "5", "6", "7", ""], ylim=(10**-5, 10**-2))
+          x_order, trans_pairs, x_ticks=["", "1", "", "3", "", "5", "6", "7", ""], ylim=(10**-5, 10**-2))
 
     #(input_dir, date, data_filter, virus, passage_order, transition_order, pairs, label_order, pairs_adar, x_ticks,
           # x_order, filter_reads=None, ylim=(10**-5, 10**-2))

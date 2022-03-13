@@ -50,10 +50,17 @@ def main():
                   (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
                   (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C")),
                   (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C"))]
+    trans_pairs = [(("p3", "Transitions"), ("p3", "Transversions")), (("p3", "Transitions"), ("p3", "Oxidations")),
+                   (("p4", "Transitions"), ("p4", "Transversions")), (("p4", "Transitions"), ("p4", "Oxidations")),
+                   (("p5", "Transitions"), ("p5", "Transversions")), (("p5", "Transitions"), ("p5", "Oxidations")),
+                   (("p6", "Transitions"), ("p6", "Transversions")), (("p6", "Transitions"), ("p6", "Oxidations")),
+                   (("p7", "Transitions"), ("p7", "Transversions")), (("p7", "Transitions"), ("p7", "Oxidations")),
+                   (("p8", "Transitions"), ("p8", "Transversions")), (("p8", "Transitions"), ("p8", "Oxidations"))]
     label_order = ["PV-p3", "PV-p4", "PV-p5", "PV-p6", "PV-p7", "PV-p8"]
     x_order = range(0, 10, 1)
     plots(input_dir, date, data_filter, "PV1", passage_order, transition_order, pairs, label_order, pairs_adar,
-          x_order, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True, ylim=(10**-5, 10**-2), dodge=0.65)
+          x_order, trans_pairs, x_ticks=["", "", "", "3", "4", "5", "6", "7", "8", ""], filter_reads=True,
+          ylim=(10**-5, 10**-2), dodge=0.65)
 #     com
 
 

@@ -75,75 +75,83 @@ def main():
                                                       data_filter_replica["replica"])
             data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
             data_filter_replica.to_csv(output_dir + "/data_filter_replica{0}.csv".format(str(replica)), sep=",")
-        data_filter_replica["passage_p"] = np.where(data_filter_replica["passage_p"] == "p0", "RNA\nControl", data_filter_replica["passage_p"])
-        # data_filter_replica_count = data_filter_replica.copy()
-        data_filter_replica = data_filter_replica.loc[data_filter_replica["Prob"] > 0.95]
-        data_filter_replica = data_filter_replica[data_filter_replica["replica"] == replica]
+        data_filter_replica["passage_p"] = np.where(data_filter_replica["passage_p"] == "p0", "RNA Control", data_filter_replica["passage_p"])
         data_filter_replica["Mutation Type"] = np.where(data_filter_replica["Mutation"] == "A>G", "Transitions",
                                                 np.where(data_filter_replica["Mutation"] == "U>C", "Transitions",
                                                          np.where(data_filter_replica["Mutation"] == "G>A", "Transitions",
                                                                   np.where(data_filter_replica["Mutation"] == "C>U",
                                                                            "Transitions",
                                                                            np.where(data_filter_replica["Mutation"] ==
-                                                                                    "G>U", "Oxidation",
-                                                                                    np.where(data_filter_replica["Mutation"] == "A>C", "Oxidation",
+                                                                                    "G>U", "Oxidations",
+                                                                                    np.where(data_filter_replica["Mutation"] == "A>C", "Oxidations",
                                                                            "Transversions"))))))
         
         if replica == 1:
-            passage_order = ["RNA\nControl", "p2", "p5", "p8", "p12"]
-            pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+            passage_p_order = ["RNA Control", "p2", "p5", "p8", "p12"]
+            pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
                      (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
                      (("p12", "A>G"), ("p12", "G>A")),
-                     (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+                     (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
                      (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
                      (("p12", "A>G"), ("p12", "U>C")),
-                     (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
+                     (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
                      (("p12", "A>G"), ("p12", "C>U"))]
-            pairs_adar = [(("RNA\nControl", "High\nADAR-like\nA>G"), ("RNA\nControl", "Low\nADAR-like\nA>G")),
-                          (("p2", "High\nADAR-like\nA>G"), ("p2", "Low\nADAR-like\nA>G")),
-                          (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
-                          (("p8", "High\nADAR-like\nA>G"), ("p8", "Low\nADAR-like\nA>G")),
-                          (("p12", "High\nADAR-like\nA>G"), ("p12", "Low\nADAR-like\nA>G")),
-                          (("RNA\nControl", "High\nADAR-like\nU>C"), ("RNA\nControl", "Low\nADAR-like\nU>C")),
-                          (("p2", "High\nADAR-like\nU>C"), ("p2", "Low\nADAR-like\nU>C")),
-                          (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
-                          (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
-                          (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
-            trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")),
+            pairs_adar = [(("RNA Control", "High ADAR-like A>G"), ("RNA Control", "Low ADAR-like A>G")),
+                          (("p2", "High ADAR-like A>G"), ("p2", "Low ADAR-like A>G")),
+                          (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
+                          (("p8", "High ADAR-like A>G"), ("p8", "Low ADAR-like A>G")),
+                          (("p12", "High ADAR-like A>G"), ("p12", "Low ADAR-like A>G")),
+                          (("RNA Control", "High ADAR-like U>C"), ("RNA Control", "Low ADAR-like U>C")),
+                          (("p2", "High ADAR-like U>C"), ("p2", "Low ADAR-like U>C")),
+                          (("p5", "High ADAR-like U>C"), ("p5", "Low ADAR-like U>C")),
+                          (("p8", "High ADAR-like U>C"), ("p8", "Low ADAR-like U>C")),
+                          (("p12", "High ADAR-like U>C"), ("p12", "Low ADAR-like U>C"))]
+            trans_pairs = [(("RNA Control", "Transitions"), ("RNA Control", "Transversions")),
+                           (("RNA Control", "Transitions"), ("RNA Control", "Oxidations")),
                            (("p2", "Transitions"), ("p2", "Transversions")),
+                           (("p2", "Transitions"), ("p2", "Oxidations")),
                            (("p5", "Transitions"), ("p5", "Transversions")),
+                           (("p5", "Transitions"), ("p5", "Oxidations")),
                            (("p8", "Transitions"), ("p8", "Transversions")),
-                           (("p12", "Transitions"), ("p12", "Transversions"))]
+                           (("p8", "Transitions"), ("p8", "Oxidations")),
+                           (("p12", "Transitions"), ("p12", "Transversions")),
+                           (("p12", "Transitions"), ("p12", "Oxidations"))]
         else:
-            passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
-            pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+            passage_p_order = ["RNA Control", "p2", "p5", "p8", "p10", "p12"]
+            pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
                      (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
                      (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
-                     (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+                     (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
                      (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
                      (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
-                     (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
+                     (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
                      (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
-            pairs_adar = [(("RNA\nControl", "High\nADAR-like\nA>G"), ("RNA\nControl", "Low\nADAR-like\nA>G")),
-                          (("p2", "High\nADAR-like\nA>G"), ("p2", "Low\nADAR-like\nA>G")),
-                          (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
-                          (("p8", "High\nADAR-like\nA>G"), ("p8", "Low\nADAR-like\nA>G")),
-                          (("p10", "High\nADAR-like\nA>G"), ("p10", "Low\nADAR-like\nA>G")),
-                          (("p12", "High\nADAR-like\nA>G"), ("p12", "Low\nADAR-like\nA>G")),
-                          (("RNA\nControl", "High\nADAR-like\nU>C"), ("RNA\nControl", "Low\nADAR-like\nU>C")),
-                          (("p2", "High\nADAR-like\nU>C"), ("p2", "Low\nADAR-like\nU>C")),
-                          (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
-                          (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
-                          (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
-                          (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
-            trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")),
+            pairs_adar = [(("RNA Control", "High ADAR-like A>G"), ("RNA Control", "Low ADAR-like A>G")),
+                          (("p2", "High ADAR-like A>G"), ("p2", "Low ADAR-like A>G")),
+                          (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
+                          (("p8", "High ADAR-like A>G"), ("p8", "Low ADAR-like A>G")),
+                          (("p10", "High ADAR-like A>G"), ("p10", "Low ADAR-like A>G")),
+                          (("p12", "High ADAR-like A>G"), ("p12", "Low ADAR-like A>G")),
+                          (("RNA Control", "High ADAR-like U>C"), ("RNA Control", "Low ADAR-like U>C")),
+                          (("p2", "High ADAR-like U>C"), ("p2", "Low ADAR-like U>C")),
+                          (("p5", "High ADAR-like U>C"), ("p5", "Low ADAR-like U>C")),
+                          (("p8", "High ADAR-like U>C"), ("p8", "Low ADAR-like U>C")),
+                          (("p10", "High ADAR-like U>C"), ("p10", "Low ADAR-like U>C")),
+                          (("p12", "High ADAR-like U>C"), ("p12", "Low ADAR-like U>C"))]
+            trans_pairs = [(("RNA Control", "Transitions"), ("RNA Control", "Transversions")),
+                           (("RNA Control", "Transitions"), ("RNA Control", "Oxidations")),
                            (("p2", "Transitions"), ("p2", "Transversions")),
+                           (("p2", "Transitions"), ("p2", "Oxidations")),
                            (("p5", "Transitions"), ("p5", "Transversions")),
+                           (("p5", "Transitions"), ("p5", "Oxidations")),
                            (("p8", "Transitions"), ("p8", "Transversions")),
+                           (("p8", "Transitions"), ("p8", "Oxidations")),
                            (("p10", "Transitions"), ("p10", "Transversions")),
-                           (("p12", "Transitions"), ("p12", "Transversions"))]
+                           (("p10", "Transitions"), ("p10", "Oxidations")),
+                           (("p12", "Transitions"), ("p12", "Transversions")),
+                           (("p12", "Transitions"), ("p12", "Oxidations"))]
 
         """Plots"""
         label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3",
@@ -156,7 +164,7 @@ def main():
         adar_preference = ["High", "Intermediate", "Low"]
         mutation_order = ["A>G", "U>C", "G>A", "C>U", "A>C", "U>G", "G>C", "C>G", "A>U", "U>A", "G>U", "C>A"]
         Transitions_order = ["A>G", "U>C", "G>A", "C>U"]
-        mutation_type_order = ["Transitions", "Transversions", "Oxidation"]
+        mutation_type_order = ["Transitions", "Transversions", "Oxidations"]
         plus_minus = u"\u00B1"
         x_order = range(0, 14, 1)
         x_ticks = ["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12", ""]
@@ -180,37 +188,6 @@ def main():
         # # plt.tight_layout()
         # g1_mutation.savefig(output_dir + "/All_Mutations_count_plot2_replica{0}.png".format(str(replica)), dpi=300)
         # plt.close()
-        
-        mutation_type_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation Type",
-                                      order=x_order, palette="Set2", kind="point", dodge=dodge,
-                                      hue_order=mutation_type_order,
-                                      estimator=weighted_varaint, orient="v", legend=True)
-        mutation_type_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
-        mutation_type_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xticklabels=x_ticks)
-        plt.savefig(output_dir + "/All_Mutations_point_plot_replica{0}.png".format(str(replica)), dpi=300)
-        plt.close()
-        mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation Type",
-                                 order=passage_order, palette="Set2", dodge=True,
-                                 hue_order=mutation_type_order)
-        mutation_type_g1.set_yscale('log')
-        mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
-        mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
-        annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
-                          data=data_filter_replica, order=passage_order, hue_order=["Transitions", "Transversions"])
-        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
-        annot.apply_test()
-        file_path = output_dir + "/sts_trans{0}.csv".format(replica)
-        with open(file_path, "w") as o:
-            with contextlib.redirect_stdout(o):
-                passage_g1, test_results = annot.annotate()
-        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-        plt.tight_layout()
-        plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
-        plt.close()
-
-        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
-        dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
         dist_g = sns.distplot(data_filter_replica["Frequency"])
         dist_g.set_xscale('log')
@@ -222,9 +199,15 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/histplot_frequency_replica{0}".format(replica), dpi=300)
         plt.close()
-
-
-
+        
+        mutation_type_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation Type",
+                                      order=x_order, palette="Set2", kind="point", dodge=dodge,
+                                      hue_order=mutation_type_order,
+                                      estimator=weighted_varaint, orient="v", legend=True)
+        mutation_type_g.set_axis_labels("Passage", "Variant Frequency {} CI=95%".format(plus_minus))
+        mutation_type_g.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xticklabels=x_ticks)
+        plt.savefig(output_dir + "/All_Mutations_point_plot_replica{0}.png".format(str(replica)), dpi=300)
+        plt.close()
 
         passage_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_replica, hue="Mutation",
                                 order=x_order, palette=mutation_palette(4), kind="point",
@@ -236,29 +219,6 @@ def main():
         plt.savefig(output_dir + "/Transitions_Mutations_point_plot_RVB14_replica%s" % str(replica), dpi=300)
         plt.close()
 
-
-        passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica, hue="Mutation",
-                                 order=passage_order, palette=mutation_palette(4), dodge=True,
-                                 hue_order=Transitions_order)
-        passage_g1.set_yscale('log')
-        passage_g1.set_ylim(10 ** -5, 10 ** -2)
-        passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
-        annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=data_filter_replica,
-                          order=passage_order, hue_order=Transitions_order)
-        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
-        annot.apply_test()
-        file_path = output_dir + "/sts{0}.csv".format(replica)
-        with open(file_path, "w") as o:
-            with contextlib.redirect_stdout(o):
-                passage_g1, test_results = annot.annotate()
-
-        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-        plt.tight_layout()
-        plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
-        plt.close()
-        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
-        dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
     # data_filter["passage"] = data_filter["passage"].astype(int)
     #
     #
@@ -318,14 +278,84 @@ def main():
         plt.savefig(output_dir + "/adar_pref_mutation_point_plot_RVB14_replica{0}.png".format(replica), dpi=300)
         plt.close()
 
-        adar_g = sns.boxplot(x="passage_p", y="Frequency", data=data_filter_replica_synonymous, hue="Mutation_adar",
-                             order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
+
+        """Stat"""
+        df_sts = data_filter_replica.copy()
+        df_sts = df_sts.loc[df_sts["Prob"] > 0.95]
+        df_sts["passage_p"] = np.where(df_sts["passage_p"] == "RNA\nControl", "RNA Control", df_sts["passage_p"])
+        mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation Type",
+                                 order=passage_p_order, palette="Set2", dodge=True,
+                                 hue_order=mutation_type_order)
+        mutation_type_g1.set_yscale('log')
+        mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+        mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
+        annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
+                          data=df_sts, order=passage_p_order, hue_order=mutation_type_order)
+        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")
+        annot.apply_test()
+        file_path = output_dir + "/sts_trans{0}.csv".format(replica)
+        with open(file_path, "w") as o:
+            with contextlib.redirect_stdout(o):
+                passage_g1, test_results = annot.annotate()
+        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+        plt.tight_layout()
+        plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
+        plt.close()
+
+        dunn_df = posthoc_dunn(df_sts, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
+        dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
+
+        passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation",
+                                 order= passage_p_order, palette=mutation_palette(4), dodge=True,
+                                 hue_order=Transitions_order)
+        passage_g1.set_yscale('log')
+        passage_g1.set_ylim(10 ** -5, 10 ** -2)
+        passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
+        annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=df_sts,
+                          order= passage_p_order, hue_order=Transitions_order)
+        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")
+        annot.apply_test()
+        file_path = output_dir + "/sts{0}.csv".format(replica)
+        with open(file_path, "w") as o:
+            with contextlib.redirect_stdout(o):
+                passage_g1, test_results = annot.annotate()
+
+        plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+        plt.tight_layout()
+        plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
+        plt.close()
+        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+        dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
+
+        df_sts_syn = data_filter_replica_synonymous.copy()
+        df_sts_syn = df_sts_syn.loc[df_sts_syn["Prob"] > 0.95]
+        df_sts_syn["Mutation_adar"] = np.where(df_sts_syn["Mutation_adar"] == "High\nADAR-like\nA>G",
+                                               "High ADAR-like A>G",
+                                               np.where(df_sts_syn["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
+                                                        "Intermediate ADAR-like A>G",
+                                                        np.where(df_sts_syn["Mutation_adar"] == "Low\nADAR-like\nA>G",
+                                                                 "Low ADAR-like A>G",
+                                                                 np.where(df_sts_syn[
+                                                                              "Mutation_adar"] == "High\nADAR-like\nU>C",
+                                                                          "High ADAR-like U>C",
+                                                                          np.where(df_sts_syn[
+                                                                                       "Mutation_adar"] == "Intermediate\nADAR-like\nU>C",
+                                                                                   "Intermediate ADAR-like U>C",
+                                                                                   np.where(df_sts_syn[
+                                                                                                "Mutation_adar"] == "Low\nADAR-like\nU>C",
+                                                                                            "Low ADAR-like U>C",
+                                                                                            df_sts_syn[
+                                                                                                "Mutation_adar"]))))))
+        adar_g = sns.boxplot(x="passage_p", y="Frequency", data=df_sts_syn, hue="Mutation_adar",
+                             order=passage_p_order, palette=mutation_palette(4, adar=True), dodge=True,
                              hue_order=mutation_adar_order)
         adar_g.set_yscale('log')
         adar_g.set_ylim(10 ** -6, 10 ** -1)
         adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
-        annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=data_filter_replica_synonymous,
-                          hue_order=mutation_adar_order, order=passage_order)
+        annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=df_sts_syn,
+                          hue_order=mutation_adar_order, order=passage_p_order)
         annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")
         annot.apply_test()
@@ -337,18 +367,7 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-        data_filter_replica_synonymous_dunn = data_filter_replica_synonymous.copy()
-        data_filter_replica_synonymous_dunn["Mutation_adar"] = np.where(data_filter_replica_synonymous_dunn
-                                                                        ["Mutation_adar"] == "High\nADAR-like\nA>G",
-                                                                        "High ADAR-like A>G",
-                                                                        np.where(data_filter_replica_synonymous_dunn
-                                                                                 ["Mutation_adar"] == "Intermediate\nADAR-like\nA>G", "Intermediate ADAR-like A>G", np.where(data_filter_replica_synonymous_dunn
-                                                                                 ["Mutation_adar"] == "Low\nADAR-like\nA>G", "Low ADAR-like A>G", np.where(data_filter_replica_synonymous_dunn
-                                                                        ["Mutation_adar"] == "High\nADAR-like\nU>C",
-                                                                        "High ADAR-like U>C", np.where(data_filter_replica_synonymous_dunn
-                                                                                 ["Mutation_adar"] == "Intermediate\nADAR-like\nU>C", "Intermediate ADAR-like U>C", np.where(data_filter_replica_synonymous_dunn
-                                                                                 ["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C",data_filter_replica_synonymous_dunn["Mutation_adar"]))))))
-        dunn_df = posthoc_dunn(data_filter_replica_synonymous_dunn, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
+        dunn_df = posthoc_dunn(df_sts_syn, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
         dunn_df.to_csv(output_dir + "/dunn_df_adar_pref_replica{0}.csv".format(str(replica)), sep=",")
 
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
