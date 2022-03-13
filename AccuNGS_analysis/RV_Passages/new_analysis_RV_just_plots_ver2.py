@@ -348,6 +348,8 @@ def main():
                                                                                             "Low ADAR-like U>C",
                                                                                             df_sts_syn[
                                                                                                 "Mutation_adar"]))))))
+        mutation_adar_order = ["High ADAR-like A>G", "Low ADAR-like A>G",
+                               "High ADAR-like U>C", "Low ADAR-like U>C"]
         adar_g = sns.boxplot(x="passage_p", y="Frequency", data=df_sts_syn, hue="Mutation_adar",
                              order=passage_p_order, palette=mutation_palette(4, adar=True), dodge=True,
                              hue_order=mutation_adar_order)
