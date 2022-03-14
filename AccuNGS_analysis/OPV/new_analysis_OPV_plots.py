@@ -22,16 +22,16 @@ def main():
              (("p5", "A>G"), ("p5", "U>C")), (("p6", "A>G"), ("p6", "U>C")),
              (("p7", "A>G"), ("p7", "U>C"))]
 
-    pairs_adar = [(("p1", "High\nADAR-like\nA>G"), ("p1", "Low\nADAR-like\nA>G")),
-                  (("p3", "High\nADAR-like\nA>G"), ("p3", "Low\nADAR-like\nA>G")),
-                  (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
-                  (("p6", "High\nADAR-like\nA>G"), ("p6", "Low\nADAR-like\nA>G")),
-                  (("p7", "High\nADAR-like\nA>G"), ("p7", "Low\nADAR-like\nA>G")),
-                  (("p1", "High\nADAR-like\nU>C"), ("p1", "Low\nADAR-like\nU>C")),
-                  (("p3", "High\nADAR-like\nU>C"), ("p3", "Low\nADAR-like\nU>C")),
-                  (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
-                  (("p6", "High\nADAR-like\nU>C"), ("p6", "Low\nADAR-like\nU>C")),
-                  (("p7", "High\nADAR-like\nU>C"), ("p7", "Low\nADAR-like\nU>C"))]
+    pairs_adar = [(("p1", "High ADAR-like A>G"), ("p1", "Low ADAR-like A>G")),
+                  (("p3", "High ADAR-like A>G"), ("p3", "Low ADAR-like A>G")),
+                  (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
+                  (("p6", "High ADAR-like A>G"), ("p6", "Low ADAR-like A>G")),
+                  (("p7", "High ADAR-like A>G"), ("p7", "Low ADAR-like A>G")),
+                  (("p1", "High ADAR-like U>C"), ("p1", "Low ADAR-like U>C")),
+                  (("p3", "High ADAR-like U>C"), ("p3", "Low ADAR-like U>C")),
+                  (("p5", "High ADAR-like U>C"), ("p5", "Low ADAR-like U>C")),
+                  (("p6", "High ADAR-like U>C"), ("p6", "Low ADAR-like U>C")),
+                  (("p7", "High ADAR-like U>C"), ("p7", "Low ADAR-like U>C"))]
     trans_pairs = [(("p1", "Transitions"), ("p1", "Transversions")), (("p1", "Transitions"), ("p1", "Oxidations")),
                    (("p3", "Transitions"), ("p3", "Transversions")), (("p3", "Transitions"), ("p3", "Oxidations")),
                    (("p5", "Transitions"), ("p5", "Transversions")), (("p5", "Transitions"), ("p5", "Oxidations")),

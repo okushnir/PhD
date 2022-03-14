@@ -38,7 +38,7 @@ def analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, remo
     data_filter["frac_and_weight"] = list(zip(data_filter.no_variants, data_filter.Read_count))
     if virus == "CVB3":
         data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1].split("p")[-1])
-        data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", "RNA\nControl", data_filter["passage"])
+        # data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", "RNA\nControl", data_filter["passage"])
     else:
         data_filter["passage"] = data_filter["label"].apply(lambda x: x.split("-")[-1][1])
     # data_filter["passage"] = data_filter["passage"].astype(int)
@@ -125,7 +125,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                                                                                             "Oxidations", "Transversions"))))))
 
     if virus == "CVB3":
-        data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
+        data_filter["passage"] = np.where(data_filter["passage"] == "RNA Control", 0, data_filter["passage"])
     data_filter["passage"] = data_filter["passage"].astype(int)
     # data_filter_passage = data_filter.loc[data_filter.passage == 3]
     mutation_type_g = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation Type",
@@ -137,32 +137,6 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.savefig(output_dir + "/All_Mutations_point_plot.png", dpi=300)
     plt.close()
 
-    df_stat = data_filter.copy()
-    df_stat["passage"] = df_stat["passage"].astype(str)
-    df_stat["passage"] = np.where(df_stat["passage"] == "0", "RNA\nControl", df_stat["passage"])
-    df_stat["passage"] = np.where(df_stat["passage"] != "RNA\nControl", "p" +
-                                           df_stat["passage"], df_stat["passage"])
-    df_stat = df_stat.loc[df_stat["Prob"] > 0.95]
-    mutation_type_g1 = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation Type",
-                                   order=passage_order, palette="Set2", dodge=True,
-                                   hue_order=mutation_type_order)
-    mutation_type_g1.set_yscale('log')
-    mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
-    mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
-    annot = Annotator(mutation_type_g1, trans_pairs, x="passage", y="Frequency", hue="Mutation Type",
-                      data=df_stat, order=passage_order, hue_order=mutation_type_order)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
-    annot.apply_test()
-    file_path = output_dir + "/sts_trans.csv"
-    with open(file_path, "w") as o:
-        with contextlib.redirect_stdout(o):
-            passage_g1, test_results = annot.annotate()
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-    plt.tight_layout()
-    plt.savefig(output_dir + "/All_Mutations_box_stat_plot.png", dpi=300)
-    plt.close()
-
     g2 = sns.catplot(x="passage", y="frac_and_weight", data=data_filter, hue="Mutation",
                             order=x_order, palette=mutation_palette(4), kind="point",
                             dodge=dodge, hue_order=transition_order,
@@ -171,31 +145,6 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     g2.set(yscale='log', ylim=ylim, xticklabels=x_ticks)
     g2.savefig(output_dir + "/Transition_Mutations_point_plot_{0}".format(virus), dpi=300)
     plt.close()
-
-    # data_filter["passage"] = data_filter.apply(lambda x: x["passage"].replace("p", "") if x["passage"] != "RNA\nControl" else x["passage"], axis=1)
-    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
-    # data_filter["passage"] = data_filter["passage"].astype(int)
-    passage_g = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
-                            palette=mutation_palette(4), dodge=True, hue_order=transition_order)
-    passage_g.set_yscale('log')
-    passage_g.set_ylim(10 ** -6, 10 ** -1)
-    passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
-
-    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
-                      order=passage_order, hue_order=transition_order)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
-    annot.apply_test()
-    file_path = output_dir + "/sts.csv"
-    with open(file_path, "w") as o:
-        with contextlib.redirect_stdout(o):
-            passage_g, test_results = annot.annotate()
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
-    plt.tight_layout()
-    plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_{0}".format(virus), dpi=300)
-    plt.close()
-    dunn_df = posthoc_dunn(df_stat, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
-    dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations.csv", sep=",")
 
     data_filter_synonymous = data_filter.loc[data_filter.Type == "Synonymous"]
     data_filter_synonymous["Mutation_adar"] = data_filter_synonymous["Mutation"]
@@ -220,7 +169,6 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     mutation_adar_order = ["High\nADAR-like\nA>G", "Low\nADAR-like\nA>G",
                            "High\nADAR-like\nU>C", "Low\nADAR-like\nU>C"]
 
-    # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
     catplot_adar = sns.catplot(x="passage", y="frac_and_weight", data=data_filter_synonymous, hue="Mutation_adar",
                                order=x_order, palette=mutation_palette(4, adar=True), kind="point", dodge=dodge,
                                hue_order=mutation_adar_order, join=False, estimator=weighted_varaint, orient="v",
@@ -230,12 +178,70 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.savefig(output_dir + "/adar_pref_mutation_point_plot_{0}.png".format(virus), dpi=300)
     plt.close()
 
+
+    """Stats"""
+    df_stat = data_filter.copy()
+    df_stat["passage"] = df_stat["passage"].astype(str)
+    df_stat["passage"] = np.where(df_stat["passage"] == "0", "RNA Control", df_stat["passage"])
+    df_stat["passage"] = np.where(df_stat["passage"] != "RNA Control", "p" +
+                                           df_stat["passage"], df_stat["passage"])
+    df_stat = df_stat.loc[df_stat["Prob"] > 0.95]
+    mutation_type_g1 = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation Type",
+                                   order=passage_order, palette="Set2", dodge=True,
+                                   hue_order=mutation_type_order)
+    mutation_type_g1.set_yscale('log')
+    mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+    mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
+    annot = Annotator(mutation_type_g1, trans_pairs, x="passage", y="Frequency", hue="Mutation Type",
+                      data=df_stat, order=passage_order, hue_order=mutation_type_order)
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
+                    comparisons_correction="Bonferroni")
+    annot.apply_test()
+    file_path = output_dir + "/sts_trans.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            passage_g1, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(output_dir + "/All_Mutations_box_stat_plot.png", dpi=300)
+    plt.close()
+    passage_g = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
+                            palette=mutation_palette(4), dodge=True, hue_order=transition_order)
+    passage_g.set_yscale('log')
+    passage_g.set_ylim(10 ** -6, 10 ** -1)
+    passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
+
+    annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
+                      order=passage_order, hue_order=transition_order)
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
+                    comparisons_correction="Bonferroni")
+    annot.apply_test()
+    file_path = output_dir + "/sts.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            passage_g, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_{0}".format(virus), dpi=300)
+    plt.close()
+    dunn_df = posthoc_dunn(df_stat, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+    dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations.csv", sep=",")
+
+
     dfs_stat = data_filter_synonymous.copy()
     dfs_stat["passage"] = dfs_stat["passage"].astype(str)
-    dfs_stat["passage"] = np.where(dfs_stat["passage"] == "0", "RNA\nControl", dfs_stat["passage"])
-    dfs_stat["passage"] = np.where(dfs_stat["passage"] != "RNA\nControl", "p" + dfs_stat["passage"], dfs_stat["passage"])
+    dfs_stat["passage"] = np.where(dfs_stat["passage"] == "0", "RNA Control", dfs_stat["passage"])
+    dfs_stat["passage"] = np.where(dfs_stat["passage"] != "RNA Control", "p" + dfs_stat["passage"], dfs_stat["passage"])
     dfs_stat = dfs_stat.loc[dfs_stat["Prob"] > 0.95]
-
+    dfs_stat["Mutation_adar"] = np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nA>G", "High ADAR-like A>G",
+                                                                        np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
+                                                                                 "Intermediate ADAR-like A>G",
+                                                                                 np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nA>G", "Low ADAR-like A>G",
+                                                                                          np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nU>C", "High ADAR-like U>C",
+                                                                                                   np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nU>C", "Intermediate ADAR-like U>C",
+                                                                                                            np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C", dfs_stat["Mutation_adar"]))))))
+    mutation_adar_order = ["High ADAR-like A>G", "Low ADAR-like A>G",
+                           "High ADAR-like U>C", "Low ADAR-like U>C"]
     adar_g = sns.boxplot(x="passage", y="Frequency", data=dfs_stat, hue="Mutation_adar",
                          order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
                          hue_order=mutation_adar_order)
@@ -255,14 +261,13 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.tight_layout()
     plt.savefig(output_dir + "/adar_pref_mutation_box_plot_{0}.png".format(virus), dpi=300)
     plt.close()
-    dfs_stat["Mutation_adar"] = np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nA>G", "High ADAR-like A>G",
-                                                                        np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
-                                                                                 "Intermediate ADAR-like A>G",
-                                                                                 np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nA>G", "Low ADAR-like A>G",
-                                                                                          np.where(dfs_stat["Mutation_adar"] == "High\nADAR-like\nU>C", "High ADAR-like U>C",
-                                                                                                   np.where(dfs_stat["Mutation_adar"] == "Intermediate\nADAR-like\nU>C", "Intermediate ADAR-like U>C",
-                                                                                                            np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C", dfs_stat["Mutation_adar"]))))))
+
 
     dunn_df = posthoc_dunn(dfs_stat, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
     dunn_df.to_csv(output_dir + "/dunn_df_adar_pref.csv", sep=",")
-    #Com
+
+    # data_filter["passage"] = data_filter.apply(lambda x: x["passage"].replace("p", "") if x["passage"] != "RNA\nControl" else x["passage"], axis=1)
+    # data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
+    # data_filter["passage"] = data_filter["passage"].astype(int)
+    # data_filter_synonymous["passage"] = data_filter_synonymous["passage"].astype(str)
+

@@ -27,31 +27,31 @@ def main():
     data_filter = analysis(input_dir, output_dir, q_file_name, data_adar, columns, virus, removed_mutation, filter_reads=True)
 
     """Plots"""
-    passage_order = ["RNA\nControl", "p2", "p5", "p8", "p10", "p12"]
+    passage_order = ["RNA Control", "p2", "p5", "p8", "p10", "p12"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
-    pairs = [(("RNA\nControl", "A>G"), ("RNA\nControl", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+    pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
              (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
              (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
-             (("RNA\nControl", "A>G"), ("RNA\nControl", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+             (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
              (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
              (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
-             (("RNA\nControl", "A>G"), ("RNA\nControl", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
+             (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
              (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
              (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
 
-    pairs_adar = [(("RNA\nControl", "High\nADAR-like\nA>G"), ("RNA\nControl", "Low\nADAR-like\nA>G")),
-                  (("p2", "High\nADAR-like\nA>G"), ("p2", "Low\nADAR-like\nA>G")),
-                  (("p5", "High\nADAR-like\nA>G"), ("p5", "Low\nADAR-like\nA>G")),
-                  (("p8", "High\nADAR-like\nA>G"), ("p8", "Low\nADAR-like\nA>G")),
-                  (("p10", "High\nADAR-like\nA>G"), ("p10", "Low\nADAR-like\nA>G")),
-                  (("p12", "High\nADAR-like\nA>G"), ("p12", "Low\nADAR-like\nA>G")),
-                  (("RNA\nControl", "High\nADAR-like\nU>C"), ("RNA\nControl", "Low\nADAR-like\nU>C")),
-                  (("p2", "High\nADAR-like\nU>C"), ("p2", "Low\nADAR-like\nU>C")),
-                  (("p5", "High\nADAR-like\nU>C"), ("p5", "Low\nADAR-like\nU>C")),
-                  (("p8", "High\nADAR-like\nU>C"), ("p8", "Low\nADAR-like\nU>C")),
-                  (("p10", "High\nADAR-like\nU>C"), ("p10", "Low\nADAR-like\nU>C")),
-                  (("p12", "High\nADAR-like\nU>C"), ("p12", "Low\nADAR-like\nU>C"))]
-    trans_pairs = [(("RNA\nControl", "Transitions"), ("RNA\nControl", "Transversions")), (("RNA\nControl", "Transitions"), ("RNA\nControl", "Oxidations")),
+    pairs_adar = [(("RNA Control", "High ADAR-like A>G"), ("RNA Control", "Low ADAR-like A>G")),
+                  (("p2", "High ADAR-like A>G"), ("p2", "Low ADAR-like A>G")),
+                  (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
+                  (("p8", "High ADAR-like A>G"), ("p8", "Low ADAR-like A>G")),
+                  (("p10", "High ADAR-like A>G"), ("p10", "Low ADAR-like A>G")),
+                  (("p12", "High ADAR-like A>G"), ("p12", "Low ADAR-like A>G")),
+                  (("RNA Control", "High ADAR-like U>C"), ("RNA Control", "Low ADAR-like U>C")),
+                  (("p2", "High ADAR-like U>C"), ("p2", "Low ADAR-like U>C")),
+                  (("p5", "High ADAR-like U>C"), ("p5", "Low ADAR-like U>C")),
+                  (("p8", "High ADAR-like U>C"), ("p8", "Low ADAR-like U>C")),
+                  (("p10", "High ADAR-like U>C"), ("p10", "Low ADAR-like U>C")),
+                  (("p12", "High ADAR-like U>C"), ("p12", "Low ADAR-like U>C"))]
+    trans_pairs = [(("RNA Control", "Transitions"), ("RNA Control", "Transversions")), (("RNA Control", "Transitions"), ("RNA Control", "Oxidations")),
                    (("p2", "Transitions"), ("p2", "Transversions")), (("p2", "Transitions"), ("p2", "Oxidations")),
                    (("p5", "Transitions"), ("p5", "Transversions")), (("p5", "Transitions"), ("p5", "Oxidations")),
                    (("p8", "Transitions"), ("p8", "Transversions")), (("p8", "Transitions"), ("p8", "Oxidations")),
