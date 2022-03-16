@@ -2,16 +2,9 @@
 """
 @Author: odedkushnir
 """
-import datetime
-import os
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
-
 from natsort import index_natsorted
-import glob
-import re
 
 
 def sts(file_path, new_file, virus, skiprows=6):
