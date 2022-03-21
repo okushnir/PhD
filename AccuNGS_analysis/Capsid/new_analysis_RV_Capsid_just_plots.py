@@ -152,23 +152,43 @@ def main():
     mutation_g8.savefig(output_dir + "/ag_ADAR_like_Mutation_col.png", dpi=300)
     plt.close()
 
-    mutation_type_g1 = sns.boxplot(x="RNA", y="Frequency", data=data_filter_ag_replica1, hue="5`_ADAR_Preference",
+
+    mutation_type_g1 = sns.boxplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], hue="5`_ADAR_Preference",
                                    order=rna_order_replica1, palette=mutation_palette(3, adar=True, ag=True), dodge=True,
                                    hue_order=adar_preference)
     mutation_type_g1.set_yscale('log')
     mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
     mutation_type_g1.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
-                      data=data_filter_ag_replica1, order=rna_order_replica1, hue_order=adar_preference)
+                      data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
     annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
     annot.apply_test()
-    file_path = output_dir + "/sts_adar.csv"
+    file_path = output_dir + "/sts_adar_synon.csv"
     with open(file_path, "w") as o:
         with contextlib.redirect_stdout(o):
             passage_g1, test_results = annot.annotate()
     plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     plt.tight_layout()
-    plt.savefig(output_dir + "/ag_ADAR_like_Mutation_box_sts.png", dpi=300)
+    plt.savefig(output_dir + "/ag_ADAR_like_Mutation_box_sts_synon.png", dpi=300)
+    plt.close()
+    
+    mutation_type_g2 = sns.boxplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], hue="5`_ADAR_Preference",
+                                   order=rna_order_replica1, palette=mutation_palette(3, adar=True, ag=True), dodge=True,
+                                   hue_order=adar_preference)
+    mutation_type_g2.set_yscale('log')
+    mutation_type_g2.set_ylim(10 ** -5, 10 ** -2)
+    mutation_type_g2.set(xlabel="", ylabel="Variant Frequency")
+    annot = Annotator(mutation_type_g2, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
+                      data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
+    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
+    annot.apply_test()
+    file_path = output_dir + "/sts_adar_nonsynon.csv"
+    with open(file_path, "w") as o:
+        with contextlib.redirect_stdout(o):
+            passage_g2, test_results = annot.annotate()
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
+    plt.tight_layout()
+    plt.savefig(output_dir + "/ag_ADAR_like_Mutation_box_sts_nonsynon.png", dpi=300)
     plt.close()
 
     mutation_g8_box = sns.catplot("RNA", "Frequency", data=data_filter_ag_replica1, hue="5`_ADAR_Preference",
@@ -193,7 +213,7 @@ def main():
                                     hue_order=adar_preference, style_order=["High", "Low", "Intermediate"], height=4)
 
     position_mutation.set_axis_labels("", "Variant Frequency")
-    position_mutation.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
+    # position_mutation.axes.flat[0].set_yscale('symlog', linthreshy=10 ** -4)
     position_mutation.axes.flat[0].set_ylim(10**-4, 10 ** -1)
     plt.savefig(output_dir + "/position_mutation.png", dpi=300)
     plt.close()

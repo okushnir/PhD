@@ -26,7 +26,8 @@ def sts(file_path, new_file, virus, skiprows=6):
     sts_df = sts_df.sort_values(by="Passage_Mutation vs. Passage_Mutation",  key=lambda x: np.argsort(index_natsorted(sts_df["Passage_Mutation vs. Passage_Mutation"])))
     return sts_df
 
-def iter_stat(inputdir_dir, rv_sheet, sheet):
+
+def iter_stat(inputdir_dir, sheet, rv_sheet=None):
     sts_all_lst = []
     for key, value in inputdir_dir.items():
         if key == "RV":
@@ -43,18 +44,22 @@ def iter_stat(inputdir_dir, rv_sheet, sheet):
 
 def main():
     input_dir = "C:/Users/odedku/PhD_Projects/After_review/"
-    inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20220314_inosine_predict_context/",
-                    "CV": input_dir + "AccuNGS/CVB3/20220314_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20220314_plots/",
-                    "PV1": input_dir + "Cirseq/PV/Mahoney/20220314_plots/"}
-    sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_trans2", sheet="sts_trans")
-    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_trans_versions.csv")
+    # inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20220314_inosine_predict_context/",
+    #                 "CV": input_dir + "AccuNGS/CVB3/20220314_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20220314_plots/",
+    #                 "PV1": input_dir + "Cirseq/PV/Mahoney/20220314_plots/"}
+    # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_trans2", sheet="sts_trans")
+    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_trans_versions.csv")
+    #
+    # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts2", sheet="sts")
+    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_transitions.csv")
+    #
+    # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_adar_2", sheet="sts_adar")
+    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_adar_all.csv")
 
-    sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts2", sheet="sts")
-    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_transitions.csv")
-
-    sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_adar_2", sheet="sts_adar")
-    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_adar_all.csv")
-
+    capsid_dir = {"Capsid": input_dir + "AccuNGS/RV/capsid/20220321_inosine_predict_context/",
+                  "RV": input_dir + "AccuNGS/RV/capsid/20220321_inosine_predict_context/"}
+    sts_all_df = iter_stat(capsid_dir, sheet="sts_adar_synon", rv_sheet="sts_adar_nonsynon")
+    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_capsid_adar_all.csv")
 
 
 if __name__ == "__main__":
