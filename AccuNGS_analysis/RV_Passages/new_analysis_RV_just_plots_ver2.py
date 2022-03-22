@@ -282,6 +282,7 @@ def main():
         """Stat"""
         df_sts = data_filter_replica.copy()
         df_sts["Frequency"] = np.where(df_sts["Prob"] < 0.95, 0, df_sts["Frequency"])
+        # df_sts = df_sts.loc[df_sts["Prob"] > 0.95]
         df_sts["passage_p"] = np.where(df_sts["passage_p"] == "RNA\nControl", "RNA Control", df_sts["passage_p"])
         mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation Type",
                                  order=passage_p_order, palette="Set2", dodge=True,
@@ -330,7 +331,8 @@ def main():
         dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
         df_sts_syn = data_filter_replica_synonymous.copy()
-        df_sts_syn["Frequency"] = np.where(df_sts_syn["Prob"] < 0.95, 0, df_sts_syn["Frequency"])
+        # df_sts_syn["Frequency"] = np.where(df_sts_syn["Prob"] < 0.95, 0, df_sts_syn["Frequency"])
+        df_sts_syn = df_sts_syn.loc[df_sts_syn["Prob"] > 0.95]
         df_sts_syn["Mutation_adar"] = np.where(df_sts_syn["Mutation_adar"] == "High\nADAR-like\nA>G",
                                                "High ADAR-like A>G",
                                                np.where(df_sts_syn["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
