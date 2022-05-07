@@ -228,7 +228,7 @@ def main():
     crosstab_df_all_final.to_csv(input_dir + "/crosstab_df_all_final.csv", sep=",")
     mean_crosstab_df_all_final = pd.concat(mean_crosstab_df_all_lst, axis=0)
     mean_crosstab_df_all_final.to_csv(input_dir + "/mean_crosstab_df_all_final.csv", sep=",")
-    # crosstab_df_all_final = pd.read_csv(input_dir + "/crosstab_df_all_final.csv", sep=",")
+    # crosstab_df_all_final = pd.read_csv(input_dir + "/crosstab_df_all_final.csv", sep=",") #from mem
     output_dir3 = input_dir + "/figs"
     try:
         os.mkdir(output_dir3)
