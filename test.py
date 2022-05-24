@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-fro
+
 
 
 
@@ -124,9 +124,19 @@ def main():
     # grouped.to_csv("/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/Patient_1/"
     #                "20201017_q30_consensusX5/grouped.csv", sep=",")
 
-    mutation = "A>G"
-    new_mutation = mutation.replace(">", "")
-    print(new_mutation)
+    # mutation = "A>G"
+    # new_mutation = mutation.replace(">", "")
+    # print(new_mutation)
+
+    file = "D:/My Drive/Studies/PhD/Excel sheets/CV_1.csv"
+    table = pd.read_csv(file)
+    table = table.transpose()
+    new_header = table.iloc[0]  # grab the first row for the header
+    table = table[1:]  # take the data less the header row
+    table.columns = new_header
+    table.to_csv(file.split(".")[0]+"trans.csv")
+
+
 
 
 if __name__ == "__main__":
