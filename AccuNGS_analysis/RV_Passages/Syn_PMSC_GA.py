@@ -21,7 +21,7 @@ def main():
     # plt.show()
     plt.savefig("D:/My Drive/Studies/PhD/Projects/RV/RVB14/p12_1/transition_freq_p12_Accu.png", dpi=300)
     plt.close()
-    #Oded
+    #OdedKushnir
 
 
 if __name__ == "__main__":
