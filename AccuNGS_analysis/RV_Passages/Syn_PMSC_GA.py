@@ -213,7 +213,7 @@ def figures_equal(table, transition_order, err_rate, output_dir):
     plt.savefig(output_dir + "transition_freq_Accu_boxplot_sts.png", dpi=300)
     plt.close()
 
-    table_no_zero = table[table["passage"] != 0]
+    table_no_zero = table#[table["passage"] != 0]
     table_no_zero["log10(Frequency)"] = np.log10(table_no_zero["Frequency"])
     table_no_zero_syn = table_no_zero.loc[table_no_zero["Type"] == "Synonymous"]
     table_no_zero_pmsc = table_no_zero.loc[table_no_zero["Type"] == "Premature Stop Codon"]
@@ -249,7 +249,7 @@ def figures_equal(table, transition_order, err_rate, output_dir):
 
 def mu_hist(input_dir, output_dir):
     data = pd.read_csv(input_dir+"/equal_table/data.csv")
-
+    data["log2(syn_slope)"] = np.log2(data["syn_slope"])
     syn_median = data["syn_slope"].median()
     p_val_med = data["syn_p_value"].median()
     upper_bound = data["stop_intercept"].median()
@@ -257,17 +257,26 @@ def mu_hist(input_dir, output_dir):
     print("Median synonymous slope: {0}\nMedian synonymous p_val: {1}\nMutation upper bound:{2}". format(syn_median, p_val_med, upper_bound))
 
     fig_mu = sns.kdeplot(x="syn_slope", data=data)
+    plt.axvline(x=syn_median, color='r', linestyle='--')
+    plt.axvline(x=data["syn_slope"].mean(), color='b', linestyle='--')
     plt.savefig(output_dir + "/equal_table/mu_dist.png")
     plt.close()
     fig_pval = sns.kdeplot(x="syn_p_value", data=data)
+    plt.axvline(x=p_val_med, color='r', linestyle='--')
     plt.savefig(output_dir + "/equal_table/pvaL_dist.png")
     plt.close()
+    fig_mu_log = sns.kdeplot(x="log2(syn_slope)", data=data)
+    plt.axvline(x=np.log2(syn_median), color='r', linestyle='--')
+    plt.savefig(output_dir + "/equal_table/log2_mu_dist.png")
+    plt.close()
+    ks_test = stats.kstest(data["syn_slope"], 'norm')
+    print(ks_test)
 
 def main():
     input_dir = "D:/My Drive/Studies/PhD/Projects/RV/RVB14/SynVSPMSC/"
     date = datetime.today().strftime("%Y%m%d")
-    prefix = "P3"
-    start_pos = 4916
+    prefix = "RdRp"
+    start_pos = 5783
     end_pos = 7165
     replica = 2
     output_dir = input_dir + "{0}_{1}/".format(date, prefix)
@@ -277,34 +286,34 @@ def main():
         print("Creation of the directory {} failed".format(output_dir))
     else:
         print("Successfully created the directory {}".format(output_dir))
-    freq = pd.read_pickle(input_dir + "data_filter.pkl")
-    freq_rna_control_replica2 = freq[((freq["passage"] == 0) & (freq["replica"] == 1))]
-    err_rate = np.mean(freq_rna_control_replica2["Frequency"])
-    print("AccuNGS Error Rate:{}".format(err_rate))
-    freq_rna_control_replica2["replica"] = 2
-    freq = pd.concat([freq, freq_rna_control_replica2])
-    primer_id = pd.read_csv(input_dir + "PrimerID.csv")
-    primer_id["PrimerID barcode"] = primer_id["PrimerID barcode"].astype(int)
-    primer_id["PrimerID barcode Average"] = primer_id["PrimerID barcode Average"].astype(int)
-    freq = pd.merge(freq, primer_id, on=["passage", "replica"], how="inner")
-    freq["passage"] = freq["passage"].astype(int)
-    table = freq.loc[freq["replica"] == replica]
-    table["passage"] = table["passage"].astype(int)
-    table = table[((table["Pos"] >= start_pos) & (table["Pos"] <= end_pos))] #RdRp
-    transition_order = ["A>G", "U>C", "G>A", "C>U"]
-    table["Mutation_Type"] = np.where(table["Mutation"] == "A>G", "transition", np.where(table["Mutation"] == "U>C", "transition",
-                                                                                         np.where(table["Mutation"] == "G>A", "transition",
-                                                                                                  np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
-    table = table.loc[table["Mutation_Type"] == "transition"]
-    # figures(table, transition_order, err_rate, output_dir)
-    columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
-    data = pd.DataFrame(columns=columns)
-    for i in range(100):
-        equal_table = down_scale_syn(table)
-        mu_data = figures_equal(equal_table, transition_order, err_rate, output_dir=output_dir+"/equal_table/")
-        data = pd.concat([data, mu_data])
-        print(i)
-    data.to_csv(output_dir+"/equal_table/data.csv")
+    # freq = pd.read_pickle(input_dir + "data_filter.pkl")
+    # freq_rna_control_replica2 = freq[((freq["passage"] == 0) & (freq["replica"] == 1))]
+    # err_rate = np.mean(freq_rna_control_replica2["Frequency"])
+    # print("AccuNGS Error Rate:{}".format(err_rate))
+    # freq_rna_control_replica2["replica"] = 2
+    # freq = pd.concat([freq, freq_rna_control_replica2])
+    # primer_id = pd.read_csv(input_dir + "PrimerID.csv")
+    # primer_id["PrimerID barcode"] = primer_id["PrimerID barcode"].astype(int)
+    # primer_id["PrimerID barcode Average"] = primer_id["PrimerID barcode Average"].astype(int)
+    # freq = pd.merge(freq, primer_id, on=["passage", "replica"], how="inner")
+    # freq["passage"] = freq["passage"].astype(int)
+    # table = freq.loc[freq["replica"] == replica]
+    # table["passage"] = table["passage"].astype(int)
+    # table = table[((table["Pos"] >= start_pos) & (table["Pos"] <= end_pos))] #RdRp
+    # transition_order = ["A>G", "U>C", "G>A", "C>U"]
+    # table["Mutation_Type"] = np.where(table["Mutation"] == "A>G", "transition", np.where(table["Mutation"] == "U>C", "transition",
+    #                                                                                      np.where(table["Mutation"] == "G>A", "transition",
+    #                                                                                               np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
+    # table = table.loc[table["Mutation_Type"] == "transition"]
+    # # figures(table, transition_order, err_rate, output_dir)
+    # columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
+    # data = pd.DataFrame(columns=columns)
+    # for i in range(100):
+    #     equal_table = down_scale_syn(table)
+    #     mu_data = figures_equal(equal_table, transition_order, err_rate, output_dir=output_dir+"/equal_table/")
+    #     data = pd.concat([data, mu_data])
+    #     print(i)
+    # data.to_csv(output_dir+"/equal_table/data.csv")
     mu_hist(output_dir, output_dir)
 
 
