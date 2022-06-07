@@ -11,6 +11,7 @@ import os
 
 def down_scale_syn(table):
     pmsc_table = table.loc[table["Type"] == "Premature Stop Codon"]
+    print("Mean PMSC Frequency:{}".format(pmsc_table["Frequency"].mean()))
     syn_table_p2 = table.loc[((table["Type"] == "Synonymous") & (table["passage"] == 2))]
     syn_pos_no = len(syn_table_p2)
     # print(syn_pos_no)
@@ -96,7 +97,7 @@ def figures(table, transition_order, err_rate, output_dir):
                                                                         table_no_zero_pmsc["Frequency"])
     fig4 = sns.lmplot(y="Frequency", x="passage", data=table_no_zero, hue="Type",
                       hue_order=["Synonymous", "Premature Stop Codon"], fit_reg=True)
-    fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2))
+    fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2), ylabel="Variant Frequency")
     fig4.fig.subplots_adjust(wspace=.02)
     ax = fig4.axes[0, 0]
     ax.legend()
@@ -185,6 +186,7 @@ def figures_equal(table, transition_order, err_rate, output_dir):
                              kind="bar")  # , marker='o', linestyle='', err_style='bars')
     primer_plt.set(yscale='log', ylim=(10 ** 0, 10 ** 5), xlabel="Passage")
     primer_plt.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
+    plt.tight_layout()
     plt.savefig(output_dir + "PrimerID.png", dpi=300)
     plt.close()
 
@@ -223,7 +225,7 @@ def figures_equal(table, transition_order, err_rate, output_dir):
                                                                         table_no_zero_pmsc["Frequency"])
     fig4 = sns.lmplot(y="Frequency", x="passage", data=table_no_zero, hue="Type",
                       hue_order=["Synonymous", "Premature Stop Codon"], fit_reg=True)
-    fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2))
+    fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2), ylabel="Variant Frequency")
     fig4.fig.subplots_adjust(wspace=.02)
     ax = fig4.axes[0, 0]
     ax.legend()
@@ -250,24 +252,33 @@ def figures_equal(table, transition_order, err_rate, output_dir):
 def mu_hist(input_dir, output_dir):
     data = pd.read_csv(input_dir+"/equal_table/data.csv")
     data["log2(syn_slope)"] = np.log2(data["syn_slope"])
+    data["Parameter"] = "synonymous slope"
     syn_median = data["syn_slope"].median()
     p_val_med = data["syn_p_value"].median()
     upper_bound = data["stop_intercept"].median()
     p_val_med_pmsc = data["stop_p_value"].median()
-    print("Median synonymous slope: {0}\nMedian synonymous p_val: {1}\nMutation upper bound:{2}". format(syn_median, p_val_med, upper_bound))
+    print("Median synonymous slope: {0}\nMedian synonymous p_val: {1}\nMutation rate upper bound:{2}". format(syn_median, p_val_med, upper_bound))
 
-    fig_mu = sns.kdeplot(x="syn_slope", data=data)
+    fig_mu = sns.histplot(x="syn_slope", data=data, log_scale=True, kde=True)
     plt.axvline(x=syn_median, color='r', linestyle='--')
     plt.axvline(x=data["syn_slope"].mean(), color='b', linestyle='--')
+    fig_mu.set_xlabel("Synonymous slope")
     plt.savefig(output_dir + "/equal_table/mu_dist.png")
     plt.close()
-    fig_pval = sns.kdeplot(x="syn_p_value", data=data)
+
+    fig_pval = sns.kdeplot(x="syn_p_value", data=data, log_scale=True)#, kde=True
     plt.axvline(x=p_val_med, color='r', linestyle='--')
+    fig_pval.set_xlabel("p value")
     plt.savefig(output_dir + "/equal_table/pvaL_dist.png")
     plt.close()
+
     fig_mu_log = sns.kdeplot(x="log2(syn_slope)", data=data)
     plt.axvline(x=np.log2(syn_median), color='r', linestyle='--')
     plt.savefig(output_dir + "/equal_table/log2_mu_dist.png")
+    plt.close()
+
+    estimator_fig = sns.violinplot(x=data["syn_slope"])
+    plt.savefig(output_dir + "/equal_table/estimator.png")
     plt.close()
     ks_test = stats.kstest(data["syn_slope"], 'norm')
     print(ks_test)
@@ -275,6 +286,7 @@ def mu_hist(input_dir, output_dir):
 def main():
     input_dir = "D:/My Drive/Studies/PhD/Projects/RV/RVB14/SynVSPMSC/"
     date = datetime.today().strftime("%Y%m%d")
+    # date = "20220601"
     prefix = "RdRp"
     start_pos = 5783
     end_pos = 7165
@@ -305,10 +317,16 @@ def main():
     #                                                                                      np.where(table["Mutation"] == "G>A", "transition",
     #                                                                                               np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
     # table = table.loc[table["Mutation_Type"] == "transition"]
-    # # figures(table, transition_order, err_rate, output_dir)
+    # figures(table, transition_order, err_rate, output_dir)
     # columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
     # data = pd.DataFrame(columns=columns)
     # for i in range(100):
+    #     try:
+    #         os.mkdir(output_dir+"/equal_table/")
+    #     except OSError:
+    #         print("Creation of the directory {} failed".format(output_dir+"/equal_table/"))
+    #     else:
+    #         print("Successfully created the directory {}".format(output_dir+"/equal_table/"))
     #     equal_table = down_scale_syn(table)
     #     mu_data = figures_equal(equal_table, transition_order, err_rate, output_dir=output_dir+"/equal_table/")
     #     data = pd.concat([data, mu_data])
