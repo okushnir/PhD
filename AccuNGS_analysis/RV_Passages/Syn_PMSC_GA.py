@@ -7,6 +7,7 @@ from statannotations.Annotator import Annotator
 import contextlib
 from datetime import datetime
 import os
+from scipy.stats import norm
 
 
 def down_scale_syn(table):
@@ -14,7 +15,7 @@ def down_scale_syn(table):
     print("Mean PMSC Frequency:{}".format(pmsc_table["Frequency"].mean()))
     syn_table_p2 = table.loc[((table["Type"] == "Synonymous") & (table["passage"] == 2))]
     syn_pos_no = len(syn_table_p2)
-    # print(syn_pos_no)
+    print(syn_pos_no)
     pmsc_pos_no = len(pmsc_table["Pos"].unique())
     syn_table_p2 = syn_table_p2.sample(n=pmsc_pos_no)
     position_ser = syn_table_p2["Pos"]
@@ -23,7 +24,7 @@ def down_scale_syn(table):
     syn_table = syn_table[syn_table["Filter"] == True]
     # syn_table = pd.merge(syn_table, syn_table_p2, how="cross")
     syn_pos_no = len(syn_table)
-    # print(syn_pos_no)
+    print(syn_pos_no)
     table = pd.concat([pmsc_table, syn_table])
     return table
 
@@ -37,11 +38,13 @@ def insert_to_df(df, row):
         df.loc[insert_loc + 1] = row
 
 
-def figures(table, transition_order, err_rate, output_dir):
+def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, output_dir):
     fig1 = sns.catplot(y="Frequency", x="Mutation", data=table, hue="Type", kind="box", col="Mutation_Type",
                        hue_order=["Synonymous", "Premature Stop Codon", "Non-Synonymous"], order=transition_order)
     fig1.set(yscale='log', ylim=(10 ** -5, 10 ** -2))
     plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     # plt.show()
     plt.savefig(output_dir + "transition_freq_Accu.png", dpi=300)
     plt.close()
@@ -51,7 +54,8 @@ def figures(table, transition_order, err_rate, output_dir):
     fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage")
     fig2.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     plt.axhline(y=err_rate, color='r', linestyle='--')
-
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     plt.savefig(output_dir + "transition_freq_Accu_boxplot.png", dpi=300)
     plt.close()
 
@@ -83,6 +87,8 @@ def figures(table, transition_order, err_rate, output_dir):
             passage_g1, test_results = annot.annotate()
     plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     plt.tight_layout()
     plt.savefig(output_dir + "transition_freq_Accu_boxplot_sts.png", dpi=300)
     plt.close()
@@ -108,6 +114,9 @@ def figures(table, transition_order, err_rate, output_dir):
     label_line_2 = "log(y)={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope2, intercept2, p_value2)
     L_labels[0].set_text(label_line_1)
     L_labels[1].set_text(label_line_2)
+    plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     plt.savefig(output_dir + "transition_freq_Accu_lmplot.png", dpi=300)
     plt.close()
 
@@ -137,6 +146,8 @@ def figures(table, transition_order, err_rate, output_dir):
             passage_g1, test_results = annot.annotate()
     plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     plt.tight_layout()
     plt.savefig(output_dir + "GA_freq_Accu_boxplot.png", dpi=300)
     plt.close()
@@ -161,10 +172,13 @@ def figures(table, transition_order, err_rate, output_dir):
     label_line_2 = "log(y)={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope4, intercept4, p_value4)
     L_labels[0].set_text(label_line_1)
     L_labels[1].set_text(label_line_2)
+    plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=np.log10(err_rate + err_rate_sem), color='green', linestyle='--')
+    plt.axhline(y=np.log10(err_rate - err_rate_sem), color='green', linestyle='--')
     plt.savefig(output_dir + "GA_freq_Accu_lmplot.png", dpi=300)
     plt.close()
 
-def figures_equal(table, transition_order, err_rate, output_dir):
+def figures_equal(table, transition_order, err_rate, err_rate_sem, output_dir):
     fig1 = sns.catplot(y="Frequency", x="Mutation", data=table, hue="Type", kind="box", col="Mutation_Type",
                        hue_order=["Synonymous", "Premature Stop Codon", "Non-Synonymous"], order=transition_order)
     fig1.set(yscale='log', ylim=(10 ** -5, 10 ** -2))
@@ -178,6 +192,8 @@ def figures_equal(table, transition_order, err_rate, output_dir):
     fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage")
     fig2.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
 
     plt.savefig(output_dir + "transition_freq_Accu_boxplot.png", dpi=300)
     plt.close()
@@ -211,6 +227,9 @@ def figures_equal(table, transition_order, err_rate, output_dir):
             passage_g1, test_results = annot.annotate()
     plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
     plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate, color='r', linestyle='--')
+    plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
+    plt.axhline(y=err_rate - err_rate_sem, color='green', linestyle='--')
     plt.tight_layout()
     plt.savefig(output_dir + "transition_freq_Accu_boxplot_sts.png", dpi=300)
     plt.close()
@@ -257,7 +276,8 @@ def mu_hist(input_dir, output_dir):
     p_val_med = data["syn_p_value"].median()
     upper_bound = data["stop_intercept"].median()
     p_val_med_pmsc = data["stop_p_value"].median()
-    print("Median synonymous slope: {0}\nMedian synonymous p_val: {1}\nMutation rate upper bound:{2}". format(syn_median, p_val_med, upper_bound))
+    print("Median synonymous slope: {0:.3g}\nMedian synonymous p_val: {1:.3g}\n"
+          "Mutation rate upper bound:{2:.3g}".format(syn_median, p_val_med, upper_bound))
 
     fig_mu = sns.histplot(x="syn_slope", data=data, log_scale=True, kde=True)
     plt.axvline(x=syn_median, color='r', linestyle='--')
@@ -283,6 +303,124 @@ def mu_hist(input_dir, output_dir):
     ks_test = stats.kstest(data["syn_slope"], 'norm')
     print(ks_test)
 
+def error_rate_dist(input_dir, output_dir):
+    freq = pd.read_pickle(input_dir + "data_filter.pkl")
+    freq["Mutation_Type"] = np.where(freq["Mutation"] == "A>G", "transition", np.where(freq["Mutation"] == "U>C", "transition",
+                                                                                         np.where(freq["Mutation"] == "G>A", "transition",
+                                                                                                  np.where(freq["Mutation"] == "C>U", "transition", "transversion"))))
+    freq = freq.loc[freq["Mutation_Type"] == "transition"]
+    freq_rna_control_replica2 = freq[((freq["passage"] == 0) & (freq["replica"] == 1))]
+    transition_order = ["A>G", "U>C", "G>A", "C>U"]
+    for mutation in transition_order:
+        mutation_table = freq_rna_control_replica2[freq_rna_control_replica2["Mutation"] == mutation]
+        err_rate_med = np.median(mutation_table["Frequency"])
+        err_rate_mean = np.mean(mutation_table["Frequency"])
+        err_rate_std = np.std(mutation_table["Frequency"])
+
+    mutation_table_ag = freq_rna_control_replica2[freq_rna_control_replica2["Mutation"] == "A>G"]
+    err_rate_med_ag = np.median(mutation_table_ag["Frequency"])
+    err_rate_mean_ag = np.mean(mutation_table_ag["Frequency"])
+    err_rate_std_ag = np.std(mutation_table_ag["Frequency"])
+    alpha_agneg = mutation_table_ag["Frequency"].quantile(0.025)
+    alpha_agplus = mutation_table_ag["Frequency"].quantile(0.975)
+    print("Median Error Rate for A>G mutation:{0:.3g} (median)".format(err_rate_med_ag))
+    print("Mean Error Rate for A>G mutation:{0:.3g} (median)".format(err_rate_mean_ag))
+    print("std Error Rate for A>G mutation:{0:.3g} (median)".format(err_rate_std_ag))
+    print(alpha_agplus, alpha_agneg)
+    mutation_table_uc = freq_rna_control_replica2[freq_rna_control_replica2["Mutation"] == "U>C"]
+    err_rate_med_uc = np.median(mutation_table_uc["Frequency"])
+    err_rate_mean_uc = np.mean(mutation_table_uc["Frequency"])
+    err_rate_std_uc = np.std(mutation_table_uc["Frequency"])
+    alpha_ucneg = mutation_table_uc["Frequency"].quantile(0.025)
+    alpha_ucplus = mutation_table_uc["Frequency"].quantile(0.975)
+    print("Median Error Rate for U>C mutation:{0:.3g} (median)".format(err_rate_med_uc))
+    print("Mean Error Rate for U>C mutation:{0:.3g} (median)".format(err_rate_mean_uc))
+    print("std Error Rate for U>C mutation:{0:.3g} (median)".format(err_rate_std_uc))
+    mutation_table_ga = freq_rna_control_replica2[freq_rna_control_replica2["Mutation"] == "G>A"]
+    err_rate_med_ga = np.median(mutation_table_ga["Frequency"])
+    err_rate_mean_ga = np.mean(mutation_table_ga["Frequency"])
+    err_rate_std_ga = np.std(mutation_table_ga["Frequency"])
+    alpha_ganeg = mutation_table_ga["Frequency"].quantile(0.025)
+    alpha_gaplus = mutation_table_ga["Frequency"].quantile(0.975)
+    print("Median Error Rate for G>A mutation:{0:.3g} (median)".format(err_rate_med_ga))
+    print("Mean Error Rate for G>A mutation:{0:.3g} (median)".format(err_rate_mean_ga))
+    print("std Error Rate for G>A mutation:{0:.3g} (median)".format(err_rate_std_ga))
+    mutation_table_cu = freq_rna_control_replica2[freq_rna_control_replica2["Mutation"] == "C>U"]
+    err_rate_med_cu = np.median(mutation_table_cu["Frequency"])
+    err_rate_mean_cu = np.mean(mutation_table_cu["Frequency"])
+    err_rate_std_cu = np.std(mutation_table_cu["Frequency"])
+    alpha_cuneg = mutation_table_cu["Frequency"].quantile(0.025)
+    alpha_cuplus = mutation_table_cu["Frequency"].quantile(0.975)
+    print("Median Error Rate for C>U mutation:{0:.3g} (median)".format(err_rate_med_cu))
+    print("Mean Error Rate for C>U mutation:{0:.3g} (median)".format(err_rate_mean_cu))
+    print("std Error Rate for C>U mutation:{0:.3g} (median)".format(err_rate_std_cu))
+
+    freq_rna_control_replica2["replica"] = 2
+    freq_rna_control_replica2["Parameter"] = "Parameter"
+
+    estimator_fig = sns.boxplot(y="Frequency", x="Parameter", data=freq_rna_control_replica2)
+    estimator_fig.set_yscale('log')
+    estimator_fig.set_ylabel("Error rate")
+    estimator_fig.set_xlabel("")
+    plt.savefig(output_dir + "/error_rate_dist.png")
+    plt.close()
+
+    hist_err = sns.histplot(x="Frequency", data=freq_rna_control_replica2, kde=True, log_scale=True)
+    plt.axvline(x=err_rate_mean, color='r', linestyle='--')
+    plt.axvline(x=(err_rate_std), color='green', linestyle='--')
+    plt.axvline(x=(err_rate_std*-1), color='green', linestyle='--')
+    plt.savefig(output_dir + "/error_rate_dist2.png")
+    plt.close()
+
+    estimator_fig = sns.rugplot(x="Frequency", data=freq_rna_control_replica2)
+    kde_plot = sns.histplot(x="Frequency", data=freq_rna_control_replica2, log_scale=True, kde=True)
+    # estimator_fig.set_xscale('log')
+    # estimator_fig.set_xlim(10**-6, 10**-1)
+    # plt.set_xlabel("Error rate")
+    plt.savefig(output_dir + "/error_rate_dist3.png")
+    plt.close()
+
+    # g = sns.JointGrid()
+    # x, y = freq_rna_control_replica2["Frequency"], freq_rna_control_replica2["Parameter"]
+    g = sns.displot(x="Frequency", data=freq_rna_control_replica2, log_scale=True, col="Mutation", kind="kde",
+                    col_order=transition_order, col_wrap=2)# ax=g.ax_joint
+    # sns.catplot(x="Frequency", y="Parameter", data=freq_rna_control_replica2, ax=g.ax_marg_x, kind="box", col="Mutation")
+
+    g.fig.subplots_adjust(wspace=.02)
+    ax = g.axes[0]
+    ax.axvline(x=err_rate_mean_ag, color='r', linestyle='--')
+    ax.axvline(x=err_rate_std_ag, color='green', linestyle='--')
+    ax.axvline(x=err_rate_med_ag, color='b', linestyle='--')
+    ax.axvline(x=alpha_agplus, color="black", linestyle="-")
+    ax.axvline(x=alpha_agneg, color="black", linestyle="-")
+
+    ax1 = g.axes[1]
+    ax1.axvline(x=err_rate_mean_uc, color='r', linestyle='--')
+    ax1.axvline(x=err_rate_std_uc, color='green', linestyle='--')
+    ax1.axvline(x=err_rate_med_uc, color='b', linestyle='--')
+    ax1.axvline(x=alpha_ucplus, color="black", linestyle="-")
+    ax1.axvline(x=alpha_ucneg, color="black", linestyle="-")
+
+    ax2 = g.axes[2]
+    ax2.axvline(x=err_rate_mean_ga, color='r', linestyle='--')
+    ax2.axvline(x=err_rate_std_ga, color='green', linestyle='--')
+    ax2.axvline(x=err_rate_med_ga, color='b', linestyle='--')
+    ax2.axvline(x=alpha_gaplus, color="black", linestyle="-")
+    ax2.axvline(x=alpha_ganeg, color="black", linestyle="-")
+
+    ax3 = g.axes[3]
+    ax3.axvline(x=err_rate_mean_cu, color='r', linestyle='--')
+    ax3.axvline(x=err_rate_std_cu, color='green', linestyle='--')
+    ax3.axvline(x=err_rate_med_cu, color='b', linestyle='--')
+    ax3.axvline(x=alpha_cuplus, color="black", linestyle="-")
+    ax3.axvline(x=alpha_cuneg, color="black", linestyle="-")
+
+    plt.tight_layout()
+    plt.savefig(output_dir + "/error_rate_dist4.png")
+    plt.close()
+
+    return freq_rna_control_replica2
+
 def main():
     input_dir = "D:/My Drive/Studies/PhD/Projects/RV/RVB14/SynVSPMSC/"
     date = datetime.today().strftime("%Y%m%d")
@@ -298,27 +436,31 @@ def main():
         print("Creation of the directory {} failed".format(output_dir))
     else:
         print("Successfully created the directory {}".format(output_dir))
-    # freq = pd.read_pickle(input_dir + "data_filter.pkl")
-    # freq_rna_control_replica2 = freq[((freq["passage"] == 0) & (freq["replica"] == 1))]
-    # err_rate = np.mean(freq_rna_control_replica2["Frequency"])
-    # print("AccuNGS Error Rate:{}".format(err_rate))
-    # freq_rna_control_replica2["replica"] = 2
-    # freq = pd.concat([freq, freq_rna_control_replica2])
-    # primer_id = pd.read_csv(input_dir + "PrimerID.csv")
-    # primer_id["PrimerID barcode"] = primer_id["PrimerID barcode"].astype(int)
-    # primer_id["PrimerID barcode Average"] = primer_id["PrimerID barcode Average"].astype(int)
-    # freq = pd.merge(freq, primer_id, on=["passage", "replica"], how="inner")
-    # freq["passage"] = freq["passage"].astype(int)
-    # table = freq.loc[freq["replica"] == replica]
-    # table["passage"] = table["passage"].astype(int)
-    # table = table[((table["Pos"] >= start_pos) & (table["Pos"] <= end_pos))] #RdRp
-    # transition_order = ["A>G", "U>C", "G>A", "C>U"]
-    # table["Mutation_Type"] = np.where(table["Mutation"] == "A>G", "transition", np.where(table["Mutation"] == "U>C", "transition",
-    #                                                                                      np.where(table["Mutation"] == "G>A", "transition",
-    #                                                                                               np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
-    # table = table.loc[table["Mutation_Type"] == "transition"]
-    # figures(table, transition_order, err_rate, output_dir)
-    # columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
+    freq = pd.read_pickle(input_dir + "data_filter.pkl")
+    freq_rna_control_replica2 = freq[((freq["passage"] == 0) & (freq["replica"] == 1))]
+    err_rate = np.mean(freq_rna_control_replica2["Frequency"])
+    err_rate_std = np.std(freq_rna_control_replica2["Frequency"])
+    err_rate_sem = stats.sem(freq_rna_control_replica2["Frequency"])
+    print("AccuNGS Error Rate:{0:.3g} (mean)".format(err_rate))
+    print("AccuNGS Error Rate std:{0:.3g}".format(err_rate_std))
+    print("AccuNGS Error Rate sem:{0:.3g}".format(err_rate_sem))
+    freq_rna_control_replica2["replica"] = 2
+    freq = pd.concat([freq, freq_rna_control_replica2])
+    primer_id = pd.read_csv(input_dir + "PrimerID.csv")
+    primer_id["PrimerID barcode"] = primer_id["PrimerID barcode"].astype(int)
+    primer_id["PrimerID barcode Average"] = primer_id["PrimerID barcode Average"].astype(int)
+    freq = pd.merge(freq, primer_id, on=["passage", "replica"], how="inner")
+    freq["passage"] = freq["passage"].astype(int)
+    table = freq.loc[freq["replica"] == replica]
+    table["passage"] = table["passage"].astype(int)
+    table = table[((table["Pos"] >= start_pos) & (table["Pos"] <= end_pos))] #RdRp
+    transition_order = ["A>G", "U>C", "G>A", "C>U"]
+    table["Mutation_Type"] = np.where(table["Mutation"] == "A>G", "transition", np.where(table["Mutation"] == "U>C", "transition",
+                                                                                         np.where(table["Mutation"] == "G>A", "transition",
+                                                                                                  np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
+    table = table.loc[table["Mutation_Type"] == "transition"]
+    figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, output_dir)
+    columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
     # data = pd.DataFrame(columns=columns)
     # for i in range(100):
     #     try:
@@ -328,11 +470,14 @@ def main():
     #     else:
     #         print("Successfully created the directory {}".format(output_dir+"/equal_table/"))
     #     equal_table = down_scale_syn(table)
-    #     mu_data = figures_equal(equal_table, transition_order, err_rate, output_dir=output_dir+"/equal_table/")
+    #     equal_table.to_csv(output_dir + "/equal_table/equal_table.csv")
+    #     mu_data = figures_equal(equal_table, transition_order, err_rate, err_rate_sem, output_dir=output_dir+"/equal_table/")
     #     data = pd.concat([data, mu_data])
     #     print(i)
     # data.to_csv(output_dir+"/equal_table/data.csv")
-    mu_hist(output_dir, output_dir)
+    # mu_hist(output_dir, output_dir)
+    error_table = error_rate_dist(input_dir, output_dir)
+    error_table.to_csv(output_dir + "/error_table.csv")
 
 
 if __name__ == "__main__":

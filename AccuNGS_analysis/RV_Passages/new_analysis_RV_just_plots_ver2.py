@@ -298,7 +298,7 @@ def main():
         file_path = output_dir + "/sts_trans{0}.csv".format(replica)
         with open(file_path, "w") as o:
             with contextlib.redirect_stdout(o):
-                passage_g1, test_results = annot.annotate()
+                mutation_type_g1, test_results = annot.annotate()
         plt.legend(bbox_to_anchor=(1.05, 0.5), loc=2, borderaxespad=0.)
         plt.tight_layout()
         plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
