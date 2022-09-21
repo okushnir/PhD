@@ -261,7 +261,7 @@ def main():
     annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order,
                           hue="Virus", hue_order=virus_order)
     annotator.configure(test='Kruskal', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Mann-Whitney
-    annotator.apply_and_annotate()
+    annotator.apply_and_annotate() #alternative="greater"
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
         with contextlib.redirect_stdout(o):
