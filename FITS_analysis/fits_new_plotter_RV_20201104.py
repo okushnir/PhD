@@ -158,78 +158,78 @@ def qqplot(x, y, **kwargs):
 
 def main():
     date = datetime.date.today().strftime("%Y%m%d")
-    passages = "p2-p12"
-    opv_passages = "p1-p7"
-    pv_passages = "p3-p8"
-    input_dir = "/Users/odedkushnir/Projects/fitness"
-    rv_replica1_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
-                                                   "replica1_syn/output/mutation/%s" % passages)
-    rv_replica1_mutation_data["Virus"] = "RVB14 #1"
-    rv_replica2_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
-                                                   "replica2_syn/output/mutation/%s" % passages)
-    rv_replica2_mutation_data["Virus"] = "RVB14 #2"
-    rv_replica3_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
-                                                   "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
-                                                   "replica3_syn/output/mutation/%s" % passages)
-    rv_replica3_mutation_data["Virus"] = "RVB14 #3"
-    cv_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/190627_RV_CV"
-                                                      "/merged/CVB3/Rank0_data_mutation/fits/output/mutation/%s" % passages)
-    cv_mutation_data["Virus"] = "CVB3"
-    opv_mutataion_data = post_data_mutation("Z:/volume3/okushnir/CirSeq/OPV/fits/output/mutation/"
-                                            "all_positions_p1-p7")
-    opv_mutataion_data["Virus"] = "OPV2"
-
-    pv_mutataion_data = post_data_mutation("Z:/volume3/okushnir/CirSeq/Mahoney/fits/output/"
-                                           "mutation/p3-p8")
-    pv_mutataion_data["Virus"] = "PV1"
-
-
-
-    output_dir = "Z:/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
-                             "%s_fits_syn_plots" % date
-    try:
-        os.mkdir(output_dir)
-    except OSError:
-        print("Creation of the directory %s failed" % output_dir)
-    else:
-        print("Successfully created the directory %s " % output_dir)
-
-    all_data = pd.concat([rv_replica1_mutation_data, rv_replica2_mutation_data, rv_replica3_mutation_data,
-                          cv_mutation_data, opv_mutataion_data, pv_mutataion_data], sort=False)
-    all_data = all_data.rename(columns={"allele0_1": "Transition rate"})
-    all_data["Transition rate"] = all_data["Transition rate"].astype(float)
-    # print(all_data.to_string())
-    # all_data = all_data.rename(columns={"inferred_mu": "Mutation rate"})
-    # # print(all_data["Mutation rate"].dtype)
-    # all_data["Mutation rate"] = all_data["Mutation rate"].map(lambda x: str(x).lstrip('*'))
-    # all_data["Mutation rate"] = pd.to_numeric(all_data["Mutation rate"], errors='coerce')#.astype(float)
-    # # print(all_data["Mutation rate"].dtype)
-    # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x[0]+">"+x[1:]if len(x)<=2 else x)# if len(x)==2 else x[0]+">"+x[1:])
-    # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x.split("_")[0] + "\n" + x.split("_")[-1] + "-like" if len(x)>3 else x)
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "nonadar", "A>G\nNon-ADAR-like", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "adar", "A>G\nADAR-like", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "AG", "A>G", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "UC", "U>C", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "GA", "G>A", all_data["Mutation"])
-    all_data["Mutation"] = np.where(all_data["Mutation"] == "CU", "C>U", all_data["Mutation"])
-    # all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
-
-
-
-    # q1 = all_data["Transition rate"].quantile(0.25)
-    # q3 = all_data["Transition rate"].quantile(0.75)
-    # all_data = all_data[all_data["Transition rate"] > q1]
-    # all_data = all_data[all_data["Transition rate"] < q3]
-
-    all_data = all_data[all_data["Mutation"] != "A>G\nADAR-like"]
-    all_data = all_data[all_data["Mutation"] != "A>G\nNon-ADAR-like"]
-    print(all_data.shape[0])
-    all_data.to_csv("Z:/volume3/okushnir/FITS/all_data.csv")
+    # passages = "p2-p12"
+    # opv_passages = "p1-p7"
+    # pv_passages = "p3-p8"
+    # input_dir = "/Users/odedkushnir/Projects/fitness"
+    # rv_replica1_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
+    #                                                "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
+    #                                                "replica1_syn/output/mutation/%s" % passages)
+    # rv_replica1_mutation_data["Virus"] = "RVB14 #1"
+    # rv_replica2_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
+    #                                                "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
+    #                                                "replica2_syn/output/mutation/%s" % passages)
+    # rv_replica2_mutation_data["Virus"] = "RVB14 #2"
+    # rv_replica3_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/"
+    #                                                "20201008RV-202329127/merged/passages/fits_all_pos_at_once_sampling/"
+    #                                                "replica3_syn/output/mutation/%s" % passages)
+    # rv_replica3_mutation_data["Virus"] = "RVB14 #3"
+    # cv_mutation_data = post_data_mutation("Z:/volume3/okushnir/AccuNGS/190627_RV_CV"
+    #                                                   "/merged/CVB3/Rank0_data_mutation/fits/output/mutation/%s" % passages)
+    # cv_mutation_data["Virus"] = "CVB3"
+    # opv_mutataion_data = post_data_mutation("Z:/volume3/okushnir/CirSeq/OPV/fits/output/mutation/"
+    #                                         "all_positions_p1-p7")
+    # opv_mutataion_data["Virus"] = "OPV2"
+    #
+    # pv_mutataion_data = post_data_mutation("Z:/volume3/okushnir/CirSeq/Mahoney/fits/output/"
+    #                                        "mutation/p3-p8")
+    # pv_mutataion_data["Virus"] = "PV1"
+    #
+    #
+    #
+    # output_dir = "Z:/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/passages/" \
+    #                          "%s_fits_syn_plots" % date
+    # try:
+    #     os.mkdir(output_dir)
+    # except OSError:
+    #     print("Creation of the directory %s failed" % output_dir)
+    # else:
+    #     print("Successfully created the directory %s " % output_dir)
+    #
+    # all_data = pd.concat([rv_replica1_mutation_data, rv_replica2_mutation_data, rv_replica3_mutation_data,
+    #                       cv_mutation_data, opv_mutataion_data, pv_mutataion_data], sort=False)
+    # all_data = all_data.rename(columns={"allele0_1": "Transition rate"})
+    # all_data["Transition rate"] = all_data["Transition rate"].astype(float)
+    # # print(all_data.to_string())
+    # # all_data = all_data.rename(columns={"inferred_mu": "Mutation rate"})
+    # # # print(all_data["Mutation rate"].dtype)
+    # # all_data["Mutation rate"] = all_data["Mutation rate"].map(lambda x: str(x).lstrip('*'))
+    # # all_data["Mutation rate"] = pd.to_numeric(all_data["Mutation rate"], errors='coerce')#.astype(float)
+    # # # print(all_data["Mutation rate"].dtype)
+    # # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x[0]+">"+x[1:]if len(x)<=2 else x)# if len(x)==2 else x[0]+">"+x[1:])
+    # # all_data["Mutation"] = all_data["Mutation"].apply(lambda x: x.split("_")[0] + "\n" + x.split("_")[-1] + "-like" if len(x)>3 else x)
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "nonadar", "A>G\nNon-ADAR-like", all_data["Mutation"])
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "adar", "A>G\nADAR-like", all_data["Mutation"])
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "AG", "A>G", all_data["Mutation"])
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "UC", "U>C", all_data["Mutation"])
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "GA", "G>A", all_data["Mutation"])
+    # all_data["Mutation"] = np.where(all_data["Mutation"] == "CU", "C>U", all_data["Mutation"])
+    # # all_data = all_data[(all_data["pos"] >= 5785) & (all_data["pos"] <= 7212)]
+    #
+    #
+    #
+    # # q1 = all_data["Transition rate"].quantile(0.25)
+    # # q3 = all_data["Transition rate"].quantile(0.75)
+    # # all_data = all_data[all_data["Transition rate"] > q1]
+    # # all_data = all_data[all_data["Transition rate"] < q3]
+    #
+    # all_data = all_data[all_data["Mutation"] != "A>G\nADAR-like"]
+    # all_data = all_data[all_data["Mutation"] != "A>G\nNon-ADAR-like"]
+    # print(all_data.shape[0])
+    # all_data.to_csv("Z:/volume3/okushnir/FITS/all_data.csv")
     #Plots - local
-    all_data = pd.read_csv("Z:/volume3/okushnir/FITS/all_data.csv")
-    output_dir = "Z:/volume3/okushnir/FITS/{0}_fits_syn_plots".format(date)
+    all_data = pd.read_csv("/Volumes/Seagate Backup Plus Drive/okushnir/FITS/all_data.csv")
+    output_dir = "/Users/odedkushnir/Downloads/okushnir/FITS/{0}_fits_syn_plots".format(date)
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -250,18 +250,24 @@ def main():
              (("A>G", "RVB14 #2"), ("C>U", "RVB14 #2")), (("A>G", "RVB14 #2"), ("G>A","RVB14 #2")),
              (("A>G", "RVB14 #3"), ("C>U", "RVB14 #3")), (("A>G", "RVB14 #3"), ("G>A","RVB14 #3")),
              (("A>G", "CVB3"), ("C>U", "CVB3")), (("A>G", "CVB3"), ("G>A", "CVB3")),
-             (("A>G", "OPV2"), ("C>U", "OPV2")), (("A>G", "OPV2"), ("G>A", "OPV2")),
-             (("A>G", "PV1"), ("C>U", "PV1")), (("A>G", "PV1"), ("G>A", "PV1")),
+             (("A>G", "OPV2"), ("G>A", "OPV2")), (("A>G", "PV1"), ("G>A", "PV1")),
              (("U>C", "RVB14 #1"), ("C>U", "RVB14 #1")), (("U>C", "RVB14 #1"), ("G>A","RVB14 #1")),
              (("U>C", "RVB14 #2"), ("C>U", "RVB14 #2")), (("U>C", "RVB14 #2"), ("G>A","RVB14 #2")),
              (("U>C", "RVB14 #3"), ("C>U", "RVB14 #3")), (("U>C", "RVB14 #3"), ("G>A","RVB14 #3")),
              (("U>C", "CVB3"), ("C>U", "CVB3")), (("U>C", "CVB3"), ("G>A", "CVB3")),
-             (("U>C", "OPV2"), ("C>U", "OPV2")), (("U>C", "OPV2"), ("G>A", "OPV2")),
-             (("U>C", "PV1"), ("C>U", "PV1")), (("U>C", "PV1"), ("G>A", "PV1"))]
-    annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order,
-                          hue="Virus", hue_order=virus_order)
-    annotator.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
-    annotator.apply_and_annotate() #alternative="greater"
+             (("U>C", "OPV2"), ("G>A", "OPV2")), (("U>C", "PV1"), ("G>A", "PV1")),
+             (("A>G", "RVB14 #1"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
+             (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
+             (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
+             (("C>U", "RVB14 #2"), ("C>U", "RVB14 #3")),
+             (("G>A", "RVB14 #1"), ("G>A", "RVB14 #2")), (("G>A", "RVB14 #1"), ("G>A", "RVB14 #3")),
+             (("G>A", "RVB14 #2"), ("G>A", "RVB14 #3")),
+             (("U>C", "RVB14 #1"), ("U>C", "RVB14 #2")), (("U>C", "RVB14 #1"), ("U>C", "RVB14 #3")),
+             (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
+    annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
+                       hue_order=virus_order)
+    annotator.configure(test='Mann-Whitney-ls', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
+    annotator.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
         with contextlib.redirect_stdout(o):
