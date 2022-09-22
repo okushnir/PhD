@@ -51,7 +51,7 @@ def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, outpu
 
     fig2 = sns.catplot(y="Frequency", x="passage", data=table, hue="Type", kind="box",
                        hue_order=["Synonymous", "Premature Stop Codon"], order=range(0, 13, 1), col="replica")
-    fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage")
+    fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage", ylabel="Variant Frequency")
     fig2.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     plt.axhline(y=err_rate, color='r', linestyle='--')
     plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
@@ -98,11 +98,12 @@ def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, outpu
     table_no_zero_syn = table_no_zero.loc[table_no_zero["Type"] == "Synonymous"]
     table_no_zero_pmsc = table_no_zero.loc[table_no_zero["Type"] == "Premature Stop Codon"]
     slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(table_no_zero_syn['passage'],
-                                                                        table_no_zero_syn["Frequency"])
+                                                                        table_no_zero_syn["log10(Frequency)"])
     slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(table_no_zero_pmsc['passage'],
-                                                                        table_no_zero_pmsc["Frequency"])
+                                                                        table_no_zero_pmsc["log10(Frequency)"])
     fig4 = sns.lmplot(y="Frequency", x="passage", data=table_no_zero, hue="Type",
                       hue_order=["Synonymous", "Premature Stop Codon"], fit_reg=True)
+    # fig4.set(xticklabels=["RNA\nControl", "2", "4", "6", "8", "10", "12"])
     fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2), ylabel="Variant Frequency")
     fig4.fig.subplots_adjust(wspace=.02)
     ax = fig4.axes[0, 0]
@@ -128,7 +129,7 @@ def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, outpu
     fig5 = sns.boxplot(y="Frequency", x="passage", data=table_ga, hue="Type",
                        hue_order=["Synonymous", "Premature Stop Codon"])
     fig5.set(yscale='log', ylim=(10 ** -5, 10 ** -2))
-    # fig3.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
+    # fig5.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     fig5.set(xlabel="Passage", ylabel="Variant Frequency")
     pairs = [((0, "Synonymous"), (0, "Premature Stop Codon")), ((2, "Synonymous"), (2, "Premature Stop Codon")),
              ((5, "Synonymous"), (5, "Premature Stop Codon")),
@@ -189,7 +190,7 @@ def figures_equal(table, transition_order, err_rate, err_rate_sem, output_dir):
 
     fig2 = sns.catplot(y="Frequency", x="passage", data=table, hue="Type", kind="box",
                        hue_order=["Synonymous", "Premature Stop Codon"], order=range(0, 13, 1), col="replica")
-    fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage")
+    fig2.set(yscale='log', ylim=(10 ** -5, 10 ** -2), xlabel="Passage", ylabel="Variant Frequency")
     fig2.set(xticklabels=["RNA\nControl", "", "2", "", "", "5", "", "", "8", "", "10", "", "12"])
     plt.axhline(y=err_rate, color='r', linestyle='--')
     plt.axhline(y=err_rate + err_rate_sem, color='green', linestyle='--')
@@ -239,9 +240,9 @@ def figures_equal(table, transition_order, err_rate, err_rate_sem, output_dir):
     table_no_zero_syn = table_no_zero.loc[table_no_zero["Type"] == "Synonymous"]
     table_no_zero_pmsc = table_no_zero.loc[table_no_zero["Type"] == "Premature Stop Codon"]
     slope1, intercept1, r_value1, p_value1, std_err1 = stats.linregress(table_no_zero_syn['passage'],
-                                                                        table_no_zero_syn["Frequency"])
+                                                                        table_no_zero_syn["log10(Frequency)"])
     slope2, intercept2, r_value2, p_value2, std_err2 = stats.linregress(table_no_zero_pmsc['passage'],
-                                                                        table_no_zero_pmsc["Frequency"])
+                                                                        table_no_zero_pmsc["log10(Frequency)"])
     fig4 = sns.lmplot(y="Frequency", x="passage", data=table_no_zero, hue="Type",
                       hue_order=["Synonymous", "Premature Stop Codon"], fit_reg=True)
     fig4.set(xlabel="Passage", yscale='log', ylim=(10 ** -5, 10 ** -2), ylabel="Variant Frequency")
@@ -251,8 +252,8 @@ def figures_equal(table, transition_order, err_rate, err_rate_sem, output_dir):
     leg = ax.get_legend()
     leg._loc = 2
     L_labels = leg.get_texts()
-    label_line_1 = "y={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope1, intercept1, p_value1)
-    label_line_2 = "y={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope2, intercept2, p_value2)
+    label_line_1 = "log(y)={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope1, intercept1, p_value1)
+    label_line_2 = "log(y)={0:.3g}x +({1:.3g}) pval={2:.3g}".format(slope2, intercept2, p_value2)
     L_labels[0].set_text(label_line_1)
     L_labels[1].set_text(label_line_2)
     plt.savefig(output_dir + "transition_freq_Accu_lmplot.png", dpi=300)
@@ -293,6 +294,7 @@ def mu_hist(input_dir, output_dir):
     plt.close()
 
     fig_mu_log = sns.kdeplot(x="log2(syn_slope)", data=data)
+    fig_mu_log.set(xlabel="log2(synonymous slope)")
     plt.axvline(x=np.log2(syn_median), color='r', linestyle='--')
     plt.savefig(output_dir + "/equal_table/log2_mu_dist.png")
     plt.close()
@@ -459,23 +461,24 @@ def main():
                                                                                          np.where(table["Mutation"] == "G>A", "transition",
                                                                                                   np.where(table["Mutation"] == "C>U", "transition", "transversion"))))
     table = table.loc[table["Mutation_Type"] == "transition"]
+    table.to_csv(output_dir + "table.csv")
     figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, output_dir)
     columns = ["syn_slope", "syn_intercept", "syn_p_value", "stop_slope", "stop_intercept", "stop_p_value"]
-    # data = pd.DataFrame(columns=columns)
-    # for i in range(100):
-    #     try:
-    #         os.mkdir(output_dir+"/equal_table/")
-    #     except OSError:
-    #         print("Creation of the directory {} failed".format(output_dir+"/equal_table/"))
-    #     else:
-    #         print("Successfully created the directory {}".format(output_dir+"/equal_table/"))
-    #     equal_table = down_scale_syn(table)
-    #     equal_table.to_csv(output_dir + "/equal_table/equal_table.csv")
-    #     mu_data = figures_equal(equal_table, transition_order, err_rate, err_rate_sem, output_dir=output_dir+"/equal_table/")
-    #     data = pd.concat([data, mu_data])
-    #     print(i)
-    # data.to_csv(output_dir+"/equal_table/data.csv")
-    # mu_hist(output_dir, output_dir)
+    data = pd.DataFrame(columns=columns)
+    try:
+        os.mkdir(output_dir + "/equal_table/")
+    except OSError:
+        print("Creation of the directory {} failed".format(output_dir + "/equal_table/"))
+    else:
+        print("Successfully created the directory {}".format(output_dir + "/equal_table/"))
+    for i in range(100):
+        equal_table = down_scale_syn(table)
+        equal_table.to_csv(output_dir + "/equal_table/equal_table.csv")
+        mu_data = figures_equal(equal_table, transition_order, err_rate, err_rate_sem, output_dir=output_dir+"/equal_table/")
+        data = pd.concat([data, mu_data])
+        print(i)
+    data.to_csv(output_dir+"/equal_table/data.csv")
+    mu_hist(output_dir, output_dir)
     error_table = error_rate_dist(input_dir, output_dir)
     error_table.to_csv(output_dir + "/error_table.csv")
 
