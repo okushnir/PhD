@@ -229,6 +229,7 @@ def main():
     # all_data.to_csv("Z:/volume3/okushnir/FITS/all_data.csv")
     #Plots - local
     all_data = pd.read_csv("/Volumes/Seagate Backup Plus Drive/okushnir/FITS/all_data.csv")
+    all_data_rv = all_data[((all_data["Virus"] == "RVB14 #1") | (all_data["Virus"] == "RVB14 #2") | (all_data["Virus"] == "RVB14 #3"))]
     output_dir = "/Users/odedkushnir/Downloads/okushnir/FITS/{0}_fits_syn_plots".format(date)
     try:
         os.mkdir(output_dir)
@@ -240,41 +241,41 @@ def main():
     plt.style.use('classic')
 
     sns.set_palette("Set2")
-    mutation_order = ["C>U", "G>A", "U>C", "A>G"]
-    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV2", "PV1"]
-    g1 = sns.boxenplot(x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
-                       hue_order=virus_order)
+    mutation_order = ["A>G", "C>U", "U>C", "G>A"]
+    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3"]#, "CVB3", "OPV2", "PV1"]
+    g1 = sns.boxenplot(x="Virus", y="Transition rate", data=all_data_rv, order=virus_order, hue="Mutation",
+                       hue_order=mutation_order)
     g1.set_yscale("log")
     """[((cat1, hue1), (cat2, hue2)), ((cat3, hue3), (cat4, hue4))]"""
-    pairs = [(("A>G", "RVB14 #1"), ("C>U", "RVB14 #1")), (("A>G", "RVB14 #1"), ("G>A","RVB14 #1")),
-             (("A>G", "RVB14 #2"), ("C>U", "RVB14 #2")), (("A>G", "RVB14 #2"), ("G>A","RVB14 #2")),
-             (("A>G", "RVB14 #3"), ("C>U", "RVB14 #3")), (("A>G", "RVB14 #3"), ("G>A","RVB14 #3")),
-             (("A>G", "CVB3"), ("C>U", "CVB3")), (("A>G", "CVB3"), ("G>A", "CVB3")),
-             (("A>G", "OPV2"), ("G>A", "OPV2")), (("A>G", "PV1"), ("G>A", "PV1")),
-             (("U>C", "RVB14 #1"), ("C>U", "RVB14 #1")), (("U>C", "RVB14 #1"), ("G>A","RVB14 #1")),
-             (("U>C", "RVB14 #2"), ("C>U", "RVB14 #2")), (("U>C", "RVB14 #2"), ("G>A","RVB14 #2")),
-             (("U>C", "RVB14 #3"), ("C>U", "RVB14 #3")), (("U>C", "RVB14 #3"), ("G>A","RVB14 #3")),
-             (("U>C", "CVB3"), ("C>U", "CVB3")), (("U>C", "CVB3"), ("G>A", "CVB3")),
-             (("U>C", "OPV2"), ("G>A", "OPV2")), (("U>C", "PV1"), ("G>A", "PV1")),
-             (("A>G", "RVB14 #1"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
-             (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
-             (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
-             (("C>U", "RVB14 #2"), ("C>U", "RVB14 #3")),
-             (("G>A", "RVB14 #1"), ("G>A", "RVB14 #2")), (("G>A", "RVB14 #1"), ("G>A", "RVB14 #3")),
-             (("G>A", "RVB14 #2"), ("G>A", "RVB14 #3")),
-             (("U>C", "RVB14 #1"), ("U>C", "RVB14 #2")), (("U>C", "RVB14 #1"), ("U>C", "RVB14 #3")),
-             (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
-    annotator = Annotator(g1, pairs, x="Mutation", y="Transition rate", data=all_data, order=mutation_order, hue="Virus",
-                       hue_order=virus_order)
-    annotator.configure(test='Mann-Whitney-ls', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
+    pairs = [(("RVB14 #1", "A>G"), ("RVB14 #1", "C>U")), (("RVB14 #1", "A>G"), ("RVB14 #1", "G>A")),
+             (("RVB14 #1", "U>C"), ("RVB14 #1", "C>U")), (("RVB14 #1", "U>C"), ("RVB14 #1", "G>A")),
+             (("RVB14 #2", "A>G"), ("RVB14 #2", "C>U")), (("RVB14 #2", "A>G"), ("RVB14 #2", "G>A")),
+             (("RVB14 #2", "U>C"), ("RVB14 #2", "C>U")), (("RVB14 #2", "U>C"), ("RVB14 #2", "G>A")),
+             (("RVB14 #3", "A>G"), ("RVB14 #3", "C>U")), (("RVB14 #3", "A>G"), ("RVB14 #3", "G>A")),
+             (("RVB14 #3", "U>C"), ("RVB14 #3", "C>U")), (("RVB14 #3", "U>C"), ("RVB14 #3", "G>A"))]
+             # (("CVB3", "U>C"), ("CVB3", "C>U")), (("CVB3", "U>C"), ("CVB3", "G>A")),
+             # (("OPV2", "U>C"), ("OPV2", "G>A")), (("PV1", "U>C"), ("PV1", "G>A"))
+             # (("CVB3", "A>G"), ("CVB3", "C>U")), (("CVB3", "A>G"), ("CVB3", "G>A")),
+             # (("OPV2", "A>G"), ("OPV2", "G>A")), (("PV1", "A>G"), ("PV1", "G>A")),
+             # (("RVB14 #1", "A>G"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
+             # (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
+             # (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
+             # (("C>U", "RVB14 #2"), ("C>U", "RVB14 #3")),
+             # (("G>A", "RVB14 #1"), ("G>A", "RVB14 #2")), (("G>A", "RVB14 #1"), ("G>A", "RVB14 #3")),
+             # (("G>A", "RVB14 #2"), ("G>A", "RVB14 #3")),
+             # (("U>C", "RVB14 #1"), ("U>C", "RVB14 #2")), (("U>C", "RVB14 #1"), ("U>C", "RVB14 #3")),
+             # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
+    annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data_rv, order=virus_order, hue="Mutation",
+                       hue_order=mutation_order)
+    annotator.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
     annotator.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
         with contextlib.redirect_stdout(o):
             passage_g1, test_results = annotator.annotate()
-    g1.set(xlabel="Type of mutation")
+    g1.set(xlabel="")
     g1.set(ylabel="Mutation rate inferred")
-    g1.set_ylim(10 ** -10, 10 ** -1)
+    g1.set_ylim(10 ** -10, 10 ** -4)
     g1.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), borderaxespad=0., fontsize=7)
     plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=600, bbox_inches='tight')
     plt.close()
