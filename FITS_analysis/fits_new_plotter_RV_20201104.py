@@ -280,5 +280,6 @@ def main():
     plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=600, bbox_inches='tight')
     plt.close()
 
+
 if __name__ == "__main__":
     main()
