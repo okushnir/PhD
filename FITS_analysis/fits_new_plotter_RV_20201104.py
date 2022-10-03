@@ -267,7 +267,7 @@ def main():
              # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
     annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
-    annotator.configure(test='Kruskal', text_format='star', loc='outside', comparisons_correction="Benjamini-Hochberg") #Mann-Whitney-gt
+    annotator.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', comparisons_correction="Benjamini-Hochberg") #Kruskal
     annotator.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
