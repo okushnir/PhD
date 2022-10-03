@@ -242,7 +242,7 @@ def main():
 
     sns.set_palette("Set2")
     mutation_order = ["A>G", "C>U", "U>C", "G>A"]
-    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3"]#, "CVB3", "OPV2", "PV1"]
+    virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV2", "PV1"]
     g1 = sns.boxenplot(x="Virus", y="Transition rate", data=all_data_rv, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
     g1.set_yscale("log")
@@ -252,11 +252,11 @@ def main():
              (("RVB14 #2", "A>G"), ("RVB14 #2", "C>U")), (("RVB14 #2", "A>G"), ("RVB14 #2", "G>A")),
              (("RVB14 #2", "U>C"), ("RVB14 #2", "C>U")), (("RVB14 #2", "U>C"), ("RVB14 #2", "G>A")),
              (("RVB14 #3", "A>G"), ("RVB14 #3", "C>U")), (("RVB14 #3", "A>G"), ("RVB14 #3", "G>A")),
-             (("RVB14 #3", "U>C"), ("RVB14 #3", "C>U")), (("RVB14 #3", "U>C"), ("RVB14 #3", "G>A"))]
-             # (("CVB3", "U>C"), ("CVB3", "C>U")), (("CVB3", "U>C"), ("CVB3", "G>A")),
-             # (("OPV2", "U>C"), ("OPV2", "G>A")), (("PV1", "U>C"), ("PV1", "G>A"))
-             # (("CVB3", "A>G"), ("CVB3", "C>U")), (("CVB3", "A>G"), ("CVB3", "G>A")),
-             # (("OPV2", "A>G"), ("OPV2", "G>A")), (("PV1", "A>G"), ("PV1", "G>A")),
+             (("RVB14 #3", "U>C"), ("RVB14 #3", "C>U")), (("RVB14 #3", "U>C"), ("RVB14 #3", "G>A")),
+             (("CVB3", "A>G"), ("CVB3", "C>U")), (("CVB3", "A>G"), ("CVB3", "G>A")),
+             (("CVB3", "U>C"), ("CVB3", "C>U")), (("CVB3", "U>C"), ("CVB3", "G>A")),
+             (("OPV2", "U>C"), ("OPV2", "G>A")), (("PV1", "U>C"), ("PV1", "G>A")),
+             (("OPV2", "A>G"), ("OPV2", "G>A")), (("PV1", "A>G"), ("PV1", "G>A"))]
              # (("RVB14 #1", "A>G"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
              # (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
              # (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
@@ -265,7 +265,7 @@ def main():
              # (("G>A", "RVB14 #2"), ("G>A", "RVB14 #3")),
              # (("U>C", "RVB14 #1"), ("U>C", "RVB14 #2")), (("U>C", "RVB14 #1"), ("U>C", "RVB14 #3")),
              # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
-    annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data_rv, order=virus_order, hue="Mutation",
+    annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
     annotator.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
     annotator.apply_test()
