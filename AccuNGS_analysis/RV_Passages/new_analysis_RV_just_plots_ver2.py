@@ -293,7 +293,7 @@ def main():
         annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
                           data=df_sts, order=passage_p_order, hue_order=mutation_type_order)
         annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts_trans{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -316,7 +316,7 @@ def main():
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=df_sts,
                           order= passage_p_order, hue_order=Transitions_order)
         annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -361,7 +361,7 @@ def main():
         annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=df_sts_syn,
                           hue_order=mutation_adar_order, order=passage_p_order)
         annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts_adar_{0}.csv".format(replica)
         with open(file_path, "w") as o:

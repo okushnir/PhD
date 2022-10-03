@@ -195,7 +195,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     annot = Annotator(mutation_type_g1, trans_pairs, x="passage", y="Frequency", hue="Mutation Type",
                       data=df_stat, order=passage_order, hue_order=mutation_type_order)
     annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts_trans.csv"
     with open(file_path, "w") as o:
@@ -214,7 +214,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
                       order=passage_order, hue_order=transition_order)
     annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
@@ -251,7 +251,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=dfs_stat, hue_order=mutation_adar_order, order=passage_order)
     annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts_adar.csv"
     with open(file_path, "w") as o:

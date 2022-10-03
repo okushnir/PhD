@@ -79,7 +79,7 @@ def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, outpu
     annot = Annotator(fig3, pairs, x="passage", y="Frequency", hue="Type", data=table,
                       hue_order=["Synonymous", "Premature Stop Codon"])  # order=range(0, 13, 1),
     annot.configure(test='Mann-Whitney', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "transition_sts.csv"
     with open(file_path, "w") as o:
@@ -139,7 +139,7 @@ def figures(table, transition_order, err_rate, err_rate_sem, err_rate_std, outpu
     annot = Annotator(fig5, pairs, x="passage", y="Frequency", hue="Type", data=table_ga,
                       hue_order=["Synonymous", "Premature Stop Codon"])  # order=range(0, 13, 1),
     annot.configure(test='Mann-Whitney', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "GA_sts.csv"
     with open(file_path, "w") as o:
@@ -220,7 +220,7 @@ def figures_equal(table, transition_order, err_rate, err_rate_sem, output_dir):
     annot = Annotator(fig3, pairs, x="passage", y="Frequency", hue="Type", data=table,
                       hue_order=["Synonymous", "Premature Stop Codon"])  # order=range(0, 13, 1),
     annot.configure(test='Mann-Whitney', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+                    comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "transition_sts.csv"
     with open(file_path, "w") as o:
