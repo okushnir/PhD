@@ -161,7 +161,8 @@ def main():
     mutation_type_g1.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
                       data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts_adar_synon.csv"
     with open(file_path, "w") as o:
@@ -180,7 +181,8 @@ def main():
     mutation_type_g2.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g2, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
                       data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2, comparisons_correction="Bonferroni")
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")
     annot.apply_test()
     file_path = output_dir + "/sts_adar_nonsynon.csv"
     with open(file_path, "w") as o:

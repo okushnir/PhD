@@ -29,12 +29,12 @@ def main():
     """Plots"""
     passage_order = ["RNA Control", "p2", "p5", "p8", "p10", "p12"]
     transition_order = ["A>G", "U>C", "G>A", "C>U"]
-    pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
-             (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-             (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
-             (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+    pairs = [(("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
              (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
              (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
+             (("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+             (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
+             (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
              (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
              (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
              (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]

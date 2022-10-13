@@ -10,7 +10,7 @@ from natsort import index_natsorted
 def sts(file_path, new_file, virus, skiprows=7):
     with open(file_path, "r") as stsfile, open(new_file, 'w') as outfile:
         for line in stsfile:
-            new_line = line.replace(": Kruskal-Wallis paired samples with Bonferroni correction", "").replace("P_val:", "").replace("Stat=", ", ")
+            new_line = line.replace(": Mann-Whitney-Wilcoxon test greater with Bonferroni correction", "").replace("P_val:", "").replace("U_stat=", ", ")
             outfile.write(new_line)
     outfile.close()
     sts_df = pd.read_csv(new_file, skiprows=skiprows, header=None)
@@ -19,7 +19,7 @@ def sts(file_path, new_file, virus, skiprows=7):
                                      np.where((sts_df["p-value"] >= 0.001) & (sts_df["p-value"] <= 0.01), "**",
                                               np.where((sts_df["p-value"] >= 0.0001) & (sts_df["p-value"] <= 0.001), "***",
                                                        np.where(sts_df["p-value"] <= 0.0001, "****", "ns"))))
-    sts_df["Test"] = "Kruskal-Wallis with Bonferroni correction"
+    sts_df["Test"] = "Mann-Whitney-Wilcoxon test greater with Bonferroni correction"
     sts_df["Virus"] = virus
     sts_df.drop("stat", axis=1, inplace=True)
     sts_df = sts_df[["Virus", "Passages and mutations compared", "p-value", "Significant", "Test"]]
@@ -64,20 +64,20 @@ def sts_fits(file_path, new_file, skiprows=6):
 
 def main():
     input_dir = "C:/Users/odedku/PhD_Projects/After_review/"
-    # inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20221003_inosine_predict_context/",
-    #                 "CV": input_dir + "AccuNGS/CVB3/20221003_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20221003_plots/",
-    #                 "PV1": input_dir + "Cirseq/PV/Mahoney/20221003_plots/"}
+    inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20221013_inosine_predict_context/",
+                    "CV": input_dir + "AccuNGS/CVB3/20221013_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20221013_plots/",
+                    "PV1": input_dir + "Cirseq/PV/Mahoney/20221013_plots/"}
     # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_trans2", sheet="sts_trans")
     # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_trans_versions.csv")
-    #
+
     # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts2", sheet="sts")
     # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_transitions.csv")
     #
     # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_adar_2", sheet="sts_adar")
     # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_adar_all.csv")
 
-    capsid_dir = {"Synonymous": input_dir + "AccuNGS/RV/capsid/20221003_inosine_predict_context/",
-                  "Non-Synonymous": input_dir + "AccuNGS/RV/capsid/20221003_inosine_predict_context/"}
+    capsid_dir = {"Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/",
+                  "Non-Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/"}
     sts_all_df = iter_stat(capsid_dir, sheet="sts_adar_synon", rv_sheet="sts_adar_nonsynon")
     sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_capsid_adar_all.csv")
 

@@ -88,12 +88,12 @@ def main():
         
         if replica == 1:
             passage_p_order = ["RNA Control", "p2", "p5", "p8", "p12"]
-            pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
-                     (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-                     (("p12", "A>G"), ("p12", "G>A")),
-                     (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+            pairs = [(("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
                      (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
                      (("p12", "A>G"), ("p12", "U>C")),
+                     (("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+                     (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
+                     (("p12", "A>G"), ("p12", "G>A")),
                      (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
                      (("p12", "A>G"), ("p12", "C>U"))]
@@ -119,12 +119,12 @@ def main():
                            (("p12", "Transitions"), ("p12", "Oxidations"))]
         else:
             passage_p_order = ["RNA Control", "p2", "p5", "p8", "p10", "p12"]
-            pairs = [(("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
-                     (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
-                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
-                     (("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
+            pairs = [(("RNA Control", "A>G"), ("RNA Control", "U>C")), (("p2", "A>G"), ("p2", "U>C")),
                      (("p5", "A>G"), ("p5", "U>C")), (("p8", "A>G"), ("p8", "U>C")),
                      (("p10", "A>G"), ("p10", "U>C")), (("p12", "A>G"), ("p12", "U>C")),
+                     (("RNA Control", "A>G"), ("RNA Control", "G>A")), (("p2", "A>G"), ("p2", "G>A")),
+                     (("p5", "A>G"), ("p5", "G>A")), (("p8", "A>G"), ("p8", "G>A")),
+                     (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
                      (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
                      (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
@@ -155,8 +155,7 @@ def main():
 
         """Plots"""
         label_order = ["RNA Control\nRND", "RNA Control\nPrimer ID", "p2-1", "p2-2", "p2-3", "p5-1", "p5-2", "p5-3",
-                       "p8-1",
-                       "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
+                       "p8-1", "p8-2", "p8-3", "p10-2", "p10-3", "p12-1", "p12-2", "p12-3"]
         type_order = ["Synonymous", "Non-Synonymous", "Premature Stop Codon"]
         type_order_ag = ["Synonymous", "Non-Synonymous"]
         context_order = ["UpA", "ApA", "CpA", "GpA"]
@@ -282,6 +281,8 @@ def main():
         """Stat"""
         df_sts = data_filter_replica.copy()
         df_sts["Frequency"] = np.where(df_sts["Prob"] < 0.95, 0, df_sts["Frequency"])
+        # df_sts = df_sts[df_sts["abs_counts"] != 0.0]
+        df_sts = df_sts[df_sts["Frequency"] > 0.00001]
         # df_sts = df_sts.loc[df_sts["Prob"] > 0.95]
         df_sts["passage_p"] = np.where(df_sts["passage_p"] == "RNA\nControl", "RNA Control", df_sts["passage_p"])
         mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation Type",
@@ -289,11 +290,12 @@ def main():
                                  hue_order=mutation_type_order)
         mutation_type_g1.set_yscale('log')
         mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+
         mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
                           data=df_sts, order=passage_p_order, hue_order=mutation_type_order)
-        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
+        annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
         annot.apply_test()
         file_path = output_dir + "/sts_trans{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -304,19 +306,19 @@ def main():
         plt.savefig(output_dir + "/All_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
 
-        dunn_df = posthoc_dunn(df_sts, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
-        dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
+        # dunn_df = posthoc_dunn(df_sts, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
+        # dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
         passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation",
-                                 order= passage_p_order, palette=mutation_palette(4), dodge=True,
+                                 order=passage_p_order, palette=mutation_palette(4), dodge=True,
                                  hue_order=Transitions_order)
         passage_g1.set_yscale('log')
         passage_g1.set_ylim(10 ** -5, 10 ** -2)
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=df_sts,
-                          order= passage_p_order, hue_order=Transitions_order)
-        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
+                          order=passage_p_order, hue_order=Transitions_order)
+        annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
         annot.apply_test()
         file_path = output_dir + "/sts{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -327,8 +329,8 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/Transitions_Mutations_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-        dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
-        dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
+        # dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+        # dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
         df_sts_syn = data_filter_replica_synonymous.copy()
         # df_sts_syn["Frequency"] = np.where(df_sts_syn["Prob"] < 0.95, 0, df_sts_syn["Frequency"])
@@ -360,8 +362,8 @@ def main():
         adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=df_sts_syn,
                           hue_order=mutation_adar_order, order=passage_p_order)
-        annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
+        annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
         annot.apply_test()
         file_path = output_dir + "/sts_adar_{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -371,8 +373,8 @@ def main():
         plt.tight_layout()
         plt.savefig(output_dir + "/adar_pref_mutation_box_stat_plot_RVB14_replica{0}".format(replica), dpi=300)
         plt.close()
-        dunn_df = posthoc_dunn(df_sts_syn, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
-        dunn_df.to_csv(output_dir + "/dunn_df_adar_pref_replica{0}.csv".format(str(replica)), sep=",")
+        # dunn_df = posthoc_dunn(df_sts_syn, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
+        # dunn_df.to_csv(output_dir + "/dunn_df_adar_pref_replica{0}.csv".format(str(replica)), sep=",")
 
     # data_filter_pass5 = data_filter.loc[data_filter.passage == 5]
     # ata_filter_pass5 = data_filter.loc[data_filter.replica == 2]

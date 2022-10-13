@@ -181,6 +181,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     """Stats"""
     df_stat = data_filter.copy()
+    df_stat = df_stat[df_stat["Frequency"] > 0.00001]
+    df_stat = df_stat[df_stat["abs_counts"] != 0]
     df_stat["passage"] = df_stat["passage"].astype(str)
     df_stat["passage"] = np.where(df_stat["passage"] == "0", "RNA Control", df_stat["passage"])
     df_stat["passage"] = np.where(df_stat["passage"] != "RNA Control", "p" +
@@ -190,12 +192,12 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                                    order=passage_order, palette="Set2", dodge=True,
                                    hue_order=mutation_type_order)
     mutation_type_g1.set_yscale('log')
-    # mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+    mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
     mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, trans_pairs, x="passage", y="Frequency", hue="Mutation Type",
                       data=df_stat, order=passage_order, hue_order=mutation_type_order)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts_trans.csv"
     with open(file_path, "w") as o:
@@ -208,13 +210,13 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     passage_g = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
-    # passage_g.set_ylim(10 ** -6, 10 ** -1)
+    passage_g.set_ylim(10 ** -5, 10 ** -2)
     passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
                       order=passage_order, hue_order=transition_order)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
@@ -224,8 +226,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.tight_layout()
     plt.savefig(output_dir + "/Transition_Mutations_box_stat_plot_{0}".format(virus), dpi=300)
     plt.close()
-    dunn_df = posthoc_dunn(df_stat, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
-    dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations.csv", sep=",")
+    # dunn_df = posthoc_dunn(df_stat, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
+    # dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations.csv", sep=",")
 
 
     dfs_stat = data_filter_synonymous.copy()
@@ -250,8 +252,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=dfs_stat, hue_order=mutation_adar_order, order=passage_order)
-    annot.configure(test='Kruskal', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")#Benjamini-Hochberg
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
     annot.apply_test()
     file_path = output_dir + "/sts_adar.csv"
     with open(file_path, "w") as o:
@@ -263,8 +265,8 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.close()
 
 
-    dunn_df = posthoc_dunn(dfs_stat, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
-    dunn_df.to_csv(output_dir + "/dunn_df_adar_pref.csv", sep=",")
+    # dunn_df = posthoc_dunn(dfs_stat, val_col="Frequency", group_col="Mutation_adar", p_adjust="fdr_bh")
+    # dunn_df.to_csv(output_dir + "/dunn_df_adar_pref.csv", sep=",")
 
     # data_filter["passage"] = data_filter.apply(lambda x: x["passage"].replace("p", "") if x["passage"] != "RNA\nControl" else x["passage"], axis=1)
     # data_filter["passage"] = np.where(data_filter["passage"] == "RNA\nControl", 0, data_filter["passage"])
