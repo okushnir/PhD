@@ -267,7 +267,7 @@ def main():
              # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
     annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
-    annotator.configure(test='Welch', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
+    annotator.configure(test='t-test_welch', text_format='star', loc='outside', comparisons_correction="Bonferroni") #Kruskal
     annotator.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
