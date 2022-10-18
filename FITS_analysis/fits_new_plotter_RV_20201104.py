@@ -241,22 +241,26 @@ def main():
     plt.style.use('classic')
 
     sns.set_palette("Set2")
-    mutation_order = ["A>G", "C>U", "U>C", "G>A"]
+    mutation_order = ["A>G", "U>C", "C>U", "G>A"]
     virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV2", "PV1"]
     g1 = sns.boxenplot(x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
     g1.set_yscale("log")
     """[((cat1, hue1), (cat2, hue2)), ((cat3, hue3), (cat4, hue4))]"""
-    pairs = [(("RVB14 #1", "A>G"), ("RVB14 #1", "C>U")), (("RVB14 #1", "A>G"), ("RVB14 #1", "G>A")),
+    pairs = [(("RVB14 #1", "A>G"), ("RVB14 #1", "U>C")), (("RVB14 #1", "A>G"), ("RVB14 #1", "C>U")),
+             (("RVB14 #1", "A>G"), ("RVB14 #1", "G>A")),
              (("RVB14 #1", "U>C"), ("RVB14 #1", "C>U")), (("RVB14 #1", "U>C"), ("RVB14 #1", "G>A")),
-             (("RVB14 #2", "A>G"), ("RVB14 #2", "C>U")), (("RVB14 #2", "A>G"), ("RVB14 #2", "G>A")),
+             (("RVB14 #2", "A>G"), ("RVB14 #2", "U>C")), (("RVB14 #2", "A>G"), ("RVB14 #2", "C>U")),
+             (("RVB14 #2", "A>G"), ("RVB14 #2", "G>A")),
              (("RVB14 #2", "U>C"), ("RVB14 #2", "C>U")), (("RVB14 #2", "U>C"), ("RVB14 #2", "G>A")),
-             (("RVB14 #3", "A>G"), ("RVB14 #3", "C>U")), (("RVB14 #3", "A>G"), ("RVB14 #3", "G>A")),
+             (("RVB14 #3", "A>G"), ("RVB14 #3", "U>C")), (("RVB14 #3", "A>G"), ("RVB14 #3", "C>U")),
+             (("RVB14 #3", "A>G"), ("RVB14 #3", "G>A")),
              (("RVB14 #3", "U>C"), ("RVB14 #3", "C>U")), (("RVB14 #3", "U>C"), ("RVB14 #3", "G>A")),
-             (("CVB3", "A>G"), ("CVB3", "C>U")), (("CVB3", "A>G"), ("CVB3", "G>A")),
+             (("CVB3", "A>G"), ("CVB3", "U>C")), (("CVB3", "A>G"), ("CVB3", "C>U")),
+             (("CVB3", "A>G"), ("CVB3", "G>A")),
              (("CVB3", "U>C"), ("CVB3", "C>U")), (("CVB3", "U>C"), ("CVB3", "G>A")),
-             (("OPV2", "U>C"), ("OPV2", "G>A")), (("PV1", "U>C"), ("PV1", "G>A")),
-             (("OPV2", "A>G"), ("OPV2", "G>A")), (("PV1", "A>G"), ("PV1", "G>A"))]
+             (("OPV2", "A>G"), ("OPV2", "U>C")), (("OPV2", "A>G"), ("OPV2", "G>A")),
+             (("PV1", "A>G"), ("PV1", "U>C")), (("PV1", "A>G"), ("PV1", "G>A"))]
              # (("RVB14 #1", "A>G"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
              # (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
              # (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
@@ -267,7 +271,7 @@ def main():
              # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
     annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
-    annotator.configure(test='t-test_welch', text_format='star', loc='outside', comparisons_correction="Bonferroni")
+    annotator.configure(test='t-test_welch', text_format='star', loc='inside', comparisons_correction="Bonferroni")
     annotator.apply_test(alternative="greater")
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
@@ -275,7 +279,7 @@ def main():
             passage_g1, test_results = annotator.annotate()
     g1.set(xlabel="", xticklabels=("RV#1", "RV#2", "RV#3", "CV", "OPV2", "PV1"))
     g1.set(ylabel="Mutation rate inferred")
-    g1.set_ylim(10 ** -10, 10 ** -4)
+    g1.set_ylim(10 ** -10, 10 ** 1)
     g1.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), borderaxespad=0., fontsize=7)
     # sns.set(font_scale=0.5)
     plt.savefig(output_dir + "/%s_mutation_rate.png" % date, dpi=600, bbox_inches='tight')
