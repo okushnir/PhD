@@ -96,7 +96,13 @@ def main():
                      (("p12", "A>G"), ("p12", "G>A")),
                      (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
-                     (("p12", "A>G"), ("p12", "C>U"))]
+                     (("p12", "A>G"), ("p12", "C>U")),
+                     (("RNA Control", "U>C"), ("RNA Control", "G>A")), (("p2", "U>C"), ("p2", "G>A")),
+                     (("p5", "U>C"), ("p5", "G>A")), (("p8", "U>C"), ("p8", "G>A")),
+                     (("p12", "U>C"), ("p12", "G>A")),
+                     (("RNA Control", "U>C"), ("RNA Control", "C>U")), (("p2", "U>C"), ("p2", "C>U")),
+                     (("p5", "U>C"), ("p5", "C>U")), (("p8", "U>C"), ("p8", "C>U")),
+                     (("p12", "U>C"), ("p12", "C>U"))]
             pairs_adar = [(("RNA Control", "High ADAR-like A>G"), ("RNA Control", "Low ADAR-like A>G")),
                           (("p2", "High ADAR-like A>G"), ("p2", "Low ADAR-like A>G")),
                           (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
@@ -127,7 +133,13 @@ def main():
                      (("p10", "A>G"), ("p10", "G>A")), (("p12", "A>G"), ("p12", "G>A")),
                      (("RNA Control", "A>G"), ("RNA Control", "C>U")), (("p2", "A>G"), ("p2", "C>U")),
                      (("p5", "A>G"), ("p5", "C>U")), (("p8", "A>G"), ("p8", "C>U")),
-                     (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U"))]
+                     (("p10", "A>G"), ("p10", "C>U")), (("p12", "A>G"), ("p12", "C>U")),
+                     (("RNA Control", "U>C"), ("RNA Control", "G>A")), (("p2", "U>C"), ("p2", "G>A")),
+                     (("p5", "U>C"), ("p5", "G>A")), (("p8", "U>C"), ("p8", "G>A")),
+                     (("p10", "U>C"), ("p10", "G>A")), (("p12", "U>C"), ("p12", "G>A")),
+                     (("RNA Control", "U>C"), ("RNA Control", "C>U")), (("p2", "U>C"), ("p2", "C>U")),
+                     (("p5", "U>C"), ("p5", "C>U")), (("p8", "U>C"), ("p8", "C>U")),
+                     (("p10", "U>C"), ("p10", "C>U")), (("p12", "U>C"), ("p12", "C>U"))]
             pairs_adar = [(("RNA Control", "High ADAR-like A>G"), ("RNA Control", "Low ADAR-like A>G")),
                           (("p2", "High ADAR-like A>G"), ("p2", "Low ADAR-like A>G")),
                           (("p5", "High ADAR-like A>G"), ("p5", "Low ADAR-like A>G")),
@@ -317,10 +329,10 @@ def main():
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=df_sts,
                           order=passage_p_order, hue_order=Transitions_order)
-        annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
+        annot.configure(test='Mann-Whitney-ls', text_format='star', loc='outside', verbose=2,
                         comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
         annot.apply_test()
-        file_path = output_dir + "/sts{0}.csv".format(replica)
+        file_path = output_dir + "/sts{0}_ls.csv".format(replica)
         with open(file_path, "w") as o:
             with contextlib.redirect_stdout(o):
                 passage_g1, test_results = annot.annotate()

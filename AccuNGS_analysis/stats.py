@@ -64,22 +64,22 @@ def sts_fits(file_path, new_file, skiprows=6):
 
 def main():
     input_dir = "C:/Users/odedku/PhD_Projects/After_review/"
-    inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20221013_inosine_predict_context/",
-                    "CV": input_dir + "AccuNGS/CVB3/20221013_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20221013_plots/",
-                    "PV1": input_dir + "Cirseq/PV/Mahoney/20221013_plots/"}
+    inputdir_dir = {"RV": input_dir + "AccuNGS/RV/passages/20221018_inosine_predict_context/",
+                    "CV": input_dir + "AccuNGS/CVB3/20221018_plots/", "OPV2": input_dir + "Cirseq/PV/OPV/20221018_plots/",
+                    "PV1": input_dir + "Cirseq/PV/Mahoney/20221018_plots/"}
     # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_trans2", sheet="sts_trans")
     # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_trans_versions.csv")
 
-    # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts2", sheet="sts")
-    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_transitions.csv")
-    #
-    # sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_adar_2", sheet="sts_adar")
-    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_adar_all.csv")
+    sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts2", sheet="sts")
+    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_all_transitions.csv")
 
-    capsid_dir = {"Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/",
-                  "Non-Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/"}
-    sts_all_df = iter_stat(capsid_dir, sheet="sts_adar_synon", rv_sheet="sts_adar_nonsynon")
-    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_capsid_adar_all.csv")
+    sts_all_df = iter_stat(inputdir_dir, rv_sheet="sts_adar_2", sheet="sts_adar")
+    sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_adar_all.csv")
+
+    # capsid_dir = {"Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/",
+    #               "Non-Synonymous": input_dir + "AccuNGS/RV/capsid/20221013_inosine_predict_context/"}
+    # sts_all_df = iter_stat(capsid_dir, sheet="sts_adar_synon", rv_sheet="sts_adar_nonsynon")
+    # sts_all_df.to_csv("C:/Users/odedku/PhD_Projects/After_review/Stats/sts_capsid_adar_all.csv")
 
     # input_dir = "D:/My Drive/Studies/PhD/Thesis/FinalVer/AfterReview/20220921_fits_syn_plots"
     # sts_file = input_dir + "/sts.csv"

@@ -20,7 +20,10 @@ def main():
              (("p7", "A>G"), ("p7", "U>C")),
              (("p1", "A>G"), ("p1", "G>A")), (("p3", "A>G"), ("p3", "G>A")),
              (("p5", "A>G"), ("p5", "G>A")), (("p6", "A>G"), ("p6", "G>A")),
-             (("p7", "A>G"), ("p7", "G>A"))]
+             (("p7", "A>G"), ("p7", "G>A")),
+             (("p1", "U>C"), ("p1", "G>A")), (("p3", "U>C"), ("p3", "G>A")),
+             (("p5", "U>C"), ("p5", "G>A")), (("p6", "U>C"), ("p6", "G>A")),
+             (("p7", "U>C"), ("p7", "G>A"))]
 
     pairs_adar = [(("p1", "High ADAR-like A>G"), ("p1", "Low ADAR-like A>G")),
                   (("p3", "High ADAR-like A>G"), ("p3", "Low ADAR-like A>G")),
