@@ -29,7 +29,8 @@ def weighted_varaint(x, **kws):
 def main():
     # input_dir = "/Users/odedkushnir/Projects/fitness/AccuNGS/190627_RV_CV/RVB14/"
     # input_dir = "/Volumes/STERNADILABHOME$/volume3/okushnir/AccuNGS/20201008RV-202329127/merged/patients/"
-    input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/patients/"
+    # input_dir = "/Users/odedkushnir/PhD_Projects/After_review/AccuNGS/RV/patients/"
+    input_dir = "C:/Users/odedku/PhD_Projects/After_review/AccuNGS/RV/patients/"
     prefix = "inosine_predict_context_freq0.01"
     date = datetime.today().strftime("%Y%m%d")
     output_dir = input_dir + "{0}_{1}".format(date, prefix)
@@ -103,7 +104,7 @@ def main():
     plt.close()
     data_filter["label"] = data_filter["label"].astype(str)
     data_filter["Frequency"] = data_filter["Frequency"].astype(float)
-    passage_g = sns.boxplot(x="label", y="Frequency", data=data_filter, hue="Mutation", order=label_order,
+    passage_g = sns.boxenplot(x="label", y="Frequency", data=data_filter, hue="Mutation", order=label_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
     passage_g.set_ylim(10 ** -6, 10 ** -1)
@@ -112,8 +113,8 @@ def main():
 
     annot = Annotator(passage_g, pairs, x="label", y="Frequency", hue="Mutation", data=data_filter,
                       order=label_order, hue_order=transition_order)
-    annot.configure(test='t-test_welch', text_format='star', loc='outside', verbose=2,
-                    comparisons_correction="Bonferroni")
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='inside', verbose=2,
+                        comparisons_correction="Benjamini-Hochberg")
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:

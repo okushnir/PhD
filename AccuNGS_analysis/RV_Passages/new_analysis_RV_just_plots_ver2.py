@@ -294,20 +294,20 @@ def main():
         df_sts = data_filter_replica.copy()
         df_sts["Frequency"] = np.where(df_sts["Prob"] < 0.95, 0, df_sts["Frequency"])
         # df_sts = df_sts[df_sts["abs_counts"] != 0.0]
-        df_sts = df_sts[df_sts["Frequency"] > 0.00001]
-        # df_sts = df_sts.loc[df_sts["Prob"] > 0.95]
+        # df_sts = df_sts[df_sts["Frequency"] > 0.00001]
+        df_sts = df_sts.loc[df_sts["Prob"] > 0.95]
         df_sts["passage_p"] = np.where(df_sts["passage_p"] == "RNA\nControl", "RNA Control", df_sts["passage_p"])
         mutation_type_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation Type",
                                  order=passage_p_order, palette="Set2", dodge=True,
                                  hue_order=mutation_type_order)
         mutation_type_g1.set_yscale('log')
-        mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+        mutation_type_g1.set_ylim(10 ** -6, 10 ** -2)
 
         mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(mutation_type_g1, trans_pairs, x="passage_p", y="Frequency", hue="Mutation Type",
                           data=df_sts, order=passage_p_order, hue_order=mutation_type_order)
         annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
+                        comparisons_correction="Benjamini-Hochberg")#Kruskal Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts_trans{0}.csv".format(replica)
         with open(file_path, "w") as o:
@@ -321,16 +321,16 @@ def main():
         # dunn_df = posthoc_dunn(df_sts, val_col="Frequency", group_col="Mutation Type", p_adjust="fdr_bh")
         # dunn_df.to_csv(output_dir + "/dunn_df_All_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
-        passage_g1 = sns.boxplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation",
+        passage_g1 = sns.boxenplot(x="passage_p", y="Frequency", data=df_sts, hue="Mutation",
                                  order=passage_p_order, palette=mutation_palette(4), dodge=True,
                                  hue_order=Transitions_order)
         passage_g1.set_yscale('log')
-        passage_g1.set_ylim(10 ** -5, 10 ** -2)
+        passage_g1.set_ylim(10 ** -5, 10 ** 2)
         passage_g1.set(xlabel="Passage", ylabel="Variant Frequency")
         annot = Annotator(passage_g1, pairs, x="passage_p", y="Frequency", hue="Mutation", data=df_sts,
                           order=passage_p_order, hue_order=Transitions_order)
-        annot.configure(test='Mann-Whitney-ls', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
+        annot.configure(test='Mann-Whitney-gt', text_format='star', loc='inside', verbose=2,
+                        comparisons_correction="Benjamini-Hochberg")#Kruskal Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts{0}_ls.csv".format(replica)
         with open(file_path, "w") as o:
@@ -344,9 +344,14 @@ def main():
         # dunn_df = posthoc_dunn(data_filter_replica, val_col="Frequency", group_col="Mutation", p_adjust="fdr_bh")
         # dunn_df.to_csv(output_dir + "/dunn_df_Transitions_Mutations_replica{0}.csv".format(str(replica)), sep=",")
 
+        sns.set(font_scale=0.9)
+        # sns.set_context("paper")
+        sns.set_style("ticks")
+        sns.despine()
         df_sts_syn = data_filter_replica_synonymous.copy()
-        # df_sts_syn["Frequency"] = np.where(df_sts_syn["Prob"] < 0.95, 0, df_sts_syn["Frequency"])
+        df_sts_syn["Frequency"] = np.where(df_sts_syn["Prob"] < 0.95, 0, df_sts_syn["Frequency"])
         df_sts_syn = df_sts_syn.loc[df_sts_syn["Prob"] > 0.95]
+        df_sts_syn = df_sts_syn[df_sts_syn["Frequency"] > 0.00001]
         df_sts_syn["Mutation_adar"] = np.where(df_sts_syn["Mutation_adar"] == "High\nADAR-like\nA>G",
                                                "High ADAR-like A>G",
                                                np.where(df_sts_syn["Mutation_adar"] == "Intermediate\nADAR-like\nA>G",
@@ -366,7 +371,7 @@ def main():
                                                                                                 "Mutation_adar"]))))))
         mutation_adar_order = ["High ADAR-like A>G", "Low ADAR-like A>G",
                                "High ADAR-like U>C", "Low ADAR-like U>C"]
-        adar_g = sns.boxplot(x="passage_p", y="Frequency", data=df_sts_syn, hue="Mutation_adar",
+        adar_g = sns.boxenplot(x="passage_p", y="Frequency", data=df_sts_syn, hue="Mutation_adar",
                              order=passage_p_order, palette=mutation_palette(4, adar=True), dodge=True,
                              hue_order=mutation_adar_order)
         adar_g.set_yscale('log')
@@ -375,7 +380,7 @@ def main():
         annot = Annotator(adar_g, pairs_adar, x="passage_p", y="Frequency", hue="Mutation_adar", data=df_sts_syn,
                           hue_order=mutation_adar_order, order=passage_p_order)
         annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Kruskal Benjamini-Hochberg
+                        comparisons_correction="Benjamini-Hochberg")#Kruskal Bonferroni
         annot.apply_test()
         file_path = output_dir + "/sts_adar_{0}.csv".format(replica)
         with open(file_path, "w") as o:

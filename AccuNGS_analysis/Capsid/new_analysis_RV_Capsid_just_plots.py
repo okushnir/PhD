@@ -153,7 +153,7 @@ def main():
     plt.close()
 
 
-    mutation_type_g1 = sns.boxplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], hue="5`_ADAR_Preference",
+    mutation_type_g1 = sns.boxenplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], hue="5`_ADAR_Preference",
                                    order=rna_order_replica1, palette=mutation_palette(3, adar=True, ag=True), dodge=True,
                                    hue_order=adar_preference)
     mutation_type_g1.set_yscale('log')
@@ -161,8 +161,8 @@ def main():
     mutation_type_g1.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
                       data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
-    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='inside', verbose=2,
+                        comparisons_correction="Benjamini-Hochberg")
     annot.apply_test()
     file_path = output_dir + "/sts_adar_synon.csv"
     with open(file_path, "w") as o:
@@ -173,7 +173,7 @@ def main():
     plt.savefig(output_dir + "/ag_ADAR_like_Mutation_box_sts_synon.png", dpi=300)
     plt.close()
     
-    mutation_type_g2 = sns.boxplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], hue="5`_ADAR_Preference",
+    mutation_type_g2 = sns.boxenplot(x="RNA", y="Frequency", data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], hue="5`_ADAR_Preference",
                                    order=rna_order_replica1, palette=mutation_palette(3, adar=True, ag=True), dodge=True,
                                    hue_order=adar_preference)
     mutation_type_g2.set_yscale('log')
@@ -181,8 +181,8 @@ def main():
     mutation_type_g2.set(xlabel="", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g2, pairs, x="RNA", y="Frequency", hue="5`_ADAR_Preference",
                       data=data_filter_ag_replica1[data_filter_ag_replica1["Type"] == "Non-Synonymous"], order=rna_order_replica1, hue_order=adar_preference)
-    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='inside', verbose=2,
+                        comparisons_correction="Benjamini-Hochberg")
     annot.apply_test()
     file_path = output_dir + "/sts_adar_nonsynon.csv"
     with open(file_path, "w") as o:

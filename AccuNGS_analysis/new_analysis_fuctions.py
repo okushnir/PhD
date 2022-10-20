@@ -180,9 +180,15 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
 
     """Stats"""
+    sns.set(font_scale=0.9)
+    sns.set_style("ticks")
+    sns.despine()
+
     df_stat = data_filter.copy()
-    df_stat = df_stat[df_stat["Frequency"] > 0.00001]
-    df_stat = df_stat[df_stat["abs_counts"] != 0]
+    df_stat["Frequency"] = np.where(df_stat["Prob"] < 0.95, 0, df_stat["Frequency"])
+    # df_stat = df_stat[df_stat["Frequency"] > 0.00001]
+    df_stat = df_stat[df_stat["Prob"] > 0.95]
+    # df_stat = df_stat[df_stat["abs_counts"] != 0]
     df_stat["passage"] = df_stat["passage"].astype(str)
     df_stat["passage"] = np.where(df_stat["passage"] == "0", "RNA Control", df_stat["passage"])
     df_stat["passage"] = np.where(df_stat["passage"] != "RNA Control", "p" +
@@ -192,12 +198,12 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                                    order=passage_order, palette="Set2", dodge=True,
                                    hue_order=mutation_type_order)
     mutation_type_g1.set_yscale('log')
-    mutation_type_g1.set_ylim(10 ** -5, 10 ** -2)
+    mutation_type_g1.set_ylim(10 ** -6, 10 ** -2)
     mutation_type_g1.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(mutation_type_g1, trans_pairs, x="passage", y="Frequency", hue="Mutation Type",
                       data=df_stat, order=passage_order, hue_order=mutation_type_order)
     annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "/sts_trans.csv"
     with open(file_path, "w") as o:
@@ -207,16 +213,16 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
     plt.tight_layout()
     plt.savefig(output_dir + "/All_Mutations_box_stat_plot.png", dpi=300)
     plt.close()
-    passage_g = sns.boxplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
+    passage_g = sns.boxenplot(x="passage", y="Frequency", data=df_stat, hue="Mutation", order=passage_order,
                             palette=mutation_palette(4), dodge=True, hue_order=transition_order)
     passage_g.set_yscale('log')
-    passage_g.set_ylim(10 ** -5, 10 ** -2)
+    passage_g.set_ylim(10 ** -5, 10 ** 2)
     passage_g.set(xlabel="Passage", ylabel="Variant Frequency")
 
     annot = Annotator(passage_g, pairs, x="passage", y="Frequency", hue="Mutation", data=df_stat,
                       order=passage_order, hue_order=transition_order)
-    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
+    annot.configure(test='Mann-Whitney-gt', text_format='star', loc='inside', verbose=2,
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
@@ -232,6 +238,7 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
 
     dfs_stat = data_filter_synonymous.copy()
     dfs_stat["passage"] = dfs_stat["passage"].astype(str)
+    dfs_stat = dfs_stat[dfs_stat["Frequency"] > 0.00001]
     dfs_stat["passage"] = np.where(dfs_stat["passage"] == "0", "RNA Control", dfs_stat["passage"])
     dfs_stat["passage"] = np.where(dfs_stat["passage"] != "RNA Control", "p" + dfs_stat["passage"], dfs_stat["passage"])
     dfs_stat["Frequency"] = np.where(dfs_stat["Prob"] < 0.95, 0, dfs_stat["Frequency"])
@@ -244,16 +251,16 @@ def plots(input_dir, date, data_filter, virus, passage_order, transition_order, 
                                                                                                             np.where(dfs_stat["Mutation_adar"] == "Low\nADAR-like\nU>C", "Low ADAR-like U>C", dfs_stat["Mutation_adar"]))))))
     mutation_adar_order = ["High ADAR-like A>G", "Low ADAR-like A>G",
                            "High ADAR-like U>C", "Low ADAR-like U>C"]
-    adar_g = sns.boxplot(x="passage", y="Frequency", data=dfs_stat, hue="Mutation_adar",
+    adar_g = sns.boxenplot(x="passage", y="Frequency", data=dfs_stat, hue="Mutation_adar",
                          order=passage_order, palette=mutation_palette(4, adar=True), dodge=True,
                          hue_order=mutation_adar_order)
     adar_g.set_yscale('log')
-    # adar_g.set_ylim(10 ** -6, 10 ** -1)
+    adar_g.set_ylim(10 ** -6, 10 ** -1)
     adar_g.set(xlabel="Passage", ylabel="Variant Frequency")
     annot = Annotator(adar_g, pairs_adar, x="passage", y="Frequency", hue="Mutation_adar",
                       data=dfs_stat, hue_order=mutation_adar_order, order=passage_order)
     annot.configure(test='Mann-Whitney-gt', text_format='star', loc='outside', verbose=2,
-                        comparisons_correction="Bonferroni")#Benjamini-Hochberg
+                        comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annot.apply_test()
     file_path = output_dir + "/sts_adar.csv"
     with open(file_path, "w") as o:

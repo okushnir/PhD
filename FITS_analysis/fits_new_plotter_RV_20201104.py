@@ -271,7 +271,7 @@ def main():
              # (("U>C", "RVB14 #2"), ("U>C", "RVB14 #3"))]
     annotator = Annotator(g1, pairs, x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
-    annotator.configure(test='t-test_welch', text_format='star', loc='inside', comparisons_correction="Bonferroni")
+    annotator.configure(test='t-test_welch', text_format='star', loc='inside', comparisons_correction="Benjamini-Hochberg")#Bonferroni
     annotator.apply_test(alternative="greater")
     file_path = output_dir + "/sts.csv"
     with open(file_path, "w") as o:
