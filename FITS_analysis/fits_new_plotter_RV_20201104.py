@@ -241,7 +241,7 @@ def main():
     plt.style.use('classic')
 
     sns.set_palette("Set2")
-    mutation_order = ["A>G", "U>C", "C>U", "G>A"]
+    mutation_order = ["A>G", "U>C", "G>A", "C>U"]
     virus_order = ["RVB14 #1", "RVB14 #2", "RVB14 #3", "CVB3", "OPV2", "PV1"]
     g1 = sns.boxenplot(x="Virus", y="Transition rate", data=all_data, order=virus_order, hue="Mutation",
                        hue_order=mutation_order)
