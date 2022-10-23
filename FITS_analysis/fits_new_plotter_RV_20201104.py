@@ -228,9 +228,9 @@ def main():
     # print(all_data.shape[0])
     # all_data.to_csv("Z:/volume3/okushnir/FITS/all_data.csv")
     #Plots - local
-    all_data = pd.read_csv("/Volumes/Seagate Backup Plus Drive/okushnir/FITS/all_data.csv")
+    all_data = pd.read_csv("/Users/odedkushnir/Library/CloudStorage/GoogleDrive-odedkushnir@gmail.com/My Drive/Studies/PhD/Thesis/FinalVer/AfterReview/FITS/all_data.csv")
     all_data_rv = all_data[((all_data["Virus"] == "RVB14 #1") | (all_data["Virus"] == "RVB14 #2") | (all_data["Virus"] == "RVB14 #3"))]
-    output_dir = "/Users/odedkushnir/Downloads/okushnir/FITS/{0}_fits_syn_plots".format(date)
+    output_dir = "/Users/odedkushnir/Library/CloudStorage/GoogleDrive-odedkushnir@gmail.com/My Drive/Studies/PhD/Thesis/FinalVer/AfterReview/FITS/output/{0}_fits_syn_plots".format(date)
     try:
         os.mkdir(output_dir)
     except OSError:
@@ -259,8 +259,8 @@ def main():
              (("CVB3", "A>G"), ("CVB3", "U>C")), (("CVB3", "A>G"), ("CVB3", "C>U")),
              (("CVB3", "A>G"), ("CVB3", "G>A")),
              (("CVB3", "U>C"), ("CVB3", "C>U")), (("CVB3", "U>C"), ("CVB3", "G>A")),
-             (("OPV2", "A>G"), ("OPV2", "U>C")), (("OPV2", "A>G"), ("OPV2", "G>A")),
-             (("PV1", "A>G"), ("PV1", "U>C")), (("PV1", "A>G"), ("PV1", "G>A"))]
+             (("OPV2", "A>G"), ("OPV2", "U>C")), (("OPV2", "A>G"), ("OPV2", "G>A")), (("OPV2", "U>C"), ("OPV2", "G>A")),
+             (("PV1", "A>G"), ("PV1", "U>C")), (("PV1", "A>G"), ("PV1", "G>A")), (("PV1", "U>C"), ("OPV2", "G>A"))]
              # (("RVB14 #1", "A>G"), ("A>G", "RVB14 #2")), (("A>G", "RVB14 #1"), ("A>G", "RVB14 #3")),
              # (("A>G", "RVB14 #2"), ("A>G", "RVB14 #3")),
              # (("C>U", "RVB14 #1"), ("C>U", "RVB14 #2")), (("C>U", "RVB14 #1"), ("C>U", "RVB14 #3")),
